@@ -92,7 +92,7 @@
       "anchors": [
         {
           "kind": "aob",
-          "pattern": "44 0F 10 81 80 0E 00 00 48 8D 54 24 ?? 0F 10 B9 70 0E 00 00 48 8B 89",
+          "pattern": "44 0F 10 81 ?? 0E 00 00 48 8D 54 24 ?? 0F 10 B9 ?? 0E 00 00 48 8B 89",
           "offset": 20
         }
       ],
@@ -102,7 +102,7 @@
         "operands": ["reg", "mem"],
         "offset_operand": 1
       },
-      "expect_offset": "0x430",
+      "expect_offset": "0x440",
       "seen": {"build": 180836, "func": "0x1218A60", "site": "0x1218AB6"}
     },
     {

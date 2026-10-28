@@ -50,8 +50,9 @@ struct Fns
     safetyhook::MidHook* swap = nullptr;
 } F;
 
-constexpr uint32_t kInSeasonSave = 0xD793; // SeasonMgr flag: 1 while an expedition save is loaded
-constexpr uint32_t kCacheValid = 0xD794;   // SeasonMgr flag: season cache is valid
+// SeasonMgr flags after its two seasons: 1 while an expedition save is loaded, season cache is valid.
+uint32_t InSeasonSave() { return 2 * F.seasonSize + 0x53; }
+uint32_t CacheValid() { return 2 * F.seasonSize + 0x54; }
 
 struct FileInfo { std::string path, title, label, icon, finalReward; int season = -1, remix = 0, display = 0; };
 
@@ -277,9 +278,9 @@ void Arm(std::string key, std::string path, std::string name)
         uintptr_t mgr = d + F.mgr;
         uintptr_t cached = mgr + F.seasonSize;
         F.copy((void*)cached, buf);
-        Wr<uint8_t>(mgr + kCacheValid, 1);
+        Wr<uint8_t>(mgr + CacheValid(), 1);
         uint8_t inSeasonSave = 0;
-        Rd(mgr + kInSeasonSave, inSeasonSave);
+        Rd(mgr + InSeasonSave(), inSeasonSave);
         if (!inSeasonSave) F.apply((void*)mgr, (const void*)cached);
         log::Info("Expeditions", "Armed {}", path);
         Registry::Get().Post([name] {
@@ -297,10 +298,10 @@ void Disarm()
         uintptr_t d = game::Data();
         if (!d || F.mgr < 0) return;
         uintptr_t mgr = d + F.mgr;
-        Wr<uint8_t>(mgr + kCacheValid, 0);
+        Wr<uint8_t>(mgr + CacheValid(), 0);
         if (F.loadCache) F.loadCache((void*)mgr);
         uint8_t inSeasonSave = 0;
-        Rd(mgr + kInSeasonSave, inSeasonSave);
+        Rd(mgr + InSeasonSave(), inSeasonSave);
         if (!inSeasonSave && F.resetSeason) F.resetSeason((void*)mgr);
     });
 }

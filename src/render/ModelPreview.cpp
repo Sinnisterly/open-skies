@@ -36,7 +36,8 @@ using HudUpdateFn = void (*)(void* hud, float dt);
 using RebuildFn = void (*)(void* slot);
 using CtorFn = void* (*)(void* mrr);
 
-constexpr uint32_t kHud = 0x732920, kHudMrrs = 0x125370, kProcTex = 0x909950;
+constexpr uint32_t kHud = 0x7330E0, kProcTex = 0x930C90;
+int64_t g_hudMrrs = 0x14B430; // HUD.ThumbnailRenderers
 constexpr uint32_t kMrrSize = 0x4D0, kMrrData = 0x470, kScale = 0x478, kSync = 0x4C0, kSlotSize = 0x3AE0, kSize = 512;
 
 struct
@@ -154,7 +155,7 @@ bool BuildRenderer()
 {
     uintptr_t d = game::Data(), hud = 0;
     // a copy of the renderer data the HUD's own thumbnail renderer was built with
-    if (!d || !Rd(d + kHud + kHudMrrs + kMrrData, hud) || !hud) { g_stage = "no HUD renderer data"; return false; }
+    if (!d || !Rd(d + kHud + g_hudMrrs + kMrrData, hud) || !hud) { g_stage = "no HUD renderer data"; return false; }
     uint32_t size = std::min<uint32_t>(F.dataSize, 0x200);
     uint8_t* data = (uint8_t*)_aligned_malloc(0x200, 16); // one per load, kept: an old renderer may still point at it
     memset(data, 0, 0x200);
@@ -407,6 +408,7 @@ void Init()
     if (auto m = hooks::meta::Path("cTkModelRendererData", "LightIntensityMultiplier")) F.lightOff = m->offset;
     if (auto m = hooks::meta::Path("cTkModelRendererData", "ThumbnailMode")) F.thumbOff = m->offset;
     if (const auto& t = features::Loc().Resolve("HUD.ThumbnailLightNode"); t.ok && t.offset) F.lightNode = *t.offset;
+    if (const auto& t = features::Loc().Resolve("HUD.ThumbnailRenderers"); t.ok && t.offset) g_hudMrrs = *t.offset;
     if (auto m = hooks::meta::Path("cTkModelRendererData", "Camera.Pitch")) F.pitchOff = m->offset;
     F.cb7 = glob("Gfx.ModelViewAllowedComponentsCb");
     F.cb8 = glob("Gfx.ModelViewAttachmentPrepareCb");

@@ -760,6 +760,34 @@
       ],
       "site": {"kind": "entry", "verify": "48 81 EC 98 00 00 00 4C 8B 15"},
       "seen": {"build": 180836, "func": "0xA23DE0", "site": "0xA23DE0"}
+    },
+    {
+      "name": "Scan.PlayerWhere",
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_NO_MAP_HERE"}
+      ],
+      "site": {"kind": "scan", "pattern": "83 BB ?? ?? ?? ?? 0E 75", "index": 0},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x57ABE4",
+      "seen": {"build": 183791, "func": "0xF4D200", "site": "0xF4D266"}
+    },
+    {
+      "name": "Mission.ActiveList",
+      "anchors": [
+        {"kind": "target", "name": "Mission.Add"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 99 ?? ?? 00 00 48 8B F9 44 8B 53 04", "index": 0},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x1D8",
+      "seen": {"build": 183791, "func": "0x9C0D20", "site": "0x9C0D2F"}
     }
   ]
 }

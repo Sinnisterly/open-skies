@@ -40,7 +40,7 @@ using PlaceObjFn = void* (*)(void* mgr, const void* id16, const uint16_t* baseId
 AddFn g_add = nullptr;
 PlaceObjFn g_placeObj = nullptr;
 uintptr_t g_baseMgr = 0;
-int64_t g_playerOff = 0x72C6F0;
+int64_t g_playerOff = 0x72CDE0, g_baseList = 0x31AE60; // Player.InstanceOffset, Base.List (count 4 bytes before)
 
 struct State
 {
@@ -229,7 +229,7 @@ void PlaceBasePart(std::string id)
         uint16_t baseIdx = 0xFFFF;
         uint32_t baseCnt = 0;
         uintptr_t baseArr = 0;
-        if (Rd(d + 0x31AD8C, baseCnt) && Rd(d + 0x31AD90, baseArr) && baseArr && baseCnt <= 512) {
+        if (Rd(d + g_baseList - 4, baseCnt) && Rd(d + g_baseList, baseArr) && baseArr && baseCnt <= 512) {
             float wx = xf.local.x + xf.offset.x, wy = xf.local.y + xf.offset.y, wz = xf.local.z + xf.offset.z;
             float bestSq = 1000.f * 1000.f;
             for (uint32_t i = 0; i < baseCnt; ++i) {
@@ -363,6 +363,7 @@ void InstallItemsPage()
     if (const auto& po = Loc().Resolve("Base.PlaceObject"); po.ok) g_placeObj = (PlaceObjFn)Abs(po.func);
     if (const auto& bm = Loc().Resolve("Base.Manager"); bm.ok) g_baseMgr = bm.global;
     if (const auto& pl = Loc().Resolve("Player.InstanceOffset"); pl.ok && pl.offset) g_playerOff = *pl.offset;
+    if (const auto& bl = Loc().Resolve("Base.List"); bl.ok && bl.offset) g_baseList = *bl.offset;
 
     Registry::Get().Post([] {
         ui::SetIconLoader([](const std::string& p) { return render::tex::Icon(p); });

@@ -95,9 +95,9 @@
             {"callees": 1}
           ]
         },
-        {"kind": "sig", "pattern": "40 55 53 57 41 55 41 56 41 57 48 8D 6C 24 D1 48 81 EC A8 00 00 00"}
+        {"kind": "sig", "pattern": "40 55 53 57 41 54 41 55 41 56 48 8D 6C 24 D1 48 81 EC A8 00 00 00"}
       ],
-      "site": {"kind": "entry", "verify": "40 55 53 57 41 55"},
+      "site": {"kind": "entry", "verify": "40 55 53 57 41"},
       "seen": {"build": 180836, "func": "0x55BAB0", "site": "0x55BAB0"}
     },
     {
@@ -394,9 +394,9 @@
       "name": "Customiser.OnClose",
       "anchors": [
         {"kind": "rtti_vfunc", "class": "cGcCustomiserInteraction", "index": 6},
-        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+        {"kind": "sig", "pattern": "83 FA ?? 0F 85 ?? ?? ?? ?? 53 48 83 EC 40"}
       ],
-      "site": {"kind": "entry", "verify": "83 FA 0E 0F 85"},
+      "site": {"kind": "entry", "verify": "83 FA ?? 0F 85"},
       "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A580"}
     },
     {
@@ -540,6 +540,46 @@
       ],
       "site": {"kind": "entry", "verify": "48 83 EC 38 83 79 04 00"},
       "seen": {"build": 180836, "func": "0x2D67410", "site": "0x2D67410"}
+    },
+    {
+      "name": "Ship.Ownership",
+      "anchors": [
+        {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"}
+      ],
+      "site": {"kind": "scan", "pattern": "8B D3 48 8D 8E ?? ?? ?? ?? E8", "offset": 2},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xD5FC0",
+      "seen": {"build": 183791, "func": "0x936490", "site": "0x936502"}
+    },
+    {
+      "name": "Reality.GetTechnology",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 30 48 8B F1 41 0F B6 E8 48 81 C1 ?? ?? 00 00 48 8B FA E8"
+        },
+        {"kind": "aob", "pattern": "48 8B F1 41 0F B6 E8 48 81 C1 ?? ?? 00 00 48 8B FA E8", "yields": "owner"}
+      ],
+      "site": {"kind": "entry"},
+      "seen": {"build": 183791, "func": "0xEE3C60", "site": "0xEE3C60"}
+    },
+    {
+      "name": "Base.List",
+      "anchors": [
+        {"kind": "target", "name": "Corvette.GetShipBase"}
+      ],
+      "site": {"kind": "scan", "pattern": "49 8B 80 ?? ?? ?? 00", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x31AE60",
+      "seen": {"build": 183791, "func": "0x56B650", "site": "0x56B6A8"}
     }
   ]
 }

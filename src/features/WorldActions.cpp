@@ -235,9 +235,10 @@ void RepairFrigates()
 
 // ---- pets ----
 
-constexpr uint32_t kPets = 0xE10D0, kPetStride = 0x24A0, kPetFilled = 0x2370, kPetName = 0x1D00, kPetId = 0x2310;
+int64_t g_pets = 0xE1130, g_where = 0x57ABE4, g_active = 0x1D8; // Creature.Ownership, Scan.PlayerWhere, Mission.ActiveList
+constexpr uint32_t kPetStride = 0x24A0, kPetFilled = 0x2370, kPetName = 0x1D00, kPetId = 0x2310;
 
-uintptr_t Pet(int i) { uintptr_t d = game::Data(); return d ? d + kPets + (uintptr_t)i * kPetStride : 0; }
+uintptr_t Pet(int i) { uintptr_t d = game::Data(); return d ? d + g_pets + (uintptr_t)i * kPetStride : 0; }
 
 // ---- missions and signals ----
 
@@ -282,7 +283,7 @@ bool IsActiveMissionPtr(uintptr_t want)
     if (!want) return false;
     uintptr_t mgr = MissionMgr(), arr = 0;
     int32_t n = 0;
-    if (!mgr || !Rd(mgr + 0x1C4, n) || !Rd(mgr + 0x1C8, arr) || !arr || n <= 0 || n > 2000) return false;
+    if (!mgr || !Rd(mgr + g_active + 4, n) || !Rd(mgr + g_active + 8, arr) || !arr || n <= 0 || n > 2000) return false;
     for (int32_t i = 0; i < n; ++i) {
         uintptr_t m = 0;
         if (Rd(arr + i * 8, m) && m == want) return true;
@@ -294,7 +295,7 @@ uintptr_t FindActive(const std::string& id, int activeIndex = -1, bool hasSeed =
 {
     uintptr_t mgr = MissionMgr(), arr = 0;
     int32_t n = 0;
-    if (!mgr || !Rd(mgr + 0x1C4, n) || !Rd(mgr + 0x1C8, arr) || !arr || n <= 0 || n > 2000) return 0;
+    if (!mgr || !Rd(mgr + g_active + 4, n) || !Rd(mgr + g_active + 8, arr) || !arr || n <= 0 || n > 2000) return 0;
     auto check = [&](uintptr_t m, bool matchSeed) -> bool {
         if (!m || Fixed(m + 0x08, 16) != id) return false;
         int32_t st = -1, cnt = 0;
@@ -386,7 +387,7 @@ void LoadMissions()
     if (auto m = meta::Path("cGcGenericMissionSequence", "MissionObjective")) oObj = m->offset;
     if (auto m = meta::Path("cGcGenericMissionSequence", "Stages")) oStages = m->offset;
 
-    // Missions in progress, from MissionMgr + 0x1C8.
+    // Missions in progress, from the mission manager's active list.
     struct ActiveRaw
     {
         uintptr_t ptr = 0;
@@ -399,7 +400,7 @@ void LoadMissions()
     std::vector<ActiveRaw> activeRaws;
     uintptr_t mgr = MissionMgr(), arr = 0;
     int32_t activeCap = 0;
-    if (mgr && Rd(mgr + 0x1C4, activeCap) && Rd(mgr + 0x1C8, arr) && arr && activeCap > 0 && activeCap <= 2000) {
+    if (mgr && Rd(mgr + g_active + 4, activeCap) && Rd(mgr + g_active + 8, arr) && arr && activeCap > 0 && activeCap <= 2000) {
         for (int32_t i = 0; i < activeCap; ++i) {
             uintptr_t a = 0;
             int32_t st = -1, cnt = 0;
@@ -583,7 +584,7 @@ void FindSignal(int cls)
         uintptr_t d = game::Data(), mgr = 0;
         if (!d || F.scanSlot < 0 || !Rd(d + F.scanSlot, mgr) || !mgr || !F.scanStart) return;
         int32_t where = 0;
-        if (Rd(d + 0x57A584, where) && where == 0xE) { Registry::Get().Post([] { ui::Toast(L::T("sig.noplanet")); }); return; }
+        if (Rd(d + g_where, where) && where == 0xE) { Registry::Get().Post([] { ui::Toast(L::T("sig.noplanet")); }); return; }
         uint32_t size = 0x4D0, oSearch = 0x488, oClass = 0x4C4, oLoc = 0x448, oName = 0x228;
         if (auto* ci = meta::Get("cGcScanEventData")) size = ci->size;
         if (auto m = meta::Path("cGcScanEventData", "SearchType")) oSearch = m->offset;
@@ -942,7 +943,10 @@ void InstallWorldActions()
     F.petUseOverrides = Off("Pet.UseClassOverrides", 0x2404);
     F.petTraits = Off("Pet.Traits", 0x23E0);
     F.petScale = Off("Pet.Scale", 0x23F4);
-    F.petRefreshFlag = Off("Customise.PetRefreshFlag", 0xE10C0);
+    F.petRefreshFlag = Off("Customise.PetRefreshFlag", 0xE1120);
+    g_pets = Off("Creature.Ownership", g_pets);
+    g_where = Off("Scan.PlayerWhere", g_where);
+    g_active = Off("Mission.ActiveList", g_active);
     if (uintptr_t g = Loc().GlobalsInstance("cGcFleetGlobals")) {
         uint32_t off = 0x12A4;
         if (auto m = meta::Path("cGcFleetGlobals", "MaxFrigateStatValue")) off = m->offset;

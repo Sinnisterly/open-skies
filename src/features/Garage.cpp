@@ -37,12 +37,13 @@ namespace meta = hooks::meta;
 using ui::theme::P;
 using ui::theme::S;
 
-// Object graph offsets, read from code where possible.
-constexpr uint32_t kShipOwnership = 0xD5F60, kToolOwnership = 0x2B2FD0, kPlayerWeapon = 0x72CAD0, kWeaponRes = 0x498;
+// Object graph offsets, read from code where possible. The first three are refreshed from targets.
+uint32_t kShipOwnership = 0xD5FC0, kToolOwnership = 0x2B3030, kPlayerWeapon = 0x72D1C0;
+constexpr uint32_t kWeaponRes = 0x498;
 constexpr uint32_t kShipResources = 0x17EE0, kShipInv = 0x7458, kShipCargo = 0x8FC8, kShipTech = 0xAB28, kStride = 0x248;
 constexpr uint32_t kToolSlots = 0x10, kToolStride = 0x320, kWeaponInv = 0x910 + 3 * 0x248, kToolCustSlot = 0x2C8;
-constexpr uint32_t kShipNames = 0x1AD93, kNameLen = 0x20, kToolName = 0x284, kShipList = 0x60, kShipEntry = 0x30;
-constexpr uint32_t kFreighterOwn = 0x2B9150, kFreighterName = 0x34, kFreighterRes = 0x2D8, kFreighterStores = 0x910 + 7 * 0x248;
+constexpr uint32_t kShipNames = 0x1ADF3, kNameLen = 0x20, kToolName = 0x284, kShipList = 0x60, kShipEntry = 0x30;
+constexpr uint32_t kFreighterOwn = 0x2B91B0, kFreighterName = 0x34, kFreighterRes = 0x2D8, kFreighterStores = 0x910 + 7 * 0x248;
 constexpr uint32_t kPrimaryVehicle = 0x17EA0;
 
 enum Kind { ShipKind = 1, ToolKind = 2, FreighterKind = 3, SuitKind = 4, VehicleKind = 5 };
@@ -106,6 +107,7 @@ struct Fns
     uintptr_t (*modelList)(const char*) = nullptr; // GetModelDescriptorList(path)
     void (*invCopy)(void* dst, const void* src) = nullptr;
     void (*setPrimary)(void* ps, int32_t index) = nullptr;
+    uintptr_t (*getTech)(void* rm, const void* id, bool) = nullptr; // cGcRealityManager::GetTechnology, rolled upgrades too
 
     int64_t primary = -1, refresh = -1, active = -1, cls = 0x100, frRefresh = 0x4B0, baseStats = 0xD0;
     int64_t slotBase = 0x1CA10, slotStride = 0x3AE0, slotEdited = 0x71, slotEditCol = 0x90, slotFinalCol = 0x1D70, slotDescs = 0x3A70;
@@ -118,6 +120,14 @@ struct Fns
     uint32_t groupSize = 0x108, groupTitle = 0x20, groupId = 0x50, groupHidden = 0x100;
     bool custOk = true; // cGcCharacterCustomisationData still has the layout below
 } F;
+
+// cGcTechnology and cGcInventoryElement fields, refreshed from the reflection data.
+struct
+{
+    uint32_t size = 0x2E0, id = 0x108, cat = 0x194, stat = 0x18C, charge = 0x198;
+    uint32_t core = 0x2C7, upg = 0x2CF, proc = 0x2CC, rep = 0x2CD, broken = 0x2C4, tmpl = 0x2C9;
+    uint32_t elSize = 0x30, elId = 0x00, elAmount = 0x18, elMax = 0x20, elType = 0x24;
+} TF;
 
 struct StatEntry
 {
@@ -189,7 +199,7 @@ struct Owned
     std::string name, file;
     uint64_t seed = 0;
     bool useSeed = false, current = false;
-    int cls = -1;
+    int cls = -1, rules = 0;
     int slots[3]{}; // general, tech, cargo
     std::vector<StatEntry> stats;
     std::string Key() const
@@ -314,17 +324,60 @@ int ModTypeForFile(const std::string& file)
     return -1;
 }
 
+// cGcSpaceshipClasses, the type GenerateBaseStats rolls for: Dropship 1, Fighter 2, Scientific 3,
+// Shuttle 4, Royal 6, Alien 7, Sail 8, Robot 9.
+constexpr int kFighterType = 2, kAlienType = 7, kRobotType = 9;
+
 int ShipClassEnumFromFile(const std::string& file)
 {
-    if (file.find("DROPSHIP") != std::string::npos) return 0;
-    if (file.find("FIGHTER") != std::string::npos) return 1;
-    if (file.find("SCIENTIFIC") != std::string::npos) return 2;
-    if (file.find("SHUTTLE") != std::string::npos) return 3;
-    if (file.find("BIOPARTS") != std::string::npos || file.find("BIOSHIP") != std::string::npos) return 5;
-    if (file.find("S-CLASS") != std::string::npos) return 4;
-    if (file.find("SAILSHIP") != std::string::npos) return 6;
-    if (file.find("SENTINEL") != std::string::npos) return 7;
-    return 1;
+    if (file.find("DROPSHIP") != std::string::npos) return 1;
+    if (file.find("FIGHTER") != std::string::npos) return kFighterType;
+    if (file.find("SCIENTIFIC") != std::string::npos) return 3;
+    if (file.find("SHUTTLE") != std::string::npos) return 4;
+    if (file.find("BIOPARTS") != std::string::npos || file.find("BIOSHIP") != std::string::npos) return kAlienType;
+    if (file.find("S-CLASS") != std::string::npos) return 6;
+    if (file.find("SAILSHIP") != std::string::npos) return 8;
+    if (file.find("SENTINEL") != std::string::npos) return kRobotType;
+    return kFighterType;
+}
+
+// ---- tech rules ----
+// On load the game picks a ship's allowed tech categories from the ALIEN_SHIP / ROBOT_SHIP base stat
+// of its main inventory and drops any tech outside them. The model plays no part.
+enum Rules { RulesNormal, RulesLiving, RulesSentinel };
+
+// cGcTechnologyCategory: Ship 0, AlienShip 13, AllShips 14, RobotShip 15, AllShipsExceptAlien 16
+bool RulesAllow(int rules, int cat)
+{
+    if (rules == RulesSentinel) return cat == 14 || cat == 15 || cat == 16;
+    if (rules == RulesLiving) return cat == 13 || cat == 14;
+    return cat == 0 || cat == 14 || cat == 16;
+}
+
+int RulesOwnCategory(int rules) { return rules == RulesSentinel ? 15 : rules == RulesLiving ? 13 : 0; }
+
+int RulesFromStats(const std::vector<StatEntry>& stats)
+{
+    for (auto& s : stats) {
+        if (s.value > 0 && s.id == "ALIEN_SHIP") return RulesLiving;
+        if (s.value > 0 && s.id == "ROBOT_SHIP") return RulesSentinel;
+    }
+    return RulesNormal;
+}
+
+int RulesForFile(const std::string& file)
+{
+    int t = ShipClassEnumFromFile(file);
+    return t == kRobotType ? RulesSentinel : t == kAlienType ? RulesLiving : RulesNormal;
+}
+
+// The ship type to roll base stats for, so the stats carry the marker for these rules.
+int TypeForRules(int rules, const std::string& file)
+{
+    if (rules == RulesSentinel) return kRobotType;
+    if (rules == RulesLiving) return kAlienType;
+    int t = ShipClassEnumFromFile(file);
+    return t == kRobotType || t == kAlienType ? kFighterType : t;
 }
 
 int WeaponClassEnumFromFile(const std::string& file, uintptr_t slotAddr)
@@ -714,6 +767,7 @@ void ReadOwned()
         Rd(ShipStore(ps, i, 0) + F.cls, o.cls);
         for (int k = 0; k < 3; ++k) o.slots[k] = Slots(ShipStore(ps, i, k));
         o.stats = ReadStoreStats(ShipStore(ps, i, 0));
+        o.rules = RulesFromStats(o.stats);
         o.current = i == primary;
         out.push_back(std::move(o));
     }
@@ -788,7 +842,7 @@ struct Edit
     int index = 0;
     std::string file, name;
     std::optional<uint64_t> seed;
-    int cls = -1;
+    int cls = -1, rules = -1; // rules: ships only, -1 follows the model when it changes
     bool rename = false;
 };
 
@@ -836,6 +890,146 @@ void ToolApply(int idx, const std::vector<uint8_t>& data)
     F.toolSwitch((void*)own, idx, true);
 }
 
+void MarkStatsDirty(uintptr_t ps);
+
+struct TechRec
+{
+    std::string id;
+    int cat = -1, stat = -1, charge = 0;
+    bool core = false, upg = false, usable = false;
+};
+
+TechRec ReadTech(uintptr_t r)
+{
+    TechRec t;
+    uint8_t core = 0, upg = 0, proc = 0, rep = 0, broken = 0, tmpl = 0;
+    t.id = ReadFixed(r + TF.id, 16);
+    Rd(r + TF.cat, t.cat);
+    Rd(r + TF.stat, t.stat);
+    Rd(r + TF.charge, t.charge);
+    Rd(r + TF.core, core); Rd(r + TF.upg, upg); Rd(r + TF.proc, proc); Rd(r + TF.rep, rep); Rd(r + TF.broken, broken); Rd(r + TF.tmpl, tmpl);
+    t.core = core != 0;
+    t.upg = upg != 0;
+    t.usable = !t.id.empty() && !proc && !rep && !broken && !tmpl;
+    return t;
+}
+
+// The base technology table (RealityManager+0x10, as in Unlocks).
+std::vector<TechRec> BaseTechs()
+{
+    std::vector<TechRec> out;
+    uintptr_t rm = game::Reality(), obj = 0, data = 0;
+    int32_t n = 0;
+    if (!rm || !Rd(rm + 0x10, obj) || !obj || !Rd(obj, data) || !Rd(obj + 8, n) || !data || n <= 0 || n > 20000) return out;
+    for (int32_t i = 0; i < n; ++i) out.push_back(ReadTech(data + (uintptr_t)i * TF.size));
+    return out;
+}
+
+uintptr_t CallGetTech(uintptr_t rm, const Id16* key)
+{
+    __try { return F.getTech((void*)rm, key, true); }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return 0; }
+}
+
+std::optional<TechRec> LookupTech(const std::string& id, const std::vector<TechRec>& base)
+{
+    if (uintptr_t rm = game::Reality(); rm && F.getTech) {
+        Id16 key{};
+        memcpy(key.s, id.data(), std::min<size_t>(id.size(), 15));
+        if (uintptr_t r = CallGetTech(rm, &key)) return ReadTech(r);
+    }
+    for (auto& t : base) if (t.id == id) return t;
+    return std::nullopt;
+}
+
+// The same job under other rules: same base stat and kind, preferring the rules' own version.
+const TechRec* Counterpart(const TechRec& src, int rules, const std::vector<TechRec>& base, const std::set<std::string>& have)
+{
+    if (src.upg) return nullptr; // upgrades of the same stat are different items, so they never swap
+    const TechRec* best = nullptr;
+    int bestScore = -1;
+    for (auto& t : base) {
+        if (!t.usable || t.upg || t.stat != src.stat || !RulesAllow(rules, t.cat) || have.count(t.id)) continue;
+        int score = (t.core == src.core) * 4 + (t.cat == RulesOwnCategory(rules)) * 2 + !t.id.ends_with("_SPEC");
+        if (score > bestScore) { best = &t; bestScore = score; }
+    }
+    return best;
+}
+
+std::string TechName(const std::string& id)
+{
+    const game::Item* it = game::catalog::Find(id);
+    return it && !it->name.empty() ? it->name : id;
+}
+
+// Game thread. Sets the rules marker in a ship's base stats and swaps installed tech that the rules
+// would drop on the next load. Stat values the player has are kept.
+void SetRules(uintptr_t ps, int index, int rules, bool tell)
+{
+    uintptr_t res = ShipRes(ps, index);
+    std::string file = ReadVarString(res + F.resFile);
+    uint64_t sVal = 0;
+    Rd(res + F.resSeed, sVal);
+    struct alignas(8) { uint64_t v; uint8_t use; uint8_t pad[7]; } s{ sVal, 1, {} };
+    const int choices[3] = { 4, 5, 6 };
+    if (RulesFromStats(ReadStoreStats(ShipStore(ps, index, 0))) != rules && F.genBaseStats) {
+        int32_t cls = 0;
+        Rd(ShipStore(ps, index, 0) + F.cls, cls);
+        for (int k = 0; k < 3; ++k) {
+            uintptr_t st = ShipStore(ps, index, k);
+            auto old = ReadStoreStats(st);
+            // living ships only roll as S class, other classes would come back without the marker
+            F.genBaseStats((void*)st, choices[k], &s, rules == RulesLiving ? 3 : cls, TypeForRules(rules, file), 0xA, 0, false);
+            WriteStoreStats(st, old);
+        }
+    }
+    bool marked = RulesFromStats(ReadStoreStats(ShipStore(ps, index, 0))) == rules;
+
+    auto base = BaseTechs();
+    std::vector<std::string> swapped, lost;
+    for (int k = 0; k < 3; ++k) {
+        uintptr_t st = ShipStore(ps, index, k), data = 0;
+        uint32_t n = 0;
+        if (!Rd(st + 0x8C, n) || n > 4096 || !Rd(st + 0x90, data) || !data) continue;
+        std::set<std::string> have;
+        for (uint32_t i = 0; i < n; ++i) have.insert(ReadFixed(data + (uintptr_t)i * TF.elSize + TF.elId, 16));
+        for (uint32_t i = 0; i < n; ++i) {
+            uintptr_t el = data + (uintptr_t)i * TF.elSize;
+            int32_t type = -1;
+            if (!Rd(el + TF.elType, type) || type != 1) continue; // technology
+            std::string id = ReadFixed(el + TF.elId, 16);
+            auto t = LookupTech(id, base);
+            if (!t || t->cat < 0 || RulesAllow(rules, t->cat) || t->id.starts_with("SHIPSLOT_") || t->id.starts_with("SHIPEASY_")) continue;
+            const TechRec* to = id.find('#') == std::string::npos ? Counterpart(*t, rules, base, have) : nullptr;
+            if (!to) { lost.push_back(TechName(id)); continue; }
+            char key[16]{};
+            memcpy(key, to->id.data(), std::min<size_t>(to->id.size(), 15));
+            for (int b = 0; b < 16; ++b) Wr<char>(el + TF.elId + b, key[b]);
+            int32_t max = 0;
+            if (to->charge > 0 && Rd(el + TF.elMax, max) && max > 0) { Wr<int32_t>(el + TF.elAmount, to->charge); Wr<int32_t>(el + TF.elMax, to->charge); }
+            have.insert(to->id);
+            swapped.push_back(TechName(id) + " > " + TechName(to->id));
+        }
+        NotifyStore(ps, choices[k], index);
+    }
+    MarkStatsDirty(ps);
+    log::Info("Garage", "Ship {} tech rules {}: marker {}, {} swapped, {} won't stay", index, rules, marked, swapped.size(), lost.size());
+    if (!tell) return;
+    auto join = [](const std::vector<std::string>& v) {
+        std::string s;
+        for (size_t i = 0; i < v.size() && i < 6; ++i) s += (i ? ", " : "") + v[i];
+        if (v.size() > 6) s += ", ...";
+        return s;
+    };
+    std::string body = !marked ? L::T("gar.rules.fail")
+        : swapped.empty() && lost.empty() ? L::T("gar.rules.fits")
+        : (swapped.empty() ? "" : L::Tf("gar.rules.swapped", join(swapped))) + (swapped.empty() || lost.empty() ? "" : "\n")
+            + (lost.empty() ? "" : L::Tf("gar.rules.lost", join(lost)));
+    std::string title = L::Tf("gar.rules.done", L::T(("gar.rules." + std::to_string(rules)).c_str()));
+    unsigned glyph = marked && lost.empty() ? icon::Check : icon::Warning;
+    Registry::Get().Post([title, body, glyph] { ui::Toast(title, body, glyph); });
+}
+
 void Apply(Edit e)
 {
     game::BackupSaveOnce();
@@ -846,6 +1040,9 @@ void Apply(Edit e)
         if (e.kind == ShipKind) {
             uintptr_t res = ShipRes(ps, e.index);
             bool mesh = false;
+            // a new model brings its own tech rules unless the player picked rules
+            int was = RulesFromStats(ReadStoreStats(ShipStore(ps, e.index, 0)));
+            int want = e.rules >= 0 ? e.rules : !e.file.empty() ? RulesForFile(e.file) : was;
             if (!e.file.empty() && F.setString) { F.setString((void*)(res + F.resFile), e.file.c_str()); mesh = true; }
             if (e.seed) {
                 Wr<uint64_t>(res + F.resSeed, *e.seed);
@@ -855,7 +1052,7 @@ void Apply(Edit e)
             }
             if (e.cls >= 0) {
                 std::string curFile = ReadVarString(res + F.resFile);
-                int shipType = ShipClassEnumFromFile(curFile);
+                int shipType = TypeForRules(want, curFile);
                 uint64_t sVal = 0;
                 Rd(res + F.resSeed, sVal);
                 struct alignas(8) { uint64_t v; uint8_t use; uint8_t pad[7]; } s{ sVal, 1, {} };
@@ -868,6 +1065,8 @@ void Apply(Edit e)
                     NotifyStore(ps, choices[k], e.index);
                 }
             }
+            bool held = RulesFromStats(ReadStoreStats(ShipStore(ps, e.index, 0))) == want;
+            if (e.rules >= 0 || want != was || !held) SetRules(ps, e.index, want, e.rules >= 0 || want != was);
             if (e.rename) WriteFixed(ps + kShipNames + e.index * kNameLen, e.name, kNameLen);
             if (mesh && e.index == Primary() && !RefreshShip()) log::Warn("Garage", "Ship is still rebuilding, try again in a moment");
         }
@@ -1941,6 +2140,23 @@ float DrawOwned(ImDrawList* dl, ImVec2 a, float w, const Owned& o, bool snapped)
         }
         y += S(40);
 
+        // Tech rules: which tech the save keeps on load, set from the model unless picked here
+        if (o.kind == ShipKind) {
+            std::vector<std::string> rules = { L::T("gar.rules.0"), L::T("gar.rules.1"), L::T("gar.rules.2") };
+            int ri = o.rules, own = RulesForFile(o.file);
+            dl->AddText(ui::theme::Body(), S(15), ImVec2(x, y), P().textDim, L::T("gar.rules"));
+            y += S(21);
+            ImGui::SetCursorScreenPos(ImVec2(x, y));
+            if (ui::Dropdown("##rules", rules, &ri, half, live) && ri != o.rules) {
+                e.rules = ri;
+                Apply(e);
+                e = { o.kind, o.index };
+            }
+            if (o.rules != own)
+                dl->AddText(ui::theme::Body(), S(13), ImVec2(x + half + S(8), y + S(9)), P().textFaint, L::Tf("gar.rules.model", rules[own]).c_str());
+            y += S(40);
+        }
+
         // Seed
         y = Label(dl, x, y, "gar.seedlabel");
         ImGui::SetCursorScreenPos(ImVec2(x, y));
@@ -2232,6 +2448,18 @@ void InstallGarage()
     Bind("Weapon.GetClass", F.weaponGetClass);
     Bind("Inventory.Copy", F.invCopy);
     Bind("PlayerState.SetPrimaryShip", F.setPrimary);
+    Bind("Reality.GetTechnology", F.getTech);
+    {
+        auto get = [](const char* cls, const char* f, uint32_t& out) { if (auto m = meta::Path(cls, f)) out = m->offset; };
+        if (auto* ci = meta::Get("cGcTechnology"); ci && ci->size) TF.size = ci->size;
+        get("cGcTechnology", "ID", TF.id); get("cGcTechnology", "Category", TF.cat); get("cGcTechnology", "BaseStat", TF.stat);
+        get("cGcTechnology", "ChargeAmount", TF.charge); get("cGcTechnology", "Core", TF.core); get("cGcTechnology", "Upgrade", TF.upg);
+        get("cGcTechnology", "Procedural", TF.proc); get("cGcTechnology", "RepairTech", TF.rep);
+        get("cGcTechnology", "BrokenSlotTech", TF.broken); get("cGcTechnology", "IsTemplate", TF.tmpl);
+        if (auto* ci = meta::Get("cGcInventoryElement"); ci && ci->size >= 0x28 && ci->size <= 0x100) TF.elSize = ci->size;
+        get("cGcInventoryElement", "Id", TF.elId); get("cGcInventoryElement", "Amount", TF.elAmount);
+        get("cGcInventoryElement", "MaxAmount", TF.elMax); get("cGcInventoryElement", "Type", TF.elType);
+    }
     if (const Target& t = Loc().Resolve("Descriptor.Generate"); t.ok) {
         // Generate -> GenerateInstanceFromModel (its call) -> GetModelDescriptorList (that one's first call)
         std::optional<uint32_t> fromModel;
@@ -2245,22 +2473,25 @@ void InstallGarage()
     }
     log::Info("Garage", "Living ship rolls: {}", F.genDesc != nullptr);
 
+    kShipOwnership = (uint32_t)Off("Ship.Ownership", kShipOwnership);
+    kToolOwnership = (uint32_t)Off("HUD.ToolThumbnailBase", kToolOwnership);
+    if (int64_t p = Off("Player.InstanceOffset"); p > 0) kPlayerWeapon = (uint32_t)p + 0x3E0; // cGcPlayerWeapon
     F.primary = Off("Ship.PrimaryIndex");
     F.refresh = Off("Ship.RefreshFlag");
     F.active = Off("Multitool.ActiveIndex");
     F.frRefresh = Off("Freighter.RefreshFlag", 0x4B0);
     F.cls = Off("Inventory.ClassField", 0x100);
     F.baseStats = Off("Inventory.BaseStats", 0xD0);
-    F.slotBase = Off("Customise.SlotBase", 0x1CA10);
+    F.slotBase = Off("Customise.SlotBase", 0x1CA70);
     F.slotStride = Off("Customise.SlotStride", 0x3AE0);
     F.slotEdited = Off("Customise.SlotEditedFlag", 0x71);
     F.slotEditCol = Off("Customise.SlotEditColours", 0x90);
     F.slotFinalCol = Off("Customise.SlotFinalColours", 0x1D70);
     F.slotDescs = Off("Customise.SlotDescriptors", 0x3A70);
-    F.descGroups = Off("Customise.DescriptorGroups", 0xCA500);
-    F.playerModel = Off("Customise.PlayerModelPtr", 0x72C838);
+    F.descGroups = Off("Customise.DescriptorGroups", 0xCA560);
+    F.playerModel = Off("Customise.PlayerModelPtr", 0x72CF28);
     F.playerRefresh = Off("Customise.PlayerRefreshFlag", 0x15C);
-    F.vehicleRefresh = Off("Customise.VehicleRefreshFlag", 0x72F0F0);
+    F.vehicleRefresh = Off("Customise.VehicleRefreshFlag", 0x72F810);
 
     if (auto* ci = meta::Get("cGcResourceElement")) F.resSize = ci->size;
     if (auto m = meta::Path("cGcResourceElement", "Filename")) F.resFile = m->offset;

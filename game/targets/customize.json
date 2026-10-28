@@ -431,13 +431,13 @@
         },
         {"kind": "sig", "pattern": "40 55 53 57 41 55 41 57 48 8D 6C 24 C9 48 81 EC 90 00 00 00"}
       ],
-      "site": {"kind": "scan", "pattern": "49 89 87 18 A5 0C 00"},
+      "site": {"kind": "scan", "pattern": "49 89 87 ?? ?? 0C 00 8B 03 39 05", "index": 0},
       "shape": {
         "mnemonic": "mov",
         "operands": ["mem", "reg"],
         "offset_operand": 0
       },
-      "expect_offset": "0xCA518",
+      "expect_offset": "0xCA578",
       "seen": {"build": 180836, "func": "0x57FB10", "site": "0x57FBA7"}
     },
     {
@@ -814,16 +814,16 @@
       "anchors": [
         {"kind": "rtti_vfunc", "class": "cGcCustomiserInteraction", "index": 6},
         {"kind": "string_xref", "string": "CUSTOMISE_INTERACT"},
-        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+        {"kind": "sig", "pattern": "83 FA ?? 0F 85 ?? ?? ?? ?? 53 48 83 EC 40"}
       ],
-      "site": {"kind": "entry", "verify": "83 FA 0E 0F 85"},
+      "site": {"kind": "entry", "verify": "83 FA ?? 0F 85"},
       "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A580"}
     },
     {
       "name": "Customise.PlayerModelPtr",
       "anchors": [
         {"kind": "target", "name": "Customise.CloseInteract"},
-        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+        {"kind": "sig", "pattern": "83 FA ?? 0F 85 ?? ?? ?? ?? 53 48 83 EC 40"}
       ],
       "site": {"kind": "scan", "pattern": "48 8B 88 ?? ?? ?? ?? C6 81 ?? ?? ?? ?? 01"},
       "shape": {
@@ -831,14 +831,14 @@
         "operands": ["reg", "mem"],
         "offset_operand": 1
       },
-      "expect_offset": "0x72C838",
+      "expect_offset": "0x72CF28",
       "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A76B"}
     },
     {
       "name": "Customise.PlayerRefreshFlag",
       "anchors": [
         {"kind": "target", "name": "Customise.CloseInteract"},
-        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+        {"kind": "sig", "pattern": "83 FA ?? 0F 85 ?? ?? ?? ?? 53 48 83 EC 40"}
       ],
       "site": {"kind": "scan", "pattern": "C6 81 ?? ?? ?? ?? 01 48 C7 41"},
       "shape": {
@@ -853,22 +853,22 @@
       "name": "Customise.VehicleRefreshFlag",
       "anchors": [
         {"kind": "target", "name": "Customise.CloseInteract"},
-        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+        {"kind": "sig", "pattern": "83 FA ?? 0F 85 ?? ?? ?? ?? 53 48 83 EC 40"}
       ],
-      "site": {"kind": "scan", "pattern": "C6 80 F0 F0 72 00 01"},
+      "site": {"kind": "scan", "pattern": "83 F9 44 75 ?? 48 8B 05 ?? ?? ?? ?? C6 80 ?? ?? ?? ?? 01", "offset": 12},
       "shape": {
         "mnemonic": "mov",
         "operands": ["mem", "imm"],
         "offset_operand": 0
       },
-      "expect_offset": "0x72F0F0",
+      "expect_offset": "0x72F810",
       "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A793"}
     },
     {
       "name": "Customise.PetRefreshFlag",
       "anchors": [
         {"kind": "target", "name": "Customise.CloseInteract"},
-        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+        {"kind": "sig", "pattern": "83 FA ?? 0F 85 ?? ?? ?? ?? 53 48 83 EC 40"}
       ],
       "site": {"kind": "scan", "pattern": "C6 80 ?? ?? ?? ?? 01 48 83 C4 40 5B C3 48 8B 0D"},
       "shape": {
@@ -876,7 +876,7 @@
         "operands": ["mem", "imm"],
         "offset_operand": 0
       },
-      "expect_offset": "0xE10C0",
+      "expect_offset": "0xE1120",
       "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A5EF"}
     },
     {
@@ -959,9 +959,9 @@
             {"callees": 1}
           ]
         },
-        {"kind": "sig", "pattern": "89 54 24 10 4C 8B DC 55 41 54"}
+        {"kind": "sig", "pattern": "40 55 53 57 48 8B EC 48 81 EC 80 00 00 00 48 63"}
       ],
-      "site": {"kind": "entry", "verify": "89 54 24 ?? 4C 8B DC"},
+      "site": {"kind": "entry", "verify": "40 55 53 57 48 8B EC"},
       "seen": {"build": 180836, "func": "0x55C580", "site": "0x55C580"}
     },
     {

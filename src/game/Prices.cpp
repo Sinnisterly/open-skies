@@ -23,7 +23,8 @@ using features::Rd;
 using GenPriceFn = float (*)(void* item, bool buying, bool station, float roll, int32_t type, bool ignoreSold, bool forceMarkup);
 GenPriceFn g_gen = nullptr;
 
-constexpr uint32_t kCurrentSystem = 0x72AFB0, kSysTrading = 0x2520, kSysAddress = 0x26B0, kTradingTable = 0x2E8, kClasses = 0x360;
+int64_t g_curSystem = 0x72B610; // Data.SolarSystem
+constexpr uint32_t kSysTrading = 0x2520, kSysAddress = 0x26B0, kTradingTable = 0x2E8, kClasses = 0x360;
 enum PriceType { Standard = 0, Expensive = 1, Cheap = 2 };
 
 std::mutex g_mx;
@@ -67,7 +68,7 @@ struct Fields
 void Fill(uint64_t system)
 {
     uintptr_t d = Data(), rm = Reality(), sys = 0;
-    if (!d || !rm || !g_gen || !Rd(d + kCurrentSystem, sys) || !sys) { g_busy = false; return; }
+    if (!d || !rm || !g_gen || !Rd(d + g_curSystem, sys) || !sys) { g_busy = false; return; }
     int32_t needs = -1, sells = -1;
     bool classOk = NeedsSells(d, sys, needs, sells);
     std::unordered_map<std::string, double> out;
@@ -111,7 +112,7 @@ void Tick()
     if (Frame() % 120) return;
     uintptr_t d = Data(), sys = 0;
     uint64_t addr = 0;
-    if (!d || !Rd(d + kCurrentSystem, sys) || !sys || !Rd(sys + kSysAddress, addr) || !addr) return;
+    if (!d || !Rd(d + g_curSystem, sys) || !sys || !Rd(sys + kSysAddress, addr) || !addr) return;
     if (addr == g_system || !catalog::Ready() || g_busy.exchange(true)) return;
     Fill(addr);
 }
@@ -123,6 +124,7 @@ void Install()
     const auto& t = features::Loc().Resolve("Economy.GeneratePrice");
     if (!t.ok) { log::Warn("Prices", "System prices unavailable: {}", t.reason); return; }
     g_gen = (GenPriceFn)features::Abs(t.func);
+    if (const auto& s = features::Loc().Resolve("Data.SolarSystem"); s.ok && s.offset) g_curSystem = *s.offset;
     EveryFrame(Tick);
     catalog::SetLocalPricer([](const Item& it) {
         std::lock_guard lk(g_mx);

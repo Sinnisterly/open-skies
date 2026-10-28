@@ -46,7 +46,7 @@ SortFn g_sort = nullptr;
 NotifyFn g_notify = nullptr;
 
 constexpr uint32_t kInv = 0x900; // PlayerState block the store calls take as `this`
-constexpr uint32_t kShipNames = 0x1AD93, kNameLen = 0x20; // as in Garage
+constexpr uint32_t kShipNames = 0x1ADF3, kNameLen = 0x20; // as in Garage
 
 // InventoryChoice values, from the game's reflected enum
 enum Choice

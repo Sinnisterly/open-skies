@@ -203,7 +203,7 @@ void StatsCb(Context& c)
 
 // cGcStatsManager: groups at +0xA8 (count +0xA4), stride 0x60.
 // Each group: u64 address at +0, a stat map with keys at +0x28 and info bytes at +0x30, 0x18 per entry, value at +0x10.
-constexpr uint32_t kStatsMgr = 0x307880;
+int64_t g_statsMgr = 0x307938; // Data.StatsManager
 using UpdateStatFn = void (*)(void* mgr, const char* id16, int32_t value, bool remote, uint64_t address);
 UpdateStatFn g_updateStat = nullptr;
 
@@ -211,7 +211,7 @@ uintptr_t FindStat(const char* id, uint64_t address)
 {
     uintptr_t d = game::Data();
     if (!d) return 0;
-    uintptr_t mgr = d + kStatsMgr, groups = 0;
+    uintptr_t mgr = d + g_statsMgr, groups = 0;
     uint32_t n = 0;
     if (!Rd(mgr + 0xA4, n) || !Rd(mgr + 0xA8, groups) || !groups || n > 4096) return 0;
     for (uint32_t gi = 0; gi < n; ++gi) {
@@ -248,7 +248,8 @@ uintptr_t StatEntry(const char* id)
 // Standing.Change(unused, eMissionFaction, delta, noGainScale, systemAddress); ~0 is global only.
 using ChangeStandingFn = void (*)(void*, int32_t faction, int32_t delta, bool noGainScale, uint64_t address);
 ChangeStandingFn g_changeStanding = nullptr;
-constexpr uint32_t kCurrentSystem = 0x72AFB0, kSysRace = 0x2534, kSysAddress = 0x26B0, kFactionIds = 0x73F8;
+int64_t g_curSystem = 0x72B610; // Data.SolarSystem
+constexpr uint32_t kSysRace = 0x2534, kSysAddress = 0x26B0, kFactionIds = 0x73F8;
 
 std::string Id16At(uintptr_t a)
 {
@@ -277,7 +278,7 @@ bool HereSystem(int& faction, uint64_t& address)
 {
     uintptr_t d = game::Data(), sys = 0;
     int32_t race = -1;
-    if (!d || !Rd(d + kCurrentSystem, sys) || !sys || !Rd(sys + kSysRace, race) || !Rd(sys + kSysAddress, address) || !address) return false;
+    if (!d || !Rd(d + g_curSystem, sys) || !sys || !Rd(sys + kSysRace, race) || !Rd(sys + kSysAddress, address) || !address) return false;
     // eAlienRace to eMissionFaction: Traders Gek, Warriors Vy'keen, Explorers Korvax, Autophage keeps 8
     static const int map[] = { 0, 2, 1 };
     if (race >= 0 && race < 3) faction = map[race];
@@ -617,6 +618,8 @@ void Economy()
         { "eco.merchants", "TGUILD_STAND", 0x10 - 0x1920, 3 }, { "eco.mercenaries", "WGUILD_STAND", 0xF40, 4 },
         { "eco.explorers", "EGUILD_STAND", 0x10 - 0x2B50, 5 }, { "eco.outlaws", "PIR_STAND", 0x448, 7 },
     };
+    if (const Target& m = Loc().Resolve("Data.StatsManager"); m.ok && m.offset) g_statsMgr = *m.offset;
+    if (const Target& s = Loc().Resolve("Data.SolarSystem"); s.ok && s.offset) g_curSystem = *s.offset;
     if (const Target& u = Loc().Resolve("Stats.UpdateStatInt"); u.ok) g_updateStat = (UpdateStatFn)Abs(u.func);
     else log::Warn("Stats", "UpdateStat missing: {}", u.reason);
     if (const Target& c = Loc().Resolve("Standing.Change"); c.ok) g_changeStanding = (ChangeStandingFn)Abs(c.func);
@@ -654,10 +657,10 @@ void Economy()
                     e = StatEntry(StandingId(st.faction, st.stat).c_str());
                 }
                 else if (g_updateStat) {
-                    g_updateStat((void*)(game::Data() + kStatsMgr), id16, want, false, 0);
+                    g_updateStat((void*)(game::Data() + g_statsMgr), id16, want, false, 0);
                     e = StatEntry(StandingId(st.faction, st.stat).c_str());
                     // an Add stat lands on old + want, so step back by the difference
-                    if (e && Rd(e + 0x10, now) && now != want) g_updateStat((void*)(game::Data() + kStatsMgr), id16, want - now, false, 0);
+                    if (e && Rd(e + 0x10, now) && now != want) g_updateStat((void*)(game::Data() + g_statsMgr), id16, want - now, false, 0);
                     e = StatEntry(StandingId(st.faction, st.stat).c_str());
                 }
                 if (e && Rd(e + 0x10, now) && now == want) return;

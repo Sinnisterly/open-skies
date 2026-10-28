@@ -5,8 +5,8 @@
     {
       "name": "Building.Validate",
       "anchors": [
-        {"kind": "aob", "pattern": "89 85 40 17 00 00 0F BA E0 09", "yields": "owner"},
-        {"kind": "aob", "pattern": "41 89 9B 48 17 00 00 48 81 C4 88 00 00 00", "yields": "owner"}
+        {"kind": "aob", "pattern": "89 85 ?? 17 00 00 0F BA E0 09", "yields": "owner"},
+        {"kind": "aob", "pattern": "41 89 9B ?? 17 00 00 48 81 C4 88 00 00 00", "yields": "owner"}
       ],
       "site": {"kind": "scan", "pattern": "89 85 ?? ?? ?? ?? 0F BA E0 09", "index": 0},
       "shape": {
@@ -14,7 +14,7 @@
         "operands": ["mem", "reg"],
         "offset_operand": 0
       },
-      "expect_offset": "0x1740",
+      "expect_offset": "0x1750",
       "seen": {"build": 180836, "func": "0x1433190", "site": "0x1433A7E"}
     },
     {
@@ -44,7 +44,7 @@
     {
       "name": "Base.UploadLimitC",
       "anchors": [
-        {"kind": "aob", "pattern": "45 84 FF 0F 84 ?? ?? ?? ?? 81 FB B8 0B 00 00 0F 8E", "offset": 9}
+        {"kind": "aob", "pattern": "45 84 ?? 0F 84 ?? ?? ?? ?? 81 FB B8 0B 00 00 0F 8E", "offset": 9}
       ],
       "site": {"kind": "scan", "pattern": "81 FB B8 0B 00 00 0F 8E"},
       "shape": {
@@ -58,7 +58,7 @@
       "anchors": [
         {
           "kind": "aob",
-          "pattern": "48 8B 05 ?? ?? ?? ?? 4C 89 6D ?? 4C 89 45 ?? 48 8B 98 C8 01 00 00 48 63 80 D0 01 00 00 48 69 F8 78 02 00 00"
+          "pattern": "48 8B 05 ?? ?? ?? ?? 4C 89 6D ?? 4C 89 45 ?? 48 8B 98 ?? ?? 00 00 48 63 80 ?? ?? 00 00 48 69 F8"
         }
       ],
       "site": {"kind": "scan", "pattern": "48 8B 05 ?? ?? ?? ?? 4C 89 6D ?? 4C 89 45 ?? 48 8B 98", "index": 0},
