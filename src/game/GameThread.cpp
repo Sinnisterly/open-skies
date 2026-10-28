@@ -1,7 +1,11 @@
 #include "game/GameThread.h"
 #include "core/AppLog.h"
 #include "features/Bind.h"
+#include <Windows.h>
 #include <algorithm>
+#include <cstring>
+#include <format>
+#include <string>
 #include <atomic>
 #include <mutex>
 #include <vector>
@@ -16,22 +20,43 @@ std::atomic<uint64_t> g_frame{ 0 };
 safetyhook::MidHook* g_hook = nullptr;
 std::atomic<void (*)()> g_ticks[32]{}; // one per feature tick; the log warns when full
 
+// Where the last guarded fault happened, for the log.
+struct Fault { uint32_t code = 0; uintptr_t at = 0; } g_fault;
+
+int Note(EXCEPTION_POINTERS* ep)
+{
+    g_fault = { ep->ExceptionRecord->ExceptionCode, (uintptr_t)ep->ExceptionRecord->ExceptionAddress };
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
+std::string Where(uintptr_t a)
+{
+    HMODULE m = nullptr;
+    char name[MAX_PATH] = "?";
+    if (GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)a, &m) && m) {
+        GetModuleFileNameA(m, name, MAX_PATH);
+        const char* base = strrchr(name, '\\');
+        return std::format("{}+0x{:X}", base ? base + 1 : name, a - (uintptr_t)m);
+    }
+    return std::format("0x{:X}", a);
+}
+
 bool RunGuarded(std::function<void()>* job)
 {
     __try { (*job)(); return true; }
-    __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+    __except (Note(GetExceptionInformation())) { return false; }
 }
 
 bool TickGuarded(void (*fn)())
 {
     __try { fn(); return true; }
-    __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+    __except (Note(GetExceptionInformation())) { return false; }
 }
 
 void Run(std::function<void()>& job)
 {
     try {
-        if (!RunGuarded(&job)) log::Error("Game", "A game-thread job faulted and was skipped");
+        if (!RunGuarded(&job)) log::Error("Game", "A game-thread job faulted and was skipped: 0x{:X} at {}", g_fault.code, Where(g_fault.at));
     }
     catch (const std::exception& e) { log::Error("Game", "Game-thread job threw: {}", e.what()); }
     catch (...) { log::Error("Game", "Game-thread job threw"); }
@@ -74,7 +99,7 @@ void FrameCb(safetyhook::Context&)
     for (auto& t : g_ticks) {
         auto* fn = t.load();
         if (fn && !TickGuarded(fn)) {
-            log::Error("Game", "A per-frame task faulted and was stopped");
+            log::Error("Game", "A per-frame task faulted and was stopped: 0x{:X} at {}", g_fault.code, Where(g_fault.at));
             t = nullptr;
         }
     }

@@ -782,10 +782,13 @@ void ReadReport()
         Rd(sys + O.yRace, r.sys.race);
         Rd(sys + O.yPlanets, r.planets);
         r.ok = true;
-        static uint64_t wordsUa = ~0ull;
+        // keyed on the values too: while a save loads, the system reads as raceless and the words come back empty
+        static uint64_t wordsKey = ~0ull;
         static Words words;
-        if (r.sys.ua != wordsUa) {
-            wordsUa = r.sys.ua;
+        uint64_t key = r.sys.ua ^ (uint64_t)(r.sys.trade & 0xFF) << 56 ^ (uint64_t)(r.sys.wealth & 0xFF) << 48
+            ^ (uint64_t)(r.sys.conflict & 0xFF) << 40 ^ (uint64_t)(r.sys.race & 0xFF) << 32 ^ (uint64_t)r.planets << 24;
+        if (key != wordsKey) {
+            wordsKey = key;
             words = MakeWords(r.sys);
             log::Info("Scout", "Galaxy map words at {}: {} / {} / {} / {}", Glyphs(ua), words.economy, words.wealth, words.conflict, words.race);
         }
@@ -834,9 +837,13 @@ void ReadReport()
             r.rows.push_back(std::move(p));
         }
     }
-    // once per system: the planet generator against what the game loaded
+    // once per system: the planet generator against what the game loaded,
+    // only once the loaded data is this system (the generator stores the address in its Seed)
     static uint64_t checked = 0;
-    if (r.ok && sys && g_sysBuf && (ua & 0x000FFFFFFFFFFFFFull) != checked) {
+    static const uint32_t seedOff = [] { auto m = meta::Path("cGcSolarSystemData", "Seed"); return m ? m->offset : 0x2480u; }();
+    uint64_t loadedSeed = 0;
+    bool loaded = sys && Rd(sys + seedOff, loadedSeed) && loadedSeed == (ua & 0x000FFFFFFFFFFFFFull);
+    if (r.ok && loaded && g_sysBuf && (ua & 0x000FFFFFFFFFFFFFull) != checked) {
         checked = ua & 0x000FFFFFFFFFFFFFull;
         Sys gen;
         gen.ua = checked;

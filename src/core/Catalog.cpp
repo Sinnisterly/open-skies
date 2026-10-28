@@ -140,7 +140,8 @@ void RegisterCatalog(Registry& r)
     Feature last = Number("inv.last_moved", "inventory", "", "stacks", 9999999, { 100, 1000, 9999 });
     r.Add(std::move(last));
     r.Add(Toggle("inv.max_stacks",   "inventory", "", "stacks"));
-    for (const char* id : { "inv.slots_suit", "inv.slots_tool", "inv.slots_ship", "inv.slots_freighter" }) {
+    for (const char* id : { "inv.slots_suit", "inv.slots_tool", "inv.slots_ship", "inv.slots_freighter",
+                            "inv.super_suit", "inv.super_tool", "inv.super_ship", "inv.super_freighter" }) {
         Feature slots = T(id, "inventory", "", "slots");
         slots.kind = Kind::Action;
         slots.bindable = false;

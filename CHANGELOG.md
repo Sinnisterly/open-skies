@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.9.5
+
+### Forsaken update
+- Works with the Forsaken update (NMS 183791). Every hook and address the update moved has been found again.
+- More of the menu now reads its addresses from the game itself, so future updates should break less.
+- Items, unlocks and rewards are read from the game's own tables, so the new Forsaken items, corvette modules, titles and helmets show up in Items and Unlocks.
+
+### Garage
+- Fixed: a ship whose model was changed (for example to a Sentinel Interceptor) lost its installed tech after a reload.
+- Fixed: changing a ship's class rolled its stats from the wrong ship type, so a Dropship could get Freighter stats.
+- New: Tech rules for each ship: Normal, Living or Sentinel. They decide which tech the game keeps on a reload. A ship follows its model's rules, or pick others to keep normal tech on a Sentinel-look ship.
+- Changing a ship's model or rules swaps installed tech to the matching version (normal, Living or Sentinel). A message lists what was swapped and anything that has no matching version.
+
+### Inventory
+- New: Supercharge Exosuit Tech, Supercharge Multi-Tool, Supercharge Starship Tech and Supercharge Freighter Tech. Every unlocked slot of that inventory becomes supercharged. Use Max Slots first for the full grid.
+
+### Scout
+- Fixed: scanning nearby systems found nothing after the update.
+- Fixed: the current system showed "Data Unavailable" for economy and conflict when Scout was opened while the save was still loading.
+
+### Missions
+- Fixed: the Active list was empty after the update.
+
+### Teleport
+- Fixed: the current address and warp arrival after the update.
+
+### Other fixes
+- Faction standings can be set again.
+- Placing a base part finds your nearest base again.
+- Expeditions load with the larger season data in this update.
+- The log now records where a failed action went wrong.
+
 ## 0.9.0
 
 ### New: Effects tab

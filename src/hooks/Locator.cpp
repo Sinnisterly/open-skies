@@ -169,6 +169,12 @@ const Target& Locator::Resolve(const std::string& name)
             if (yields == "site") hits = base;
             else {
                 if (a.contains("hops")) for (auto& h : a["hops"]) base = Hop(m_img, base, h);
+                if (a.contains("entry")) { // keep functions that start with this pattern
+                    auto p = Pattern::Parse(a["entry"].get<std::string>());
+                    std::erase_if(base, [&](uint32_t f) {
+                        return !p || m_img.Scan(*p, { Range{ f, f + (uint32_t)p->bytes.size() } }, 1).empty();
+                    });
+                }
                 std::set<uint32_t> sites;
                 for (uint32_t f : base) for (uint32_t s : ApplySite(m_img, t, f)) sites.insert(s);
                 hits.assign(sites.begin(), sites.end());

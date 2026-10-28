@@ -88,7 +88,7 @@
         },
         {
           "kind": "sig",
-          "pattern": "40 55 53 56 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8D 99 70 53 12 00"
+          "pattern": "40 55 53 56 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8D 99 ?? ?? ?? 00"
         }
       ],
       "site": {"kind": "entry", "verify": "40 55 53 56 57"},
@@ -126,7 +126,7 @@
         },
         {
           "kind": "sig",
-          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 ?? ?? ?? 00 48 8D BB A0 09 00 00"
         }
       ],
       "site": {"kind": "entry", "verify": "48 89 5C 24 08 48 89 74"},
@@ -200,7 +200,7 @@
         {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
         {
           "kind": "sig",
-          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 ?? ?? ?? 00 48 8D BB A0 09 00 00"
         }
       ],
       "site": {"kind": "scan", "pattern": "48 8D 99 ?? ?? ?? ?? 48 8D BB A0 09 00 00"},
@@ -603,7 +603,7 @@
         {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
         {
           "kind": "sig",
-          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 ?? ?? ?? 00 48 8D BB A0 09 00 00"
         }
       ],
       "site": {
@@ -685,7 +685,7 @@
         {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
         {
           "kind": "sig",
-          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 ?? ?? ?? 00 48 8D BB A0 09 00 00"
         }
       ],
       "site": {"kind": "scan", "pattern": "48 8D BE ?? ?? ?? ?? 66 0F 1F 84 00 00 00 00 00 8B D3 48 8D 8E"},
@@ -703,7 +703,7 @@
         {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
         {
           "kind": "sig",
-          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 ?? ?? ?? 00 48 8D BB A0 09 00 00"
         }
       ],
       "site": {"kind": "scan", "pattern": "48 8D 98 ?? ?? ?? ?? 74 ?? 48 83 BB ?? ?? ?? ?? 00 74 ?? F3 0F 10 1D"},
@@ -721,7 +721,7 @@
         {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
         {
           "kind": "sig",
-          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 ?? ?? ?? 00 48 8D BB A0 09 00 00"
         }
       ],
       "site": {"kind": "scan", "pattern": "48 8D 8B ?? ?? ?? ?? 8B 90 ?? ?? ?? ?? 4C 8D 05", "index": 0},

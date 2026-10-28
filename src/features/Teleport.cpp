@@ -8,6 +8,7 @@
 #include "game/GameThread.h"
 #include "game/SaveBackup.h"
 #include "game/World.h"
+#include "hooks/Meta.h"
 #include <cctype>
 #include <cstdlib>
 #undef LoadIcon // windows.h renames it to LoadIconW
@@ -22,6 +23,7 @@
 #include <ctime>
 #include <filesystem>
 #include <fstream>
+#include <atomic>
 #include <mutex>
 
 namespace os::features {
@@ -32,8 +34,11 @@ using ui::theme::P;
 using ui::theme::S;
 using json = nlohmann::json;
 
-// cGcPlayer and cGcSimulation.mCurrentUA, relative to mpData.
-constexpr uint32_t kPlayer = 0x72C6F0, kCurrentUA = 0x4CCF90 + 0x265940;
+// cGcPlayer and the player state's location, relative to mpData.
+int64_t g_player = 0x72CDE0, g_loc = 0xC1A0, g_sysPtr = 0x72B610; // g_loc: PlayerState.Location
+// cGcUniverseAddressData / cGcGalacticAddressData fields, from the reflection data
+struct { uint32_t planet = 0, system = 4, x = 8, y = 0xC, z = 0x10, galaxy = 0x14; } A;
+constexpr uint32_t kSysAddress = 0x26B0;
 constexpr uint32_t kMatrix = 0x310, kBigPos = 0x360;
 
 struct alignas(16) Vec4 { float x = 0, y = 0, z = 0, w = 0; };
@@ -119,8 +124,8 @@ bool ReadHere(uint64_t& ua, BigPos& pos, Vec4& dir)
 {
     uintptr_t d = game::Data();
     if (!d) return false;
-    uintptr_t p = d + kPlayer;
-    if (!Rd(d + kCurrentUA, ua) || !RdObj(p + kBigPos, pos) || !RdObj(p + kMatrix + 0x20, dir)) return false;
+    uintptr_t p = d + g_player;
+    if (!CurrentAddress(ua) || !RdObj(p + kBigPos, pos) || !RdObj(p + kMatrix + 0x20, dir)) return false;
     return Finite(pos.local) && Finite(pos.offset) && Finite(dir);
 }
 
@@ -156,9 +161,8 @@ std::string FreeName()
 
 // Data offsets of cGcPlayer's warp request: jump target, endpoint, mode.
 int64_t g_reqJump = 0x72F120, g_reqEndpoint = 0x72F150, g_reqMode = 0x72F1E0;
-// cGcSpaceshipWarp; +0x6F0 is set while it holds an arrival endpoint, Reset clears it.
-int64_t g_warp = 0x72AFD0;
-constexpr uint32_t kWarpArrival = 0x6F0;
+// cGcSpaceshipWarp; Warp.ArrivalFlag is set while it holds an arrival endpoint, Reset clears it.
+int64_t g_warp = 0x72B630, kWarpArrival = 0x710;
 
 int Signed(uint64_t v, int bits) { int s = (int)(v & ((1ull << bits) - 1)); return s >= (1 << (bits - 1)) ? s - (1 << bits) : s; }
 
@@ -221,7 +225,7 @@ Vec4 Forward(uintptr_t d)
 {
     Vec4 f, m;
     f.z = 1.f;
-    if (RdObj(d + kPlayer + kMatrix + 0x20, m) && Finite(m)) {
+    if (RdObj(d + g_player + kMatrix + 0x20, m) && Finite(m)) {
         float l = std::sqrt(m.x * m.x + m.y * m.y + m.z * m.z);
         if (l > 1e-3f) { f.x = m.x / l; f.y = m.y / l; f.z = m.z / l; }
     }
@@ -285,7 +289,7 @@ void PendingTick()
     uint32_t mode = 1;
     uint8_t arrival = 0;
     uint64_t here = 0;
-    if (!Rd(d + g_reqMode, mode) || !Rd(d + g_warp + kWarpArrival, arrival) || !Rd(d + kCurrentUA, here)) return;
+    if (!Rd(d + g_reqMode, mode) || !Rd(d + g_warp + kWarpArrival, arrival) || !CurrentAddress(here)) return;
     if (mode != 0) return;
     if (!p.taken) { p.taken = true; log::Info("Teleport", "Request taken, arrival flag {}", arrival); }
     if (arrival && !p.inArrival) { p.inArrival = true; log::Info("Teleport", "Arrival under way"); }
@@ -304,7 +308,7 @@ void PendingTick()
     BigPos to = p.pos;
     to.local.y += 2.f;
     Vec4 vel;
-    g_setPos(d + kPlayer, &to, &p.dir, &vel);
+    g_setPos(d + g_player, &to, &p.dir, &vel);
     log::Info("Teleport", "Placed at the saved spot");
 }
 
@@ -321,7 +325,7 @@ bool InShip()
 {
     uintptr_t d = game::Data();
     uint32_t m = 0;
-    return d && Rd(d + kPlayer + g_playerMode, m) && m == 1;
+    return d && Rd(d + g_player + g_playerMode, m) && m == 1;
 }
 
 // Game thread. In the ship, to any galaxy: the same calls the Anomaly take-off makes. Warp out first, then the galaxy.
@@ -331,7 +335,7 @@ bool ShipWarp(uint64_t ua)
     uint32_t mode = 1, phase = 1;
     if (!d || !ps || !g_warpDistant || !Rd(d + g_reqMode, mode) || mode != 0 || !Rd(d + g_warp + 0x98, phase) || phase != 0) return false;
     uint64_t here = 0;
-    Rd(d + kCurrentUA, here);
+    CurrentAddress(here);
     int x = Signed(ua, 12), z = Signed(ua >> 12, 12), y = Signed(ua >> 24, 8);
     int galaxy = (int)(ua >> 32) & 0xFF, sys = (int)(ua >> 40) & 0xFFF;
     uint8_t jt[0x30] = {};
@@ -434,7 +438,7 @@ void MapSyncTick()
     uint32_t mode = 1, phase = 1;
     uint8_t arrival = 1;
     uint64_t here = 0;
-    if (!Rd(d + g_reqMode, mode) || !Rd(d + g_warp + 0x98, phase) || !Rd(d + g_warp + kWarpArrival, arrival) || !Rd(d + kCurrentUA, here)) return;
+    if (!Rd(d + g_reqMode, mode) || !Rd(d + g_warp + 0x98, phase) || !Rd(d + g_warp + kWarpArrival, arrival) || !CurrentAddress(here)) return;
     // only the teleporter arrival sets the endpoint flag
     if (mode || phase || (arrival && !s.ship) || SystemOf(here) != SystemOf(s.ua)) { s.settled = 0; return; }
     if (!s.settled) s.settled = now;
@@ -483,7 +487,7 @@ void FixMap()
     game::Post([ship] {
         uintptr_t d = game::Data();
         uint64_t here = 0, real = 0;
-        if (!d || !Rd(d + kCurrentUA, here)) return;
+        if (!d || !CurrentAddress(here)) return;
         if (RealStar(SystemOf(here), real)) {
             SyncMap();
             Note(L::T("tp.mapfixed"), Where(here));
@@ -697,7 +701,7 @@ float DrawInspector(ImVec2 a, float w)
                     uintptr_t d = game::Data();
                     if (!d || !g_setPos) return;
                     Vec4 vel;
-                    g_setPos(d + kPlayer, &m.pos, &m.dir, &vel);
+                    g_setPos(d + g_player, &m.pos, &m.dir, &vel);
                 });
             }
         }
@@ -750,10 +754,28 @@ float DrawInspector(ImVec2 a, float w)
 
 }
 
+// The player's packed universe address, built from cGcPlayerState.mLocation (cGcUniverseAddressData):
+// X | Z << 12 | Y << 24 | galaxy << 32 | system << 40 | planet << 52, the same packing as mCurrentUA.
 bool CurrentAddress(uint64_t& ua)
 {
     uintptr_t d = game::Data();
-    return d && Rd(d + kCurrentUA, ua);
+    int32_t planet = 0, sys = 0, x = 0, y = 0, z = 0, galaxy = 0;
+    uintptr_t l = d + g_loc;
+    if (!d || !Rd(l + A.planet, planet) || !Rd(l + A.system, sys) || !Rd(l + A.x, x) || !Rd(l + A.y, y) || !Rd(l + A.z, z)
+        || !Rd(l + A.galaxy, galaxy))
+        return false;
+    ua = (uint64_t)(x & 0xFFF) | (uint64_t)(z & 0xFFF) << 12 | (uint64_t)(y & 0xFF) << 24 | (uint64_t)(galaxy & 0xFF) << 32
+        | (uint64_t)(sys & 0xFFF) << 40 | (uint64_t)(planet & 0xF) << 52;
+    // once per session, check it against the current system's own address
+    static std::atomic<bool> checked{ false };
+    uintptr_t sp = 0;
+    uint64_t sa = 0;
+    if (!checked && Rd(d + g_sysPtr, sp) && sp && Rd(sp + kSysAddress, sa) && sa && !checked.exchange(true)) {
+        constexpr uint64_t mask = 0x000FFFFFFFFFFFFFull;
+        if ((ua & mask) == (sa & mask)) log::Info("Teleport", "Current address {:X} matches the system", ua);
+        else log::Warn("Teleport", "Current address {:X}, system says {:X}", ua, sa);
+    }
+    return true;
 }
 
 void WarpToAddress(uint64_t ua, const std::string& name) { Warp(ua & ~(0xFull << 52), name, nullptr); }
@@ -781,7 +803,21 @@ void InstallTeleport()
     const Target& sim = Loc().Resolve("Data.Simulation");
     if (const Target& m = Loc().Resolve("Warp.RequestMode"); m.ok && m.offset) g_reqMode = *m.offset;
     if (const Target& w = Loc().Resolve("Data.SpaceshipWarp"); w.ok && w.offset) g_warp = *w.offset;
+    if (const Target& w = Loc().Resolve("Warp.ArrivalFlag"); w.ok && w.offset) kWarpArrival = *w.offset;
     if (const Target& m = Loc().Resolve("Player.Mode"); m.ok && m.offset) g_playerMode = *m.offset;
+    if (const Target& p = Loc().Resolve("Player.InstanceOffset"); p.ok && p.offset) g_player = *p.offset;
+    if (const Target& s = Loc().Resolve("Data.SolarSystem"); s.ok && s.offset) g_sysPtr = *s.offset;
+    if (const Target& l = Loc().Resolve("PlayerState.Location"); l.ok && l.offset) g_loc = *l.offset;
+    {
+        namespace meta = hooks::meta;
+        auto get = [](const char* cls, const char* f, uint32_t& out) { if (auto m = meta::Path(cls, f)) out = m->offset; };
+        uint32_t ga = 0;
+        get("cGcUniverseAddressData", "GalacticAddress", ga);
+        get("cGcUniverseAddressData", "RealityIndex", A.galaxy);
+        get("cGcGalacticAddressData", "PlanetIndex", A.planet); get("cGcGalacticAddressData", "SolarSystemIndex", A.system);
+        get("cGcGalacticAddressData", "VoxelX", A.x); get("cGcGalacticAddressData", "VoxelY", A.y); get("cGcGalacticAddressData", "VoxelZ", A.z);
+        A.planet += ga; A.system += ga; A.x += ga; A.y += ga; A.z += ga;
+    }
     if (const Target& e = Loc().Resolve("Warp.NexusExitEffect"); e.ok && e.offset) g_nexusExit = (int32_t)*e.offset;
     if (const Target& w = Loc().Resolve("SpaceshipWarp.WarpToDistantSystem"); w.ok) g_warpDistant = (WarpDistantFn)Abs(w.func);
     if (const Target& gt = Loc().Resolve("PlayerState.GoToRealityIndex"); gt.ok) g_goToGalaxy = (GoToGalaxyFn)Abs(gt.func);
@@ -793,7 +829,7 @@ void InstallTeleport()
         if (const Target& j = Loc().Resolve("Warp.RequestJumpTarget"); j.ok && j.offset) g_reqJump = *sim.offset + *j.offset;
         if (const Target& e = Loc().Resolve("Warp.RequestEndpoint"); e.ok && e.offset) g_reqEndpoint = *sim.offset + *e.offset;
     }
-    log::Info("Teleport", "Warp request: jump +0x{:X}, endpoint +0x{:X}, mode +0x{:X}, warp +0x{:X}", g_reqJump, g_reqEndpoint, g_reqMode, g_warp);
+    log::Info("Teleport", "Warp request: jump +0x{:X}, endpoint +0x{:X}, mode +0x{:X}, warp +0x{:X}, location +0x{:X}", g_reqJump, g_reqEndpoint, g_reqMode, g_warp, g_loc);
     game::EveryFrame(PendingTick);
     game::EveryFrame(MapSyncTick);
 

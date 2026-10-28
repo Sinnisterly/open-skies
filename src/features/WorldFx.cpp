@@ -338,7 +338,8 @@ void MaxSlots(SlotTarget t)
         break;
     case SlotTarget::Ship: {
         int32_t primary = -1, shipClass = -1;
-        if (Rd(ps + 0x182A0, primary) && primary >= 0 && primary < 12 && Rd(d + 0xD5F60 + 0x60 + primary * 0x30 + 0x1C, shipClass) && shipClass >= 0 && shipClass < 0xC) {
+        static const int64_t own = [] { const Target& t = Loc().Resolve("Ship.Ownership"); return t.ok && t.offset ? *t.offset : 0xD5FC0; }();
+        if (Rd(ps + 0x182A0, primary) && primary >= 0 && primary < 12 && Rd(d + own + 0x60 + primary * 0x30 + 0x1C, shipClass) && shipClass >= 0 && shipClass < 0xC) {
             static const uint32_t bases[3] = { 0x7458, 0xAB28, 0x8FC8 }; // ship, tech, cargo
             for (int32_t k = 0; k < 3; ++k) { added += FillSlots(ps + bases[k] + primary * 0x248, 4 + k, shipClass); Notify(ps, 4 + k, primary); }
         }
@@ -355,8 +356,125 @@ void MaxSlots(SlotTarget t)
     log::Info("Inventory", "Added {} {} slots", added, names[(int)t]);
 }
 
+// Supercharged slots. A store keeps its special slots as {x, y, type} in a dynamic array; the array, its offset
+// and the engine's push come from Inventory.GenerateSpecialSlots, the game's own roll.
+struct SpecialSlot { int32_t x, y, type; };
+constexpr int32_t kTechBonus = 4; // eInventorySpecialSlotType: Broken, TechOnly, Cargo, BlockedByBrokenTech, TechBonus
+using GrowFn = uintptr_t (*)(uintptr_t vec, uintptr_t policy, uint32_t newCount, uintptr_t data, uint64_t oldCount, const void* elem,
+                             uint64_t n, uint64_t, uint64_t, uint64_t size, uint64_t align, int32_t, uintptr_t data2, uint64_t);
+GrowFn g_grow = nullptr;
+uintptr_t g_growPolicy = 0;
+int64_t g_special = -1; // store offset of the special slot array {u32 capacity, u32 count, SpecialSlot* data}
+
+bool CallGrow(uintptr_t vec, const SpecialSlot* e, uint32_t count, uintptr_t data, uintptr_t& out)
+{
+    __try { out = g_grow(vec, g_growPolicy, count + 1, data, count, e, 1, 0, 0, sizeof(SpecialSlot), 4, -1, data, 0); return true; }
+    __except (EXCEPTION_EXECUTE_HANDLER) { return false; }
+}
+
+// Appends one entry the way the game does: in place while there is room, else through the engine's push.
+bool PushSpecial(uintptr_t vec, const SpecialSlot& e)
+{
+    uint32_t cap = 0, count = 0;
+    uintptr_t data = 0;
+    if (!Rd(vec, cap) || !Rd(vec + 4, count) || !Rd(vec + 8, data) || count > 4096) return false;
+    if (count < cap && data) {
+        uintptr_t at = data + (uintptr_t)count * sizeof(SpecialSlot);
+        return Wr(at, e.x) && Wr(at + 4, e.y) && Wr(at + 8, e.type) && Wr(vec + 4, count + 1);
+    }
+    uintptr_t out = 0;
+    if (!g_grow || !CallGrow(vec, &e, count, data, out) || !out) return false;
+    Wr(vec + 8, out);
+    uint32_t now = 0;
+    return Rd(vec + 4, now) && now == count + 1;
+}
+
+// Marks every unlocked cell of one store supercharged. Cells that already have a special slot keep it.
+int Supercharge(uintptr_t store)
+{
+    int16_t w = 0, h = 0;
+    if (g_special < 0 || !Rd(store + 0x80, w) || !Rd(store + 0x82, h) || w <= 0 || h <= 0 || w > 64 || h > 16) return 0;
+    uintptr_t vec = store + g_special;
+    int added = 0;
+    for (int y = 0; y < h; ++y) {
+        uint64_t row = 0;
+        if (!Rd(store + y * 8, row)) break;
+        for (int x = 0; x < w; ++x) {
+            if (!(row & (1ull << x))) continue;
+            uint32_t count = 0;
+            uintptr_t data = 0;
+            if (!Rd(vec + 4, count) || !Rd(vec + 8, data) || count > 4096) return added;
+            bool taken = false;
+            for (uint32_t i = 0; i < count && !taken; ++i) {
+                SpecialSlot s{};
+                taken = Rd(data + i * sizeof(SpecialSlot), s.x) && Rd(data + i * sizeof(SpecialSlot) + 4, s.y) && s.x == x && s.y == y;
+            }
+            if (taken) continue;
+            if (!PushSpecial(vec, { x, y, kTechBonus })) { log::Warn("Inventory", "Supercharge stopped at {} slots", added); return added; }
+            ++added;
+        }
+    }
+    return added;
+}
+
+void SuperchargeTarget(SlotTarget t)
+{
+    uintptr_t ps = game::PlayerState();
+    if (!ps) return;
+    auto store = [&](int32_t choice) { return ps + 0x910 + choice * 0x248; };
+    int added = 0;
+    switch (t) {
+    case SlotTarget::Suit: added = Supercharge(store(1)); Notify(ps, 1, -1); break;
+    case SlotTarget::Tool: added = Supercharge(store(3)); Notify(ps, 3, -1); break;
+    case SlotTarget::Ship: {
+        int32_t primary = -1;
+        if (Rd(ps + 0x182A0, primary) && primary >= 0 && primary < 12) { added = Supercharge(ps + 0xAB28 + primary * 0x248); Notify(ps, 5, primary); }
+        break;
+    }
+    case SlotTarget::Freighter: added = Supercharge(store(8)); Notify(ps, 8, -1); break;
+    }
+    static const char* names[] = { "exosuit", "multitool", "starship", "freighter" };
+    log::Info("Inventory", "Supercharged {} {} slots", added, names[(int)t]);
+}
+
+// Finds the special slot array and the engine's push inside GenerateSpecialSlots, then binds the four actions.
+void Supercharged()
+{
+    const char* ids[] = { "inv.super_suit", "inv.super_tool", "inv.super_ship", "inv.super_freighter" };
+    const Target& t = Loc().Resolve("Inventory.GenerateSpecialSlots");
+    std::string why = t.ok ? "" : t.reason;
+    if (t.ok) {
+        // lea rdx, [policy] / mov [rsp+0x48], 0xC (element size) ... lea rcx, [store+array] / call push
+        auto pol = ScanFunc(t.func, "48 8D 15 ?? ?? ?? ?? 48 C7 44 24 48 0C 00 00 00");
+        auto arr = ScanFunc(t.func, "48 8D 8D ?? ?? 00 00 E8");
+        auto p = pol ? Dec(*pol) : std::nullopt;
+        auto l = arr ? Dec(*arr) : std::nullopt;
+        auto c = l ? Next(*l) : std::nullopt;
+        if (p && p->ripTarget && l && l->ops.size() == 2 && c && c->isCall && c->branchTarget) {
+            g_growPolicy = Abs(*p->ripTarget);
+            g_special = l->ops[1].disp;
+            g_grow = (GrowFn)Abs(*c->branchTarget);
+        }
+        else why = "special slot push not found";
+    }
+    if (!g_grow) { for (auto* id : ids) Fail(id, why); return; }
+    log::Info("Inventory", "Special slots at store +0x{:X}", g_special);
+    SlotTarget targets[] = { SlotTarget::Suit, SlotTarget::Tool, SlotTarget::Ship, SlotTarget::Freighter };
+    for (int i = 0; i < 4; ++i) {
+        Bound b;
+        b.id = ids[i];
+        b.action = [t = targets[i]] {
+            if (!game::FrameHookReady()) return;
+            game::BackupSaveOnce();
+            game::Post([t] { SuperchargeTarget(t); });
+        };
+        Ok(std::move(b));
+    }
+}
+
 void Slots()
 {
+    Supercharged();
     auto* t = Need("Inventory.AddSlot", { "inv.slots_suit", "inv.slots_tool", "inv.slots_ship", "inv.slots_freighter" });
     if (!t) return;
     auto at = ScanFunc(t->func, "E8 ?? ?? ?? ?? 66 44 3B D0");
