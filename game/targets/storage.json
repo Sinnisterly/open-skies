@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Inventory.Remove",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 54 24 ?? 56 57 41 56"},
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 18 48 89 54 24 10 56 57 41 56 48 83 EC 20 48 8B B9 90 00 00 00 40 32 ED 8B 81 8C 00 00 00"
+        },
+        {
+          "kind": "target",
+          "name": "Refiner.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x4D1100", "site": "0x4D1100"}
+    },
+    {
+      "name": "Inventory.Sort",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "48 8B C4 55 41 57 48 8D 68 ?? 48 81 EC"},
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 55 41 57 48 8D 68 A8 48 81 EC ?? ?? ?? ?? 48 89 58 10 48 89 70 18 8B F2 48 89 78 20 48 8B F9 4C 89 60 E8 4C 8D A1 8C 00 00 00"
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_INV_SORT_BY_VALUE_OSD",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x4D4AE0", "site": "0x4D4AE0"}
+    },
+    {
+      "name": "Inventory.StoreFromChoice",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 57 48 83 EC 20 48 8B D9 41 83 F8 FF"},
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 57 48 83 EC 20 48 8B D9 41 83 F8 FF 75 ?? 8B CA 83 E9 04 74 ?? 83 E9 01 74 ?? 83 E9 01 74 ?? 83 E9 04 74 ?? 83 F9 01 75 ?? 48 8B 03 44 8B 80 ?? ?? ?? ?? EB ?? 48 8B 03 44 8B 80 ?? ?? ?? ?? 33 FF 83 FA FF 0F 45 FA 83 FF FF 75 ?? 33 C0"
+        },
+        {
+          "kind": "target",
+          "name": "MultiTool.BoltcasterAmmo",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x56AFF0", "site": "0x56AFF0"}
+    }
+  ]
+}

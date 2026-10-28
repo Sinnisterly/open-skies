@@ -1,0 +1,25 @@
+# Build outputs
+build/
+out/
+*.dll
+*.pdb
+*.exe
+*.zip
+
+# Local notes, research and tools that are not needed to build
+research/
+tools/
+backups/
+release/
+previews/
+RESEARCH*.md
+*.log
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.user
+*.suo
+.vs/
+.vscode/
+__pycache__/

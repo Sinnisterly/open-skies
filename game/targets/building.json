@@ -1,0 +1,92 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Building.Validate",
+      "anchors": [
+        {"kind": "aob", "pattern": "89 85 40 17 00 00 0F BA E0 09", "yields": "owner"},
+        {"kind": "aob", "pattern": "41 89 9B 48 17 00 00 48 81 C4 88 00 00 00", "yields": "owner"}
+      ],
+      "site": {"kind": "scan", "pattern": "89 85 ?? ?? ?? ?? 0F BA E0 09", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x1740",
+      "seen": {"build": 180836, "func": "0x1433190", "site": "0x1433A7E"}
+    },
+    {
+      "name": "Base.UploadLimitA",
+      "anchors": [
+        {"kind": "string_xref", "string": "BASE_BUILDING_NO_UPLOAD_TEXT"}
+      ],
+      "site": {"kind": "scan", "pattern": "3D B8 0B 00 00 7E"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["reg", "imm"]
+      },
+      "seen": {"build": 180836, "func": "0x8B6B80", "site": "0x8B82A0"}
+    },
+    {
+      "name": "Base.UploadLimitB",
+      "anchors": [
+        {"kind": "aob", "pattern": "83 FB 0A 0F 8C ?? ?? ?? ?? 81 FB B8 0B 00 00 0F 8E", "offset": 9}
+      ],
+      "site": {"kind": "scan", "pattern": "81 FB B8 0B 00 00 0F 8E"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["reg", "imm"]
+      },
+      "seen": {"build": 180836, "func": "0x96AD90", "site": "0x96B7AE"}
+    },
+    {
+      "name": "Base.UploadLimitC",
+      "anchors": [
+        {"kind": "aob", "pattern": "45 84 FF 0F 84 ?? ?? ?? ?? 81 FB B8 0B 00 00 0F 8E", "offset": 9}
+      ],
+      "site": {"kind": "scan", "pattern": "81 FB B8 0B 00 00 0F 8E"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["reg", "imm"]
+      },
+      "seen": {"build": 180836, "func": "0x9A42A0", "site": "0x9A5114"}
+    },
+    {
+      "name": "Building.Table",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "48 8B 05 ?? ?? ?? ?? 4C 89 6D ?? 4C 89 45 ?? 48 8B 98 C8 01 00 00 48 63 80 D0 01 00 00 48 69 F8 78 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 05 ?? ?? ?? ?? 4C 89 6D ?? 4C 89 45 ?? 48 8B 98", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x9688C0", "site": "0x9689F9"}
+    },
+    {
+      "name": "Building.PartAvailable",
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 48 83 EC 30 83 BA ?? ?? 00 00 00 45 0F B6 D0 48 8B DA 0F 8E"}
+      ],
+      "site": {"kind": "entry", "verify": "40 53 48 83 EC 30 83 BA"},
+      "seen": {"build": 180836, "func": "0x968180", "site": "0x968180"}
+    },
+    {
+      "name": "Building.ReportError",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 83 EC 28 84 D2 0F 84 ?? ?? ?? ?? 48 89 5C 24 20 48 8D 15 ?? ?? ?? ?? 48 8D 99 ?? ?? 00 00 C7 81 ?? ?? 00 00 1A 00 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 28 84 D2 0F 84"},
+      "seen": {"build": 180836, "func": "0x404DD0", "site": "0x404DD0"}
+    }
+  ]
+}

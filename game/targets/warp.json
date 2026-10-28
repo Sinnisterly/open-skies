@@ -1,0 +1,370 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "PlayerEnvironment.Update",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "void __cdecl cGcPlayerEnvironment::Update(float)"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 F3 0F 11 48 10 48 89 48 08 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC 88 06 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 F3 0F 11 48 10"},
+      "seen": {"build": 180836, "func": "0x12519D0", "site": "0x12519D0"}
+    },
+    {
+      "name": "Portal.WarpPlayer",
+      "anchors": [
+        {"kind": "sig", "pattern": "40 55 41 56 48 8D 6C 24 B1 48 81 EC F8 00 00 00"},
+        {
+          "kind": "target",
+          "name": "PlayerEnvironment.Update",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 55 41 56 48 8D 6C 24 B1"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 55 41 56 48 8D 6C 24"},
+      "seen": {"build": 180836, "func": "0x1060D10", "site": "0x1060D10"}
+    },
+    {
+      "name": "PlayerState.GoToRealityIndex",
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 5C 24 08 57 48 83 EC 20 89 91"},
+        {
+          "kind": "target",
+          "name": "Portal.WarpPlayer",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 57 48 83 EC 20 89 91"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 57 48 83 EC 20 89 91"},
+      "seen": {"build": 180836, "func": "0x5840A0", "site": "0x5840A0"}
+    },
+    {
+      "name": "Player.UpdateWarpRequests",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.GoToRealityIndex",
+          "hops": [
+            {"callers": true}
+          ],
+          "entry": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55"},
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x14667E0"}
+    },
+    {
+      "name": "Simulation.WarpToSystem",
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 48 83 EC 40 48 83 B9 ?? ?? ?? ?? 00 48 8B DA"},
+        {
+          "kind": "target",
+          "name": "Player.UpdateWarpRequests",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 53 48 83 EC 40 48 83 B9"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 53 48 83 EC ?? 48 83 B9"},
+      "seen": {"build": 180836, "func": "0x13BBDE0", "site": "0x13BBDE0"}
+    },
+    {
+      "name": "PlayerState.ChangeCurrentGalacticLocation",
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 55 56 57 48 83 EC 48 0F 10 81"},
+        {
+          "kind": "target",
+          "name": "Simulation.WarpToSystem",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 53 55 56 57 48 83 EC 48 0F 10 81"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 53 55 56 57 48 83 EC"},
+      "seen": {"build": 180836, "func": "0x583E30", "site": "0x583E30"}
+    },
+    {
+      "name": "SpaceshipWarp.WarpToDistantSystem",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 30 41 8D 40 FA"
+        },
+        {
+          "kind": "target",
+          "name": "Player.UpdateWarpRequests",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 30 41 8D 40 FA"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56"},
+      "seen": {"build": 180836, "func": "0x1799E40", "site": "0x1799E40"}
+    },
+    {
+      "name": "Warp.RequestMode",
+      "anchors": [
+        {"kind": "target", "name": "Player.UpdateWarpRequests"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "8B 8B ?? ?? ?? ?? 48 8D 83", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x72F1E0",
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x14668BA"}
+    },
+    {
+      "name": "Data.Simulation",
+      "anchors": [
+        {"kind": "target", "name": "Player.UpdateWarpRequests"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 83 ?? ?? ?? ?? 83 F9 05", "index": 0},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x4CCF90",
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x14668C0"}
+    },
+    {
+      "name": "Warp.RequestJumpTarget",
+      "anchors": [
+        {"kind": "target", "name": "Player.UpdateWarpRequests"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "0F 10 80 ?? ?? ?? ?? 48 8D 54 24 30", "index": 0},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x262190",
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x14668CC"}
+    },
+    {
+      "name": "Warp.RequestEndpoint",
+      "anchors": [
+        {"kind": "target", "name": "Player.UpdateWarpRequests"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "0F 10 88 ?? ?? ?? ?? 0F 29 4D 90", "index": 0},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2621C0",
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x1466985"}
+    },
+    {
+      "name": "Data.SpaceshipWarp",
+      "anchors": [
+        {"kind": "target", "name": "Player.UpdateWarpRequests"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 81 C3 D0 AF 72 00 48 8D 54 24 30", "index": 0},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x72AFD0",
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x1466BDB"}
+    },
+    {
+      "name": "PlayerState.Location",
+      "anchors": [
+        {"kind": "target", "name": "Player.UpdateWarpRequests"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "0F 10 A3 ?? ?? ?? ?? F2 0F 11 44 24 70", "index": 0},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xC1A0",
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x14669F1"}
+    },
+    {
+      "name": "Reality.CurrentGalaxy",
+      "anchors": [
+        {"kind": "target", "name": "Player.UpdateWarpRequests"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 20 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "0F B6 88 ?? ?? ?? ?? 3B CA", "index": 0},
+      "shape": {
+        "mnemonic": "movzx",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x852E",
+      "seen": {"build": 180836, "func": "0x14667E0", "site": "0x1466A93"}
+    },
+    {
+      "name": "PlayerState.RealityIndex",
+      "anchors": [
+        {"kind": "target", "name": "PlayerState.GoToRealityIndex"},
+        {"kind": "sig", "pattern": "48 89 5C 24 08 57 48 83 EC 20 89 91"}
+      ],
+      "site": {"kind": "scan", "pattern": "89 91 ?? ?? ?? ?? 48 8B 1D", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x874",
+      "seen": {"build": 180836, "func": "0x5840A0", "site": "0x5840AA"}
+    },
+    {
+      "name": "Player.ChangingMode",
+      "helper": true,
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 48 83 EC 30 48 8B D9 41 83 F8 02 75"},
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 53 48 83 EC 30 48 8B D9 41 83 F8 02 75"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 53 48 83 EC 30 48 8B D9"},
+      "seen": {"build": 180836, "func": "0x1464110", "site": "0x1464110"}
+    },
+    {
+      "name": "Player.Mode",
+      "anchors": [
+        {"kind": "target", "name": "Player.Update"},
+        {
+          "kind": "target",
+          "name": "Player.ChangingMode",
+          "hops": [
+            {"callers": true}
+          ],
+          "entry": "48 8B C4 48 89 48 08 55 53"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "41 83 BF ?? ?? ?? ?? 01 74 ?? 41 B8 01 00 00 00 49 8B CF E8", "index": 0},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x56AC",
+      "seen": {"build": 180836, "func": "0x144B3A0", "site": "0x144D3F5"}
+    },
+    {
+      "name": "Nexus.DockingShipUpdate",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "SpaceshipWarp.WarpToDistantSystem",
+          "hops": [
+            {"callers": true}
+          ],
+          "entry": "48 89 5C 24 10 4C 89 44 24 18 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ??"
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.GoToRealityIndex",
+          "hops": [
+            {"callers": true}
+          ],
+          "entry": "48 89 5C 24 10 4C 89 44 24 18 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ??"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 4C 89 44 24 ?? 55 56 57"},
+      "seen": {"build": 180836, "func": "0x10CD160", "site": "0x10CD160"}
+    },
+    {
+      "name": "Warp.NexusExitEffect",
+      "anchors": [
+        {"kind": "target", "name": "Nexus.DockingShipUpdate"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 4C 89 44 24 18 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 B0 AA FF FF"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "41 B8 ?? 00 00 00 48 8B C8 E8 ?? ?? ?? ?? 48 8D 0D", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xC",
+      "seen": {"build": 180836, "func": "0x10CD160", "site": "0x10D597A"}
+    },
+    {
+      "name": "GalaxyMap.SyncToGameState",
+      "helper": true,
+      "anchors": [
+        {"kind": "sig", "pattern": "48 83 EC 58 48 8B 05 ?? ?? ?? ?? BA 01 F8 FF FF 41 B8 FF 07 00 00"},
+        {"kind": "aob", "pattern": "41 B8 D0 07 00 00 66 89 44 24 ?? 48 8D 15", "yields": "owner"},
+        {"kind": "string_xref", "string": "GALAXYMAP"}
+      ],
+      "site": {"kind": "entry", "verify": "41 B8 D0 07 00 00 66 89 44 24"},
+      "seen": {"build": 180836, "func": "0x1351420", "site": "0x1351420"}
+    },
+    {
+      "name": "Portal.CheckUAIsValid",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 44 88 48 20 44 88 40 18 48 89 50 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? 00 00"
+        },
+        {
+          "kind": "aob",
+          "pattern": "4C 8B D1 49 C1 EA 20 8B F9 41 0F B6 C2 44 8B F1 89 44 24 ?? 8B F1 41 8B C2 C1 E7 14 C1 E8 08 B9 FF 0F 00 00",
+          "yields": "owner"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 44 88 48 20"},
+      "seen": {"build": 180836, "func": "0x8234C0", "site": "0x8234C0"}
+    }
+  ]
+}

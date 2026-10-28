@@ -1,0 +1,1277 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "globals": {
+    "registry": {
+      "record": {"name": 0, "members": 24, "member_count": 32, "class_size": 36},
+      "member": {"stride": 88, "name": 0, "name_hash": 8, "type": 12, "size": 20, "count": 24, "offset": 28}
+    },
+    "instance": {
+      "anchors": [
+        "save function: xref the GcXxxGlobals string (no c prefix); the lea rcx,[rip+X] feeding the serialize call after it is the instance",
+        "loader: the .../gcxxxglobals.global.mbin path string has a .data slot; mov rdx,[slot] is followed by lea rcx,[rip+X], X is the instance (NMS.py method)"
+      ]
+    },
+    "classes": [
+      "GcPlayerGlobals",
+      "GcSpaceshipGlobals",
+      "GcEnvironmentGlobals",
+      "GcSkyGlobals",
+      "GcGameplayGlobals",
+      "GcVehicleGlobals",
+      "GcCameraGlobals",
+      "GcCreatureGlobals",
+      "GcRobotGlobals",
+      "GcTerrainGlobals",
+      "GcBuildingGlobals",
+      "GcFleetGlobals",
+      "GcGalaxyGlobals",
+      "GcSimulationGlobals",
+      "GcUIGlobals",
+      "GcGraphicsGlobals"
+    ]
+  },
+  "targets": [
+    {
+      "name": "Player.Update",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 48 ?? 55 53"},
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "LOW_HAZARD",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_JETPACK_BOOST_OVER_OSD",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "LASERSHAKE",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcApplicationSimulationState",
+          "index": 9,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 48 89 48 08 55 53 41 54 41 55 41 57 48 8D A8"}
+      ],
+      "seen": {"build": 180836, "func": "0x144B3A0", "site": "0x144B3A0"}
+    },
+    {
+      "name": "Player.Move",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8"},
+      "anchors": [
+        {"kind": "string_xref", "string": "NOTIFY_NORUN"},
+        {"kind": "string_xref", "string": "UI_ABAND_FREIGHT_SPRINT_TIP"},
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 A0 16 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x146BEA0", "site": "0x146BEA0"}
+    },
+    {
+      "name": "MultiTool.Update",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "F3 0F 11 4C 24 ?? 55 56 41 55"},
+      "anchors": [
+        {"kind": "string_xref", "string": "LASERSHAKE"},
+        {"kind": "string_xref", "string": "GRV_IDLE"},
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 55 48 8D AC 24"}
+      ],
+      "seen": {"build": 180836, "func": "0x13FCB00", "site": "0x13FCB00"}
+    },
+    {
+      "name": "Ship.Update",
+      "helper": true,
+      "site": {"kind": "entry"},
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcSpaceshipComponent", "index": 1},
+        {"kind": "string_xref", "string": "SHIPBRAKE"},
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 53 56 41 57"}
+      ],
+      "seen": {"build": 180836, "func": "0x174A600", "site": "0x174A600"}
+    },
+    {
+      "name": "Ship.Controls",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "F3 0F 11 4C 24 ?? 55 53"},
+      "anchors": [
+        {"kind": "string_xref", "string": "CRUISE: Max Boost"},
+        {
+          "kind": "target",
+          "name": "Ship.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "F3 0F 11 4C 24 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 18 42 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x1756B50", "site": "0x1756B50"}
+    },
+    {
+      "name": "Vehicle.Update",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "48 8B C4 55 53"},
+      "anchors": [
+        {"kind": "string_xref", "string": "Wheel %d: fwd %f side %f turn %f slip %f"},
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcVehicleComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 55 53 56 57 41 55 48 8D A8 ?? ?? ?? ?? 48 81 EC C0 0A 00 00"}
+      ],
+      "seen": {"build": 180836, "func": "0x17F4E60", "site": "0x17F4E60"}
+    },
+    {
+      "name": "Refiner.Update",
+      "helper": true,
+      "site": {"kind": "entry"},
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcRefinerUnitComponent", "index": 32},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 D9 48 81 EC C0 00 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x10B3ED0", "site": "0x10B3ED0"}
+    },
+    {
+      "name": "Inventory.TechOverloads",
+      "tab": "Inventory",
+      "hook": "postfix",
+      "action": "force return 0 (tech group count)",
+      "site": {"kind": "entry", "verify": "8B 40 ?? 48 83 C4 20"},
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcGenericSectionConditionTechGroupCount",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcGenericSectionConditionHasProcTechnology",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 57 48 83 EC 20 48 83 3A 00 48 8B F9"},
+        {"kind": "aob", "pattern": "8B 40 20 48 83 C4 20 5F C3 33 C0", "yields": "owner"}
+      ],
+      "seen": {"build": 180836, "func": "0x4D1090", "site": "0x4D1090"}
+    },
+    {
+      "name": "General.InstantInteract",
+      "tab": "General",
+      "hook": "mid",
+      "action": "write 1.0 to [rdi] before the add (hold progress)",
+      "site": {"kind": "scan", "pattern": "F3 44 0F 58 27"},
+      "shape": {
+        "mnemonic": "addss",
+        "operands": ["reg", "mem"],
+        "text": "addss xmm12, dword ptr [rdi]",
+        "size": 5,
+        "pointer_from": "nearest lea rdi,[reg+off] above the site; off is the field"
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_VR_INTERACT_PULL_GENERAL"},
+        {"kind": "string_xref", "string": "PRODUCT_REQUIRED"},
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcApplicationSimulationState",
+          "index": 9,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 56 57 41 54 41 55 41 56 48 8D AC 24 ?? ?? ?? ?? B8 D0 70 00 00"},
+        {"kind": "aob", "pattern": "F3 44 0F 58 27 F3"}
+      ],
+      "seen": {"build": 180836, "func": "0x14E45E0", "site": "0x14E7A82"}
+    },
+    {
+      "name": "Economy.Units",
+      "tab": "Economy",
+      "hook": "data",
+      "action": "read player-state global from the rip load, units at the decoded offset, nanites +4, quicksilver +8",
+      "site": {
+        "kind": "scan",
+        "pattern": "45 8B 80 ?? ?? ?? ?? E8 ?? ?? ?? ?? 4C 8B 05 ?? ?? ?? ?? 4C 8D 0D ?? ?? ?? ?? 48 8D 97 ?? ?? ?? ?? 45 8B 80 ?? ?? ?? ?? E8 ?? ?? ?? ?? 4C 8B 05"
+      },
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "text": "mov r8d, dword ptr [r8 + 0xc1dc]",
+        "size": 7,
+        "offset_operand": 1,
+        "offset": "0xC1DC"
+      },
+      "base_load": {"register": "r8", "max_back": 32},
+      "anchors": [
+        {"kind": "string_xref", "string": "PAGESELECTBAR"},
+        {"kind": "string_xref", "string": "OPTION%d_OFF_S"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 44 88 4C 24 20 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 90 02 00 00"
+        },
+        {"kind": "aob", "pattern": "45 8B 80 DC C1 00 00"}
+      ],
+      "seen": {"build": 180836, "func": "0x6C6340", "site": "0x6C6498"}
+    },
+    {
+      "name": "Economy.Standings",
+      "tab": "Economy",
+      "hook": "mid",
+      "action": "capture rax (stat entry) when [rax+C0]!=0; read only",
+      "site": {"kind": "scan", "pattern": "48 8B 40 ?? 0F 28 DE"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "text": "mov rax, qword ptr [rax + 0x10]",
+        "size": 4,
+        "offset_operand": 1,
+        "offset": "0x10"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Player.Move",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "string_xref", "string": "GLOBAL_STATS"},
+        {"kind": "sig", "pattern": "48 8B C4 48 89 58 10 44 88 48 20 55 56 57 41 54 41 55 41 56 41 57 48 8D 68 A9"},
+        {"kind": "aob", "pattern": "48 8B 40 10 0F 28 DE"}
+      ],
+      "seen": {"build": 180836, "func": "0x6132D0", "site": "0x6133AD"}
+    },
+    {
+      "name": "Inventory.LastMovedItem",
+      "tab": "Inventory",
+      "hook": "mid",
+      "action": "capture rax (slot entry); amount at +0x18",
+      "site": {"kind": "scan", "pattern": "0F 11 48 ?? 0F 10 43"},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["mem", "reg"],
+        "text": "movups xmmword ptr [rax + 0x10], xmm1",
+        "size": 4,
+        "offset_operand": 0,
+        "offset": "0x10"
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_INV_SORT_BY_VALUE_OSD"},
+        {"kind": "string_xref", "string": "UI_TECH_SLOT_ERROR"},
+        {"kind": "sig", "pattern": "48 85 D2 0F 84 ?? ?? ?? ?? 48 8B C4 4C 89 48 20 4C 89 40 18"},
+        {"kind": "aob", "pattern": "0F 11 48 10 0F 10 43 20 0F 11 40 20 0F 11"}
+      ],
+      "seen": {"build": 180836, "func": "0x6B6030", "site": "0x6B9252"}
+    },
+    {
+      "name": "Movement.JetpackSpeed",
+      "tab": "Movement",
+      "hook": "data",
+      "action": "write cGcPlayerGlobals.JetpackMaxSpeed",
+      "site": {"kind": "scan", "pattern": "F3 0F 10 25 ?? ?? ?? ?? 0F 10 87"},
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["reg", "mem"],
+        "text": "movss xmm4, dword ptr [rip + 0x3ddbebc]",
+        "size": 8,
+        "rip_operand": 1
+      },
+      "global_field": {"class": "cGcPlayerGlobals", "field": "JetpackMaxSpeed"},
+      "anchors": [
+        {"kind": "target", "name": "Player.Move"},
+        {"kind": "string_xref", "string": "NOTIFY_NOJETPACK"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 A0 16 00 00"
+        },
+        {"kind": "aob", "pattern": "F3 0F 10 ?? ?? ?? ?? ?? 0F 10 87 ?? ?? 00 00 48 8D"}
+      ],
+      "seen": {"build": 180836, "func": "0x146BEA0", "site": "0x146E930"}
+    },
+    {
+      "name": "Movement.JetpackAerial",
+      "tab": "Movement",
+      "hook": "data",
+      "action": "write cGcPlayerGlobals.JetpackForce",
+      "site": {
+        "kind": "scan",
+        "pattern": "F3 0F 10 05 ?? ?? ?? ?? F3 0F 11 81 ?? ?? ?? ?? F3 0F 10 0D ?? ?? ?? ?? F3 0F 11 89 ?? ?? ?? ?? F3 0F 10 05 ?? ?? ?? ?? 48 8B 9C 24"
+      },
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["reg", "mem"],
+        "text": "movss xmm0, dword ptr [rip + 0x3df9ae9]",
+        "size": 8,
+        "rip_operand": 1
+      },
+      "global_field": {"class": "cGcPlayerGlobals", "field": "JetpackForce"},
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_JETPACK_BOOST_OVER_OSD"},
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 80 07 00 00 F3 0F 58 89 ?? ?? ?? ?? F3 0F 10 81 ?? ?? ?? ?? 48 8B D9 0F 2F C1 F3 0F 11 89 ?? ?? ?? ?? 76 ?? F3 0F 10 05"
+        },
+        {"kind": "aob", "pattern": "EB ?? F3 0F 10 05 ?? ?? ?? ?? F3 0F 11 81 ?? ?? 00 00 F3 0F 10 0D", "offset": 2}
+      ],
+      "seen": {"build": 180836, "func": "0x1450980", "site": "0x1450CE3"}
+    },
+    {
+      "name": "Movement.JetpackUp",
+      "tab": "Movement",
+      "hook": "data",
+      "action": "write cGcPlayerGlobals.JetpackUpForce",
+      "site": {
+        "kind": "scan",
+        "pattern": "F3 0F 10 0D ?? ?? ?? ?? F3 0F 11 89 ?? ?? ?? ?? F3 0F 10 05 ?? ?? ?? ?? 48 8B 9C 24"
+      },
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["reg", "mem"],
+        "text": "movss xmm1, dword ptr [rip + 0x3df9b11]",
+        "size": 8,
+        "rip_operand": 1
+      },
+      "global_field": {"class": "cGcPlayerGlobals", "field": "JetpackUpForce"},
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_JETPACK_BOOST_OVER_OSD"},
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 80 07 00 00 F3 0F 58 89 ?? ?? ?? ?? F3 0F 10 81 ?? ?? ?? ?? 48 8B D9 0F 2F C1 F3 0F 11 89 ?? ?? ?? ?? 76 ?? F3 0F 10 05"
+        },
+        {
+          "kind": "aob",
+          "pattern": "F3 0F 10 0D ?? ?? ?? ?? F3 0F 11 89 ?? ?? 00 00 F3 0F 10 05 ?? ?? ?? ?? 48 8B 9C"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x1450980", "site": "0x1450CF3"}
+    },
+    {
+      "name": "Movement.ShipEngine",
+      "tab": "Movement",
+      "hook": "postfix",
+      "action": "scale out-struct (r8) fields BoostMaxSpeed, BoostThrustForce, MaxSpeed, ThrustForce",
+      "site": {"kind": "entry", "verify": "F3 41 0F 11 40 ?? C3"},
+      "struct_fields": {
+        "class": "cGcPlayerSpaceshipEngineData",
+        "fields": ["BoostMaxSpeed", "BoostThrustForce", "MaxSpeed", "ThrustForce"]
+      },
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "CRUISE: Max Boost",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Ship.Controls",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "F3 0F 10 4A 64 F3 0F 5C 49 64"},
+        {"kind": "aob", "pattern": "F3 0F 58 ?? ?? F3 41 0F 11 ?? ?? C3", "offset": 5, "yields": "owner"}
+      ],
+      "seen": {"build": 180836, "func": "0x1D89900", "site": "0x1D89900"}
+    },
+    {
+      "name": "Movement.PulseSpeed",
+      "tab": "Movement",
+      "hook": "postfix",
+      "action": "multiply return xmm0; or write cGcSpaceshipGlobals.MiniWarpSpeed",
+      "site": {"kind": "entry", "verify": "F3 0F 5F C8 F3 0F 59 0D"},
+      "global_field": {"class": "cGcSpaceshipGlobals", "field": "MiniWarpSpeed", "site_delta": 69},
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "JUMP_NOFUEL",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcSpaceshipComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 3}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 83 EC 48 48 8B 0D ?? ?? ?? ?? 33 C0 48 89 44 24 38 48 81 C1 40 B9 00 00 48 89 44 24 30 45 33 C9 88 44 24 28 BA 9D 00 00 00"
+        },
+        {"kind": "aob", "pattern": "F3 0F 5F C8 F3 0F 59 0D ?? ?? ?? ?? 0F 28 C1", "yields": "owner"}
+      ],
+      "seen": {"build": 180836, "func": "0x179DBA0", "site": "0x179DBA0"}
+    },
+    {
+      "name": "Movement.WalkRun",
+      "tab": "Movement",
+      "hook": "mid",
+      "action": "multiply xmm6 (selected ground speed) before use",
+      "site": {"kind": "scan", "pattern": "48 8D 8F ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 75 ?? 48 8D 8F"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "text": "lea rcx, [rdi + 0x3e0]",
+        "size": 7,
+        "offset_operand": 1,
+        "offset": "0x3E0"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Player.Move"},
+        {"kind": "string_xref", "string": "UI_ABAND_FREIGHT_SPRINT_TIP"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 A0 16 00 00"
+        },
+        {
+          "kind": "aob",
+          "pattern": "48 8D 8F ?? ?? 00 00 E8 ?? ?? ?? ?? 84 C0 ?? ?? 48 8D 8F ?? ?? ?? ?? E8 ?? ?? ?? ?? 84 C0 75 ?? 48 8B 87"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x146BEA0", "site": "0x1470D69"}
+    },
+    {
+      "name": "Exosuit.NoDamage",
+      "tab": "Exosuit",
+      "hook": "prefix",
+      "action": "skip original (return at entry)",
+      "site": {"kind": "entry", "verify": "48 8B C4 4C 89 48"},
+      "anchors": [
+        {"kind": "string_xref", "string": "MP_VEHICLE"},
+        {"kind": "string_xref", "string": "SELF_SHIP"},
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcLocalPlayerCharacterInterface",
+          "index": 85,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 4C 89 48 20 44 89 40 18 55 53 56"},
+        {"kind": "aob", "pattern": "48 8B C4 4C 89 48 20 44 89 40 18 55 53 56"}
+      ],
+      "seen": {"build": 180836, "func": "0x1467690", "site": "0x1467690"}
+    },
+    {
+      "name": "Exosuit.Stamina",
+      "tab": "Exosuit",
+      "hook": "mid",
+      "action": "nop the subss (4 bytes)",
+      "site": {"kind": "scan", "pattern": "F3 0F 5C C8 F3 0F 11 8F"},
+      "shape": {
+        "mnemonic": "subss",
+        "operands": ["reg", "reg"],
+        "text": "subss xmm1, xmm0",
+        "size": 4,
+        "offset_insn": 1,
+        "offset_operand": 0,
+        "offset": "0x55D0",
+        "offset_text": "movss dword ptr [rdi + 0x55d0], xmm1"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Player.Move"},
+        {"kind": "string_xref", "string": "NOTIFY_NORUN"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 A0 16 00 00"
+        },
+        {"kind": "aob", "pattern": "F3 41 0F 5E C0 F3 0F 5C C8 F3", "offset": 5}
+      ],
+      "seen": {"build": 180836, "func": "0x146BEA0", "site": "0x1470B89"}
+    },
+    {
+      "name": "Exosuit.Jetpack",
+      "tab": "Exosuit",
+      "hook": "mid",
+      "action": "zero xmm1 (fuel drain)",
+      "site": {"kind": "scan", "pattern": "F3 0F 58 CA F3 41 0F 59 CC"},
+      "shape": {
+        "mnemonic": "addss",
+        "operands": ["reg", "reg"],
+        "text": "addss xmm1, xmm2",
+        "size": 4,
+        "offset_insn": 4,
+        "offset_operand": 0,
+        "offset": "0x34E4",
+        "offset_text": "movss dword ptr [rdi + 0x34e4], xmm0"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Player.Move"},
+        {"kind": "string_xref", "string": "NOTIFY_NOJETPACK"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 A0 16 00 00"
+        },
+        {"kind": "aob", "pattern": "F3 0F 58 CA F3 41 0F 59 CC F3 0F 59"}
+      ],
+      "seen": {"build": 180836, "func": "0x146BEA0", "site": "0x146EFB9"}
+    },
+    {
+      "name": "Exosuit.MarineJet",
+      "tab": "Exosuit",
+      "hook": "mid",
+      "action": "skip subss xmm1,xmm2",
+      "site": {"kind": "scan", "pattern": "F3 0F 5C CA F3 44 0F 5F C1"},
+      "shape": {
+        "mnemonic": "subss",
+        "operands": ["reg", "reg"],
+        "text": "subss xmm1, xmm2",
+        "size": 4,
+        "offset_insn": 2,
+        "offset_operand": 0,
+        "offset": "0x34E4",
+        "offset_text": "movss dword ptr [rdi + 0x34e4], xmm8"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Player.Move",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 F3 0F 11 58 20 55 57 41 56"},
+        {"kind": "aob", "pattern": "F3 0F 5C CA F3 44 0F 5F C1"}
+      ],
+      "seen": {"build": 180836, "func": "0x1471F60", "site": "0x14732A7"}
+    },
+    {
+      "name": "Exosuit.EnvSuit",
+      "tab": "Exosuit",
+      "hook": "prefix",
+      "action": "skip original (hazard drain)",
+      "site": {"kind": "entry", "verify": "40 55 56 57 48 8D 6C 24"},
+      "anchors": [
+        {"kind": "string_xref", "string": "LOW_HAZARD"},
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 56 57 48 8D 6C 24 B0"},
+        {"kind": "aob", "pattern": "40 55 56 57 48 8D 6C 24 B0"}
+      ],
+      "seen": {"build": 180836, "func": "0x14E0B30", "site": "0x14E0B30"}
+    },
+    {
+      "name": "Starship.Shields",
+      "tab": "Starship",
+      "hook": "mid",
+      "action": "after copy, set [rbx+18]=[rbx+20] (current=max)",
+      "site": {"kind": "scan", "pattern": "0F 11 4B ?? 0F 10 45 ?? 0F 11 43 ?? E8"},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["mem", "reg"],
+        "text": "movups xmmword ptr [rbx + 0x10], xmm1",
+        "size": 4,
+        "offset_operand": 0,
+        "offset": "0x10"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Exosuit.NoDamage",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcLocalPlayerCharacterInterface",
+          "index": 85,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 6C 24 18 56 57 41 56 48 83 EC 50 4C 8B F2"},
+        {"kind": "aob", "pattern": "0F 11 4B 10 0F 10 45 20 0F 11 43 20 E8"}
+      ],
+      "seen": {"build": 180836, "func": "0x54C210", "site": "0x54C2E7"}
+    },
+    {
+      "name": "Starship.RocketCooldown",
+      "tab": "Starship",
+      "hook": "mid",
+      "action": "skip the 1.0 store (12 bytes)",
+      "site": {"kind": "scan", "pattern": "41 C7 84 86 ?? ?? ?? ?? ?? ?? ?? ?? 49 63 86"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "text": "mov dword ptr [r14 + rax*4 + 0x5fb4], 0x3f800000",
+        "size": 12,
+        "offset_operand": 0,
+        "offset": "0x5FB4"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcSpaceshipComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Ship.Update",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 F3 0F 11 48 10 48 89 48 08 55 57"},
+        {"kind": "aob", "pattern": "41 C7 84 86 B4 5F 00 00 00 00 80 3F 49 63 86"}
+      ],
+      "seen": {"build": 180836, "func": "0x17B1410", "site": "0x17B3A59"}
+    },
+    {
+      "name": "Starship.PhotonHeat",
+      "tab": "Starship",
+      "hook": "mid",
+      "action": "skip the heat store (10 bytes)",
+      "site": {"kind": "scan", "pattern": "F3 41 0F 11 8C 86"},
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["mem", "reg"],
+        "text": "movss dword ptr [r14 + rax*4 + 0x5fb4], xmm1",
+        "size": 10,
+        "offset_operand": 0,
+        "offset": "0x5FB4"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcSpaceshipComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Ship.Update",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 F3 0F 11 48 10 48 89 48 08 55 57"},
+        {"kind": "aob", "pattern": "F3 41 0F 11 8C 86 B4 5F 00 00"}
+      ],
+      "seen": {"build": 180836, "func": "0x17B1410", "site": "0x17B3A4D"}
+    },
+    {
+      "name": "MultiTool.MiningDamage",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "replace health write [rdi+50] per sub-option",
+      "site": {"kind": "scan", "pattern": "89 77 ?? C6 47 ?? 01"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "text": "mov dword ptr [rdi + 0x50], esi",
+        "size": 3,
+        "offset_operand": 0,
+        "offset": "0x50"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcShootableComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcCreatureComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 20 8B B1"},
+        {"kind": "aob", "pattern": "89 77 50 C6 47 48 01 80"}
+      ],
+      "seen": {"build": 180836, "func": "0x158D7F0", "site": "0x158D844"}
+    },
+    {
+      "name": "MultiTool.JavelinCharge",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "set xmm6 to full charge",
+      "site": {
+        "kind": "scan",
+        "pattern": "41 0F 28 F5 48 8B CE F3 0F 58 B6 ?? ?? ?? ?? F3 0F 11 B6 ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F 2F F0 48 8B CE"
+      },
+      "shape": {
+        "mnemonic": "movaps",
+        "operands": ["reg", "reg"],
+        "text": "movaps xmm6, xmm13",
+        "size": 4,
+        "offset_insn": 2,
+        "offset_operand": 1,
+        "offset": "0x2588",
+        "offset_text": "addss xmm6, dword ptr [rsi + 0x2588]"
+      },
+      "anchors": [
+        {"kind": "target", "name": "MultiTool.Update"},
+        {"kind": "string_xref", "string": "GRV_IDLE"},
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 55 48 8D AC 24"},
+        {"kind": "aob", "pattern": "41 0F 28 F5 48 8B CE F3 0F 58 B6 88"}
+      ],
+      "seen": {"build": 180836, "func": "0x13FCB00", "site": "0x140449A"}
+    },
+    {
+      "name": "MultiTool.BeamHeat",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "nop addss+movss on heat (8 bytes)",
+      "site": {"kind": "scan", "pattern": "F3 0F 58 07 F3 0F 11 07"},
+      "shape": {
+        "mnemonic": "addss",
+        "operands": ["reg", "mem"],
+        "text": "addss xmm0, dword ptr [rdi]",
+        "size": 4,
+        "pointer_from": "nearest lea rdi,[reg+off] above the site; off is the field"
+      },
+      "anchors": [
+        {"kind": "target", "name": "MultiTool.Update"},
+        {"kind": "string_xref", "string": "LASERSHAKE"},
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 55 48 8D AC 24"},
+        {"kind": "aob", "pattern": "41 0F 28 C5 41 0F 28 F5 F3 0F 58 07", "offset": 8}
+      ],
+      "seen": {"build": 180836, "func": "0x13FCB00", "site": "0x14045B6"}
+    },
+    {
+      "name": "MultiTool.ScanInstant",
+      "tab": "MultiTool",
+      "hook": "prefix",
+      "action": "set float arg xmm1 = 1.0",
+      "site": {"kind": "entry", "verify": "F3 0F 11 49 ?? 48 85 D2"},
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "UI_NEW_BAIT_ALERT",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_UNIT_U",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 48 83 EC 20 48 8B 91 ?? ?? ?? ?? 48 8B D9 F3 0F 11 49 24"},
+        {"kind": "aob", "pattern": "F3 0F 11 49 24 48 85", "yields": "owner"}
+      ],
+      "seen": {"build": 180836, "func": "0x12B6F00", "site": "0x12B6F00"}
+    },
+    {
+      "name": "MultiTool.ScanTrue",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "never take the je (6 bytes)",
+      "site": {
+        "kind": "scan",
+        "pattern": "0F 84 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48 8D 95 ?? ?? ?? ?? 48 81 C1 ?? ?? ?? ?? E8"
+      },
+      "shape": {
+        "mnemonic": "je",
+        "operands": ["imm"],
+        "text": "je 0x1412bbacb",
+        "size": 6
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "BINOC_ANIMAL"},
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcCreatureComponent",
+          "index": 12,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 4C 89 48 20 44 89 40 18 48 89 48 08"},
+        {"kind": "aob", "pattern": "DB 0F 84 48 02 00 00 48", "offset": 1}
+      ],
+      "seen": {"build": 180836, "func": "0x12BB790", "site": "0x12BB87D"}
+    },
+    {
+      "name": "MultiTool.BoltcasterAmmo",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "keep clip full (eax = max)",
+      "site": {"kind": "scan", "pattern": "41 2B C6 45 8B C6"},
+      "shape": {
+        "mnemonic": "sub",
+        "operands": ["reg", "reg"],
+        "text": "sub eax, r14d",
+        "size": 3,
+        "offset_insn": 2,
+        "offset_operand": 0,
+        "offset": "0x2480",
+        "offset_text": "mov dword ptr [r15 + rsi*4 + 0x2480], eax"
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "AMMO_FIRED"},
+        {
+          "kind": "string_xref",
+          "string": "PROJECTILEWEAP",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "4C 89 4C 24 20 4C 89 44 24 18 89 54 24 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24"
+        },
+        {"kind": "aob", "pattern": "41 2B C6 45 8B C6"}
+      ],
+      "seen": {"build": 180836, "func": "0x1412C80", "site": "0x1413575"}
+    },
+    {
+      "name": "MultiTool.TopoScanner",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "skip recharge timer reset",
+      "site": {"kind": "scan", "pattern": "44 89 6E ?? 44 89 6E ?? 41 0F 10 07"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "text": "mov dword ptr [rsi + 0x10], r13d",
+        "size": 4,
+        "offset_operand": 0,
+        "offset": "0x10"
+      },
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "USE_SCAN",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "VEHICLE_SCAN",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcPetRoam",
+          "index": 2,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 18 48 89 50 10 48 89 48 08 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC D0 03 00 00"
+        },
+        {"kind": "aob", "pattern": "44 89 6E 10 44 89 6E 40"}
+      ],
+      "seen": {"build": 180836, "func": "0x13035E0", "site": "0x1303A64"}
+    },
+    {
+      "name": "MultiTool.RunicLens",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "force edx = max cloak",
+      "site": {"kind": "scan", "pattern": "85 C9 0F 4F D1"},
+      "shape": {
+        "mnemonic": "test",
+        "operands": ["reg", "reg"],
+        "text": "test ecx, ecx",
+        "size": 2,
+        "offset_insn": 4,
+        "offset_operand": 0,
+        "offset": "0x2404",
+        "offset_text": "mov dword ptr [rbx + 0x2404], edx"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "MultiTool.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 48 89 58 10 48 89 70 18 57 48 83 EC 50 48 8B D9"},
+        {"kind": "aob", "pattern": "33 D2 85 C9 0F 4F D1 3B 15", "offset": 2}
+      ],
+      "seen": {"build": 180836, "func": "0x1417C60", "site": "0x1417D68"}
+    },
+    {
+      "name": "Crafting.NoConsume",
+      "tab": "Crafting",
+      "hook": "mid",
+      "action": "skip sub [rbx+18],r12d",
+      "site": {"kind": "scan", "pattern": "44 29 63 ?? 45 2B FC"},
+      "shape": {
+        "mnemonic": "sub",
+        "operands": ["mem", "reg"],
+        "text": "sub dword ptr [rbx + 0x18], r12d",
+        "size": 4,
+        "offset_operand": 0,
+        "offset": "0x18"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcRepairTechComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcPlayerWeapon",
+          "index": 44,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "4C 89 4C 24 20 48 89 54 24 10 48 89 4C 24 08 55 56 57 41 56"},
+        {"kind": "aob", "pattern": "44 29 63 18 45 2B FC"}
+      ],
+      "seen": {"build": 180836, "func": "0x587710", "site": "0x587990"}
+    },
+    {
+      "name": "Crafting.AlwaysHaveResources",
+      "tab": "Crafting",
+      "hook": "prefix",
+      "action": "skip original, return true",
+      "site": {"kind": "entry", "verify": "4C 89 44 24 ?? 89 54 24"},
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcGenericSectionConditionCanMakeItem",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "string_xref", "string": "BASEBUILD_INSUFFRESOURCES"},
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcGenericSectionConditionHasProduct",
+          "index": 7,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "4C 89 44 24 18 89 54 24 10 55 53 56 41 54 41 55 41 56 41 57 48 8D 6C 24 F1"},
+        {"kind": "aob", "pattern": "5B C3 CC CC 4C 89 44 24 18 89 54 24 10 55", "offset": 4}
+      ],
+      "seen": {"build": 180836, "func": "0x59A170", "site": "0x59A170"}
+    },
+    {
+      "name": "Crafting.ItemCount",
+      "tab": "Crafting",
+      "hook": "postfix",
+      "action": "return a large count from the player's item count",
+      "site": {"kind": "entry", "verify": "C7 44 24 ?? FF FF FF 7F 41 B9 01 00 00 00"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Crafting.AlwaysHaveResources",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "4C 8B DC 53 48 81 EC ?? ?? ?? ?? 49 89 6B ?? 41 8B C0",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 48 83 EC ?? 4C 8B 4A ?? 4C 8D 91 ?? ?? ?? ?? 8B 42"}
+      ],
+      "seen": {"build": 180836, "func": "0x592920", "site": "0x592920"}
+    },
+    {
+      "name": "Crafting.RefinerNoConsume",
+      "tab": "Crafting",
+      "hook": "mid",
+      "action": "nop sub edx,[r15+rcx+10] (5 bytes)",
+      "site": {"kind": "scan", "pattern": "41 2B 54 0F ?? 89 50"},
+      "shape": {
+        "mnemonic": "sub",
+        "operands": ["reg", "mem"],
+        "text": "sub edx, dword ptr [r15 + rcx + 0x10]",
+        "size": 5,
+        "offset_operand": 1,
+        "offset": "0x10"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Refiner.Update"},
+        {"kind": "rtti_vfunc", "class": "cGcRefinerUnitComponent", "index": 32},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 D9 48 81 EC C0 00 00 00"
+        },
+        {"kind": "aob", "pattern": "89 50 18 48 8B 4F 78", "offset": -5}
+      ],
+      "seen": {"build": 180836, "func": "0x10B3ED0", "site": "0x10B439A"}
+    },
+    {
+      "name": "Crafting.RefinerFuel",
+      "tab": "Crafting",
+      "hook": "mid",
+      "action": "write max to [rdi+18]",
+      "site": {"kind": "scan", "pattern": "4C 8B 7C 24 ?? 89 47"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "text": "mov r15, qword ptr [rsp + 0x40]",
+        "size": 5,
+        "offset_insn": 1,
+        "offset_operand": 0,
+        "offset": "0x18",
+        "offset_text": "mov dword ptr [rdi + 0x18], eax"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcMaintenanceComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcRefinerUnitComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "RefinerState",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 44 88 40 18 55 56"},
+        {"kind": "aob", "pattern": "4C 8B 7C 24 40 89 47 18"}
+      ],
+      "seen": {"build": 180836, "func": "0x102B2C0", "site": "0x102B909"}
+    },
+    {
+      "name": "Crafting.RefinerInstant",
+      "tab": "Crafting",
+      "hook": "postfix",
+      "action": "return tiny float",
+      "site": {"kind": "entry", "verify": "0F 5B C9 F3 0F 5E C1"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Refiner.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcRefinerUnitComponent",
+          "index": 32,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 48 83 EC 20 48 8B 0D ?? ?? ?? ?? 48 8B DA 48 83 C1 60 48 83 C2 60"},
+        {"kind": "aob", "pattern": "0F 5B C9 F3 0F 5E C1 48 83 C4 20 5B", "yields": "owner"}
+      ],
+      "seen": {"build": 180836, "func": "0x10B4730", "site": "0x10B4730"}
+    },
+    {
+      "name": "Exocraft.Boost",
+      "tab": "Exocraft",
+      "hook": "mid",
+      "action": "skip subss xmm0,xmm7",
+      "site": {"kind": "scan", "pattern": "F3 0F 5C C7 44 0F 2F C0"},
+      "shape": {
+        "mnemonic": "subss",
+        "operands": ["reg", "reg"],
+        "text": "subss xmm0, xmm7",
+        "size": 4,
+        "offset_insn": 2,
+        "offset_operand": 0,
+        "offset": "0x788",
+        "offset_text": "movss dword ptr [rdi + 0x788], xmm0"
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "VEHICLE_NO_BOOST_TECH"},
+        {
+          "kind": "target",
+          "name": "Vehicle.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 57 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 60 08 00 00"},
+        {"kind": "aob", "pattern": "F3 0F 5C C7 44 0F 2F C0 F3 0F 11 87"}
+      ],
+      "seen": {"build": 180836, "func": "0x17F7F60", "site": "0x17F833A"}
+    },
+    {
+      "name": "Exocraft.Fuel",
+      "tab": "Exocraft",
+      "hook": "prefix",
+      "action": "set amount arg (edx) = 0",
+      "site": {"kind": "entry", "verify": "2B CB 85 C9 0F 4E CA"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Vehicle.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Exocraft.Boost",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 48 81 EC 80 00 00 00 48 8B 0D ?? ?? ?? ?? 8B DA"},
+        {"kind": "aob", "pattern": "2B CB 85 C9 0F 4E CA", "yields": "owner"}
+      ],
+      "seen": {"build": 180836, "func": "0x17FC690", "site": "0x17FC690"}
+    },
+    {
+      "name": "Exocraft.NautilonBoost",
+      "tab": "Exocraft",
+      "hook": "mid",
+      "action": "nop subss xmm0,xmm7 (4 bytes)",
+      "site": {"kind": "scan", "pattern": "F3 0F 5C C7 44 0F 2F C0 F3 0F 11 83"},
+      "shape": {
+        "mnemonic": "subss",
+        "operands": ["reg", "reg"],
+        "text": "subss xmm0, xmm7",
+        "size": 4,
+        "offset_insn": 2,
+        "offset_operand": 0,
+        "offset": "0x788",
+        "offset_text": "movss dword ptr [rbx + 0x788], xmm0"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Exocraft.Boost",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Vehicle.Update",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 70 0F 29 7C 24 50 48 8B D9"},
+        {"kind": "aob", "pattern": "F3 0F 5C C7 44 0F 2F C0 F3 0F 11 83"}
+      ],
+      "seen": {"build": 180836, "func": "0x17F8710", "site": "0x17F88B9"}
+    },
+    {
+      "name": "Inventory.AdjustStat",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "4C 8B DC 45 89 43 18 56 41 55 41 56 41 57 48 83 EC 68 4C 8B AC 24 ?? ?? 00 00 49 8D 43 18"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "4C 8B DC 45 89 43 18"},
+      "seen": {"build": 180836, "func": "0x57AAD0", "site": "0x57AAD0"}
+    }
+  ]
+}

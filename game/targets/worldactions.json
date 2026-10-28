@@ -1,0 +1,765 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Mission.GenericCtor",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "Mission ID: %s (%s)"},
+        {"kind": "string_xref", "string": "Mission ID: %s"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 4C 89 4C 24 20 4C 89 44 24 18 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 4C 89 4C 24"},
+      "seen": {"build": 180836, "func": "0xA71F50", "site": "0xA71F50"}
+    },
+    {
+      "name": "Mission.Create",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Mission.GenericCtor",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 30 83 3D ?? ?? ?? ?? 03"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24"},
+      "seen": {"build": 180836, "func": "0xA21960", "site": "0xA21960"}
+    },
+    {
+      "name": "Mission.Add",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Mission.SetCurrentById",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 54 24 10 57 48 83 EC 70 48 8D 99"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 54 24"},
+      "seen": {"build": 180836, "func": "0x9ACE60", "site": "0x9ACE60"}
+    },
+    {
+      "name": "Mission.SetCurrentById",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Mission.Create",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 57 48 83 EC 30 48 8B FA 48 8B D9 E8 ?? ?? ?? ?? 84 C0 0F 85"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 57"},
+      "seen": {"build": 180836, "func": "0x9BEEB0", "site": "0x9BEEB0"}
+    },
+    {
+      "name": "Mission.FindData",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Mission.Create",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 4C 24 08 57 48 83 EC 20 48 8B F2"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 74 24"},
+      "seen": {"build": 180836, "func": "0x9BEFE0", "site": "0x9BEFE0"}
+    },
+    {
+      "name": "Mission.SetCurrent",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Mission.Restart",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Mission.ManagerLoad",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 44 88 40 18 53 56 57 41 54"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 44 88 40"},
+      "seen": {"build": 180836, "func": "0x9C15F0", "site": "0x9C15F0"}
+    },
+    {
+      "name": "Mission.Restart",
+      "anchors": [
+        {"kind": "aob", "pattern": "4D 8B F1 48 8B EA 48 8B D9 45 85 DB", "yields": "owner"},
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 6C 24 18 48 89 7C 24 20 41 56 48 83 EC 20 44 8B 99"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24"},
+      "seen": {"build": 180836, "func": "0x9B8B50", "site": "0x9B8B50"}
+    },
+    {
+      "name": "Mission.BeginFromStart",
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcNotificationSequenceGeneric",
+          "index": 38,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B 05 ?? ?? ?? ?? 48 8B D1 48 85 C0 74"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B 05 ?? ?? ?? ?? 48 8B D1"},
+      "seen": {"build": 180836, "func": "0x9AC770", "site": "0x9AC770"}
+    },
+    {
+      "name": "Mission.Reset",
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcNotificationSequenceGeneric", "index": 39},
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 48 8B 05"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24"},
+      "seen": {"build": 180836, "func": "0xA761F0", "site": "0xA761F0"}
+    },
+    {
+      "name": "Mission.StageIndex",
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcNotificationSequenceGeneric",
+          "index": 38,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B 05 ?? ?? ?? ?? 48 8B D1 48 85 C0 74"}
+      ],
+      "site": {"kind": "scan", "pattern": "89 41 ?? 48 89 41"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x48",
+      "seen": {"build": 180836, "func": "0x9AC770", "site": "0x9AC78B"}
+    },
+    {
+      "name": "Mission.ManagerLoad",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 44 89 44 24 18 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 44 89 44 24"},
+      "seen": {"build": 180836, "func": "0x9BC7E0", "site": "0x9BC7E0"}
+    },
+    {
+      "name": "Mission.Manager",
+      "anchors": [
+        {"kind": "target", "name": "ScanEvent.RewardHandler"},
+        {"kind": "sig", "pattern": "40 55 53 56 41 54 41 57"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x847BB0",
+      "seen": {"build": 180836, "func": "0xF32130", "site": "0xF322C2"}
+    },
+    {
+      "name": "ScanEvent.RewardHandler",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_NO_MAP_HERE"},
+        {"kind": "string_xref", "string": "UI_EVENT_FAILURE"},
+        {"kind": "sig", "pattern": "40 55 53 56 41 54 41 57"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 56 41 54"},
+      "seen": {"build": 180836, "func": "0xF32130", "site": "0xF32130"}
+    },
+    {
+      "name": "ScanEvent.Start",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "ScanEvent.RewardHandler",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "44 89 44 24 18 48 89 4C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 60 04 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "44 89 44 24 ?? 48 89 4C 24"},
+      "seen": {"build": 180836, "func": "0x12DE0A0", "site": "0x12DE0A0"}
+    },
+    {
+      "name": "ScanEvent.FindEvent",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "ScanEvent.RewardHandler",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 49 63 D8"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 49 63 D8"},
+      "seen": {"build": 180836, "func": "0x4E6BC0", "site": "0x4E6BC0"}
+    },
+    {
+      "name": "ScanEvent.Remove",
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcGenericSectionConsequenceRemoveScanEvent",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 83 EC 58 48 89 5C 24 60"}
+      ],
+      "site": {"kind": "entry"},
+      "seen": {"build": 180836, "func": "0x12ED360", "site": "0x12ED360"}
+    },
+    {
+      "name": "ScanEvent.ManagerSlot",
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcGenericSectionConsequenceRemoveScanEvent", "index": 1},
+        {"kind": "sig", "pattern": "48 83 EC 68 48 8B 41 08 4C 8D 44 24 20"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 89 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 83 C4 68"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x4DE450",
+      "seen": {"build": 180836, "func": "0xA1EF30", "site": "0xA1EF70"}
+    },
+    {
+      "name": "Base.ConfirmBuild",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "BASEBUILD_REPLACEMENT_ERROR"},
+        {"kind": "sig", "pattern": "40 55 41 55 41 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 90 08 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 41 55 41 56"},
+      "seen": {"build": 180836, "func": "0x3CBF60", "site": "0x3CBF60"}
+    },
+    {
+      "name": "Base.PlaceObject",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Base.ConfirmBuild",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC 10 02 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58"},
+      "seen": {"build": 180836, "func": "0x3BF470", "site": "0x3BF470"}
+    },
+    {
+      "name": "Base.Manager",
+      "anchors": [
+        {"kind": "string_xref", "string": "U_PARAGON"},
+        {"kind": "sig", "pattern": "4C 8B DC 49 89 4B 08 53 55 41 56"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 0D ?? ?? ?? ?? 48 89 44 24"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x3BDA30", "site": "0x3BDC3D"}
+    },
+    {
+      "name": "Base.AddObject",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Base.PlaceObject",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 56 48 81 EC 00 01 00 00 44 8B 94 24"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 56 48 81 EC"},
+      "seen": {"build": 180836, "func": "0x3D0BF0", "site": "0x3D0BF0"}
+    },
+    {
+      "name": "Base.BufferAddObject",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Base.AddObject",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 48 89 58 18 48 89 70 20 48 89 50 10"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58 ?? 48 89 70 ?? 48 89 50"},
+      "seen": {"build": 180836, "func": "0x4F4AD0", "site": "0x4F4AD0"}
+    },
+    {
+      "name": "Base.AffordCount",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Base.ConfirmBuild",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 55 56 48 8D A8 ?? ?? ?? ?? 48 81 EC 18 06 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 55 56"},
+      "seen": {"build": 180836, "func": "0x59A7E0", "site": "0x59A7E0"}
+    },
+    {
+      "name": "Difficulty.CraftingIsFree",
+      "anchors": [
+        {"kind": "string_xref", "string": "BASEBUILD_REPLACEMENT_ERROR"},
+        {"kind": "sig", "pattern": "40 55 41 55 41 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 90 08 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "41 80 BF ?? ?? ?? ?? 00 0F 85"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x315A5A",
+      "seen": {"build": 180836, "func": "0x3CBF60", "site": "0x3CC072"}
+    },
+    {
+      "name": "Cost.Check",
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcGenericSectionConditionCanPayCost",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 20 4C 89 44 24 18 48 89 54 24 10 48 89 4C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 81 EC 80 00 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 4C 89 44 24"},
+      "seen": {"build": 180836, "func": "0xB322C0", "site": "0xB322C0"}
+    },
+    {
+      "name": "Cost.CanAfford",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Shop.PurchaseableUpdate",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Cost.Check",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 83 EC 38 48 8B 05 ?? ?? ?? ?? 48 39 42 08"}
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 38 48 8B 05"},
+      "seen": {"build": 180836, "func": "0xB2CFD0", "site": "0xB2CFD0"}
+    },
+    {
+      "name": "Shop.PurchaseableUpdate",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_SUIT_SLOTS_OSD"},
+        {"kind": "string_xref", "string": "UI_FREIGHT_SLOTS_OSD"},
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 53 56 57 41 54 41 56"}
+      ],
+      "site": {"kind": "entry", "verify": "F3 0F 11 4C 24"},
+      "seen": {"build": 180836, "func": "0x8EA6F0", "site": "0x8EA6F0"}
+    },
+    {
+      "name": "Cost.Pay",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Cost.Check",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 83 EC 38 41 B1 01"}
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 38 41 B1 01"},
+      "seen": {"build": 180836, "func": "0xB2D010", "site": "0xB2D010"}
+    },
+    {
+      "name": "Cost.Evaluate",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Cost.Check",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 10 4C 89 48 20 4C 89 40 18 48 89 48 08 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC 30 0B 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58"},
+      "seen": {"build": 180836, "func": "0xB32650", "site": "0xB32650"}
+    },
+    {
+      "name": "Difficulty.CurrencyCost",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Cost.Evaluate",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 83 EC 28 48 8B 05 ?? ?? ?? ?? F3 0F 10 0D"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 63 88 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? 48 81 C1 ?? ?? ?? ?? 48 8D 0C 49"},
+      "shape": {
+        "mnemonic": "movsxd",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x315A10",
+      "seen": {"build": 180836, "func": "0x443F40", "site": "0x443F53"}
+    },
+    {
+      "name": "Pet.TreatsAvailable",
+      "anchors": [
+        {"kind": "target", "name": "Pet.GetData"},
+        {"kind": "sig", "pattern": "48 89 5C 24 10 57 48 83 EC 20 48 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {
+        "kind": "scan",
+        "pattern": "8B 83 ?? ?? ?? ?? 89 87 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? 89 87 ?? ?? ?? ?? 8B 83 ?? ?? ?? ?? 89 87 ?? ?? ?? ?? 0F 10 83"
+      },
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2420",
+      "seen": {"build": 180836, "func": "0x1208B60", "site": "0x1208E58"}
+    },
+    {
+      "name": "Pet.ClassOverrides",
+      "anchors": [
+        {"kind": "target", "name": "Pet.GetData"},
+        {"kind": "sig", "pattern": "48 89 5C 24 10 57 48 83 EC 20 48 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "8B 83 08 24 00 00"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2408",
+      "seen": {"build": 180836, "func": "0x1208B60", "site": "0x1208E34"}
+    },
+    {
+      "name": "Pet.UseClassOverrides",
+      "anchors": [
+        {"kind": "target", "name": "Pet.GetData"},
+        {"kind": "sig", "pattern": "48 89 5C 24 10 57 48 83 EC 20 48 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "0F B6 83 ?? ?? ?? ?? 88 87 ?? ?? ?? ?? 8B 83"},
+      "shape": {
+        "mnemonic": "movzx",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2404",
+      "seen": {"build": 180836, "func": "0x1208B60", "site": "0x1208E27"}
+    },
+    {
+      "name": "Pet.Traits",
+      "anchors": [
+        {"kind": "target", "name": "Pet.GetData"},
+        {"kind": "sig", "pattern": "48 89 5C 24 10 57 48 83 EC 20 48 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "8B 83 E0 23 00 00"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x23E0",
+      "seen": {"build": 180836, "func": "0x1208B60", "site": "0x1208DC7"}
+    },
+    {
+      "name": "Pet.Scale",
+      "anchors": [
+        {"kind": "target", "name": "Pet.GetData"},
+        {"kind": "sig", "pattern": "48 89 5C 24 10 57 48 83 EC 20 48 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "8B 81 ?? ?? ?? ?? 89 82 ?? ?? ?? ?? 0F 10 81"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x23F4",
+      "seen": {"build": 180836, "func": "0x1208B60", "site": "0x1208B99"}
+    },
+    {
+      "name": "Fleet.LoadFromData",
+      "helper": true,
+      "anchors": [
+        {"kind": "aob", "pattern": "48 8B 9A 50 3C 08 00 48 8B F1", "yields": "owner"},
+        {"kind": "sig", "pattern": "48 8B C4 53 56 41 57 48 81 EC 00 01 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 53 56"},
+      "seen": {"build": 180836, "func": "0x521330", "site": "0x521330"}
+    },
+    {
+      "name": "Fleet.SaveToData",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.SaveToData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 55 41 56 48 83 EC 40 0F 10 81"}
+      ],
+      "site": {"kind": "entry", "verify": "40 53 55 41 56"},
+      "seen": {"build": 180836, "func": "0x520F80", "site": "0x520F80"}
+    },
+    {
+      "name": "Fleet.Manager",
+      "anchors": [
+        {"kind": "target", "name": "PlayerState.SaveToData"},
+        {"kind": "sig", "pattern": "48 8B C4 48 89 50 10 48 89 48 08 55 48 8D A8 ?? ?? ?? ?? 48 81 EC 10 04 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 1D ?? ?? ?? ?? 49 8D 8E"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2BA450",
+      "seen": {"build": 180836, "func": "0x57B4C0", "site": "0x57E921"}
+    },
+    {
+      "name": "Fleet.FrigateLoad",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Fleet.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 56 57 48 83 EC 30 41 0F 10 40 20"}
+      ],
+      "site": {"kind": "entry", "verify": "40 53 56 57 48 83 EC 30"},
+      "seen": {"build": 180836, "func": "0x47F390", "site": "0x47F390"}
+    },
+    {
+      "name": "Fleet.FrigateAlloc",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Fleet.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 83 EC 78 44 8B 81"}
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 78 44 8B 81"},
+      "seen": {"build": 180836, "func": "0x529540", "site": "0x529540"}
+    },
+    {
+      "name": "Frigate.Stats",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Fleet.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 56 57 48 83 EC 30 41 0F 10 40 20"}
+      ],
+      "site": {"kind": "scan", "pattern": "89 8C 93 ?? ?? ?? ?? 48 FF C2"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x104",
+      "seen": {"build": 180836, "func": "0x47F390", "site": "0x47F527"}
+    },
+    {
+      "name": "Frigate.DamageMask",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Fleet.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 56 57 48 83 EC 30 41 0F 10 40 20"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 89 BB ?? ?? ?? ?? 4C 8B CF"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x130",
+      "seen": {"build": 180836, "func": "0x47F390", "site": "0x47F53D"}
+    },
+    {
+      "name": "Frigate.Counters",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Fleet.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 56 57 48 83 EC 30 41 0F 10 40 20"}
+      ],
+      "site": {"kind": "scan", "pattern": "89 83 ?? ?? ?? ?? 89 8B ?? ?? ?? ?? 89 93"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xFC",
+      "seen": {"build": 180836, "func": "0x47F390", "site": "0x47F628"}
+    },
+    {
+      "name": "Frigate.GetStat",
+      "anchors": [
+        {"kind": "aob", "pattern": "8B 9C 81 04 01 00 00 83 FA 04", "yields": "owner"},
+        {"kind": "sig", "pattern": "40 53 48 83 EC 40 33 DB 83 FA 0B"}
+      ],
+      "site": {"kind": "entry", "verify": "40 53 48 83 EC 40"},
+      "seen": {"build": 180836, "func": "0x480CE0", "site": "0x480CE0"}
+    },
+    {
+      "name": "Fleet.ExpeditionLoad",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Fleet.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 56 57 41 55 48 83 EC 70"}
+      ],
+      "site": {"kind": "entry", "verify": "40 56 57 41 55"},
+      "seen": {"build": 180836, "func": "0x46C360", "site": "0x46C360"}
+    },
+    {
+      "name": "Expedition.StartTime",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Fleet.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 56 57 41 55 48 83 EC 70"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 89 81 ?? ?? ?? ?? 49 8B 80 ?? ?? ?? ?? 48 89 81 ?? ?? ?? ?? 49 8B 80"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xA0",
+      "seen": {"build": 180836, "func": "0x46C360", "site": "0x46C399"}
+    },
+    {
+      "name": "Physics.SetCollisionLayer",
+      "anchors": [
+        {"kind": "aob", "pattern": "48 8B 81 08 03 00 00 89 54 24 20 48 8D 54 24 20", "yields": "owner"},
+        {"kind": "sig", "pattern": "48 83 EC 48 48 8B 81 00 03 00 00 48 89 44 24 28"}
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 48 48 8B 81"},
+      "seen": {"build": 180836, "func": "0x2CC4300", "site": "0x2CC4300"}
+    },
+    {
+      "name": "Player.CheckFallenThroughFloor",
+      "anchors": [
+        {"kind": "string_xref", "string": "CheckFallenThroughFloor_NotInVehicle"},
+        {"kind": "string_xref", "string": "void __cdecl cGcPlayer::CheckFallenThroughFloor(void)"},
+        {"kind": "sig", "pattern": "40 55 41 54 48 8D AC 24 28 FE FF FF 48 81 EC D8 02 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 41 54 48 8D AC 24"},
+      "seen": {"build": 180836, "func": "0x1485370", "site": "0x1485370"}
+    },
+    {
+      "name": "Mission.Complete",
+      "anchors": [
+        {"kind": "string_xref", "string": "MSG_NEXUS_E_OFF"},
+        {"kind": "sig", "pattern": "48 81 EC 98 00 00 00 4C 8B 15 ?? ?? ?? ?? 48 89 BC 24 B8 00 00 00 48 8B F9"}
+      ],
+      "site": {"kind": "entry", "verify": "48 81 EC 98 00 00 00 4C 8B 15"},
+      "seen": {"build": 180836, "func": "0xA23DE0", "site": "0xA23DE0"}
+    }
+  ]
+}

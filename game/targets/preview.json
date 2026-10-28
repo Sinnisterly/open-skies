@@ -1,0 +1,753 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "MRR.ConstructInner",
+      "anchors": [
+        {"kind": "string_xref", "string": "TkModelResourceRenderer %p"},
+        {"kind": "string_xref", "string": "RenderRgbaBackgroundFromTextureWithClear"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 55 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 30 02 00 00 48 8B 85"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 48 89 74 24 10"},
+      "seen": {"build": 180836, "func": "0x2D7F5F0", "site": "0x2D7F5F0"}
+    },
+    {
+      "name": "MRR.Construct",
+      "anchors": [
+        {"kind": "string_xref", "string": "PIPELINES/PIPELINEIMAGEBASEDLIGHTINGINTEGRATE.BIN"},
+        {"kind": "string_xref", "string": "HDRICamera"},
+        {
+          "kind": "sig",
+          "pattern": "4C 8B DC 49 89 5B 10 49 89 73 18 49 89 7B 20 55 49 8D 6B ?? 48 81 EC 90 00 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "4C 8B DC 49 89 5B"},
+      "seen": {"build": 180836, "func": "0x2D7F400", "site": "0x2D7F400"}
+    },
+    {
+      "name": "MRR.EnqueueRender",
+      "anchors": [
+        {"kind": "string_xref", "string": "gBufferMap", "entry": "48 8B C4 55 53 56 41 54 48 8D 68 D8"},
+        {"kind": "sig", "pattern": "48 8B C4 55 53 56 41 54 48 8D 68 D8 48 81 EC 08 01 00 00 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 55 53 56"},
+      "seen": {"build": 180836, "func": "0x2D7FFD0", "site": "0x2D7FFD0"}
+    },
+    {
+      "name": "MRR.EnqueueRenderNodeToTexture",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "MRR.EnqueueRender",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 55 53 56 57 41 56 41 57 48 8D AC 24"
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 55 53 56 57 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC E8 04 00 00 66 0F 6F 05 ?? ?? ?? ?? 41 8B F0 C1 EE 13"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 56 57 41 56"},
+      "seen": {"build": 180836, "func": "0x2D80560", "site": "0x2D80560"}
+    },
+    {
+      "name": "MRR.Update",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "ModelRenderer.Update",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 55 53 57 41 54 41 55 41 56 48 8D 6C 24"
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 55 53 57 41 54 41 55 41 56 48 8D 6C 24 ?? 48 81 EC 58 01 00 00 8B 81 ?? ?? ?? ?? 45 33 ED"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 57 41 54"},
+      "seen": {"build": 180836, "func": "0x2D87FB0", "site": "0x2D87FB0"}
+    },
+    {
+      "name": "HUD.UpdateThumbnailQueue",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "MRR.Update",
+          "hops": [
+            {"callers": 1}
+          ],
+          "entry": "40 55 53 56 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8D 99"
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 55 53 56 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8D 99 70 53 12 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 56 57"},
+      "seen": {"build": 180836, "func": "0x920D50", "site": "0x920D50"}
+    },
+    {
+      "name": "MRR.SetResourceHandle",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "HUD.UpdateThumbnailQueue",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 18 55 56 57 48 81 EC E0 00 00 00 48 8D B9"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 55 56 57 48 81 EC E0 00 00 00 48 8D B9 48 04 00 00 49 8B E9 8B DA"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 18 55 56"},
+      "seen": {"build": 180836, "func": "0x2D87970", "site": "0x2D87970"}
+    },
+    {
+      "name": "HUD.EnqueueRenderThumbnailQueue",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "MRR.EnqueueRender",
+          "hops": [
+            {"callers": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 48 89 74"},
+      "seen": {"build": 180836, "func": "0x921200", "site": "0x921200"}
+    },
+    {
+      "name": "Engine.GetRenderBufferTexture",
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 48 83 EC 30 8B DA 85 C9 74 ?? 4C 8B 0D ?? ?? ?? ?? 8D 41 FF 41 3B 41 5C"},
+        {
+          "kind": "aob",
+          "pattern": "8B 89 F4 59 87 00 E8",
+          "yields": "owner",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 53 48 83 EC 30 8B DA 85 C9"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "40 53 48 83 EC 30"},
+      "seen": {"build": 180836, "func": "0x1843510", "site": "0x1843510"}
+    },
+    {
+      "name": "Renderer.GetRenderBufferTexture",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Engine.GetRenderBufferTexture",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 83 EC 48 4C 8D 89 ?? ?? ?? ?? 85 D2"
+        },
+        {"kind": "sig", "pattern": "48 83 EC 48 4C 8D 89 ?? ?? ?? ?? 85 D2 0F 84 ?? ?? ?? ?? 41 8B 81 9C 10 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 48 4C 8D 89"},
+      "seen": {"build": 180836, "func": "0x1903400", "site": "0x1903400"}
+    },
+    {
+      "name": "Texture.GetView",
+      "anchors": [
+        {"kind": "sig", "pattern": "83 FA FF 75 ?? 48 8B 81 ?? ?? ?? ?? C3 48 63 C2 48 8B 84 C1 ?? ?? ?? ?? C3"},
+        {"kind": "aob", "pattern": "C3 48 63 C2 48 8B 84 C1 00 01 00 00 C3", "yields": "owner"}
+      ],
+      "site": {"kind": "entry", "verify": "83 FA FF 75"},
+      "seen": {"build": 180836, "func": "0x2DD1FC0", "site": "0x2DD1FC0"}
+    },
+    {
+      "name": "ProcTex.PollForTaskCompletion",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "48 81 C1 50 99 90 00 48 8B 53 08 E8",
+          "yields": "owner",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 54 24 10 48 89 4C 24 08 55 53 56 41 55 48 8D AC 24"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 54 24 10 48 89 4C 24 08 55 53 56 41 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC B8 01 00 00 4C 8B E9 48 8B F2"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 54 24 10 48 89 4C"},
+      "seen": {"build": 180836, "func": "0x63A6D0", "site": "0x63A6D0"}
+    },
+    {
+      "name": "HUD.ThumbnailRenderers",
+      "anchors": [
+        {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 99 ?? ?? ?? ?? 48 8D BB A0 09 00 00"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x125370",
+      "seen": {"build": 180836, "func": "0x921200", "site": "0x92120F"}
+    },
+    {
+      "name": "MRR.RenderTarget",
+      "anchors": [
+        {"kind": "target", "name": "MRR.Construct"},
+        {
+          "kind": "sig",
+          "pattern": "4C 8B DC 49 89 5B 10 49 89 73 18 49 89 7B 20 55 49 8D 6B ?? 48 81 EC 90 00 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 4D ?? E8 ?? ?? ?? ?? B2 01"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x454",
+      "seen": {"build": 180836, "func": "0x2D7F400", "site": "0x2D7F488"}
+    },
+    {
+      "name": "Texture.ViewField",
+      "anchors": [
+        {"kind": "target", "name": "Texture.GetView"},
+        {"kind": "sig", "pattern": "83 FA FF 75 ?? 48 8B 81 ?? ?? ?? ?? C3 48 63 C2 48 8B 84 C1 ?? ?? ?? ?? C3"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 81 ?? ?? ?? ?? C3"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x170",
+      "seen": {"build": 180836, "func": "0x2DD1FC0", "site": "0x2DD1FC5"}
+    },
+    {
+      "name": "HUD.Construct",
+      "anchors": [
+        {"kind": "string_xref", "string": "HUDManager_RTT"},
+        {"kind": "string_xref", "string": "UI\\HUD\\HUDEFFECTLAYER.MXML"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 74 24 20 55 57 41 54 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B F9 45 33 E4"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 18 48 89 74 24 20 55 57"},
+      "seen": {"build": 180836, "func": "0x916C20", "site": "0x916C20"}
+    },
+    {
+      "name": "Scene.AddNode",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "HUD.Construct",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 20 4C 8B 7C 24 60 48 8B F2"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 54 41 56 41 57 48 83 EC 20 4C 8B 7C 24 60 48 8B F2 48 8D 54 24 60 4D 8B F1"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 48 89 6C"},
+      "seen": {"build": 180836, "func": "0x18E2030", "site": "0x18E2030"}
+    },
+    {
+      "name": "Scene.TemplateDtor",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "HUD.Construct",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 10 48 89 6C 24 18 48 89 7C 24 20 41 56 48 83 EC 20 45 33 F6 48 8D 05"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 6C 24 18 48 89 7C 24 20 41 56 48 83 EC 20 45 33 F6 48 8D 05 ?? ?? ?? ?? 41 8B DE 48 89 01 48 8B F9"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 10 48 89 6C 24 18"},
+      "seen": {"build": 180836, "func": "0x18355D0", "site": "0x18355D0"}
+    },
+    {
+      "name": "Scene.ManagerPtr",
+      "anchors": [
+        {"kind": "target", "name": "HUD.Construct"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 74 24 20 55 57 41 54 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B F9 45 33 E4"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 0D ?? ?? ?? ?? 4C 8D 4C 24 70 0F 29 45"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x916C20", "site": "0x917BC3"}
+    },
+    {
+      "name": "Scene.RootNode",
+      "anchors": [
+        {"kind": "target", "name": "HUD.Construct"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 74 24 20 55 57 41 54 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B F9 45 33 E4"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "8B 05 ?? ?? ?? ?? 41 BE FF FF 07 00 44 8B C8"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x916C20", "site": "0x917A40"}
+    },
+    {
+      "name": "Scene.LocatorTemplateVtbl",
+      "anchors": [
+        {"kind": "target", "name": "HUD.Construct"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 74 24 20 55 57 41 54 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B F9 45 33 E4"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 05 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 4C 8D 4C 24 70"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x916C20", "site": "0x917BBC"}
+    },
+    {
+      "name": "Gfx.ModelViewAllowedComponentsCb",
+      "anchors": [
+        {"kind": "target", "name": "HUD.Construct"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 74 24 20 55 57 41 54 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B F9 45 33 E4"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "4C 8D 25 ?? ?? ?? ?? F3 0F 10 3D"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x916C20", "site": "0x917C5E"}
+    },
+    {
+      "name": "Gfx.ModelViewAttachmentPrepareCb",
+      "anchors": [
+        {"kind": "target", "name": "HUD.Construct"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 74 24 20 55 57 41 54 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B F9 45 33 E4"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "4C 8D 2D ?? ?? ?? ?? 0F 29 BC 24"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x916C20", "site": "0x917C4F"}
+    },
+    {
+      "name": "Gfx.ModelViewViewportCb",
+      "anchors": [
+        {"kind": "target", "name": "HUD.Construct"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 74 24 20 55 57 41 54 41 56 41 57 48 8D AC 24 60 FF FF FF 48 81 EC A0 01 00 00 48 8B F9 45 33 E4"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "4C 8D 3D ?? ?? ?? ?? 0F 29 B4 24"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x916C20", "site": "0x917C40"}
+    },
+    {
+      "name": "MRR.CalcCameraMatrix",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 57 48 81 EC E0 00 00 00 41 0F 10 01 49 8B F1 0F 11 02 48 8B FA"
+        },
+        {
+          "kind": "aob",
+          "pattern": "F3 0F 10 8B ?? ?? ?? ?? 0F 57 C0 0F 2E C8 7A 02 74 04 F3 0F 5E F9",
+          "yields": "owner"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58 08"},
+      "seen": {"build": 180836, "func": "0x2D7D1E0", "site": "0x2D7D1E0"}
+    },
+    {
+      "name": "MRR.ModelScale",
+      "anchors": [
+        {"kind": "target", "name": "MRR.CalcCameraMatrix"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 57 48 81 EC E0 00 00 00 41 0F 10 01 49 8B F1 0F 11 02 48 8B FA"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "F3 0F 10 8B ?? ?? ?? ?? 0F 57 C0 0F 2E C8 7A 02 74 04"},
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x478",
+      "seen": {"build": 180836, "func": "0x2D7D1E0", "site": "0x2D7D362"}
+    },
+    {
+      "name": "Texture.CreateEmpty",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 44 89 48 20 44 89 40 18 88 50 10 48 89 48 08 53 55 56 57 41 54 41 55 41 56 41 57 48 81 EC C8 00 00 00"
+        },
+        {"kind": "aob", "pattern": "4D 8D BE 90 00 00 00 0F 57 C0 33 C0", "yields": "owner"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 44 89 48 20"},
+      "seen": {"build": 180836, "func": "0x2DCF3B0", "site": "0x2DCF3B0"}
+    },
+    {
+      "name": "Texture.ImageDesc",
+      "anchors": [
+        {"kind": "target", "name": "Texture.CreateEmpty"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 44 89 48 20 44 89 40 18 88 50 10 48 89 48 08 53 55 56 57 41 54 41 55 41 56 41 57 48 81 EC C8 00 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "4D 8D BE ?? ?? ?? ?? 0F 57 C0 33 C0"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x90",
+      "seen": {"build": 180836, "func": "0x2DCF3B0", "site": "0x2DCF65A"}
+    },
+    {
+      "name": "Texture.ImageField",
+      "anchors": [
+        {"kind": "target", "name": "Texture.CreateEmpty"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 44 89 48 20 44 89 40 18 88 50 10 48 89 48 08 53 55 56 57 41 54 41 55 41 56 41 57 48 81 EC C8 00 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "49 8B 86 ?? ?? ?? ?? 48 8D 49"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x88",
+      "seen": {"build": 180836, "func": "0x2DCF3B0", "site": "0x2DCFC52"}
+    },
+    {
+      "name": "Customise.InlineCtor",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 20 4C 8B F1 48 8B D9 BF 1E 00 00 00"
+        },
+        {
+          "kind": "aob",
+          "pattern": "C7 83 50 3A 00 00 00 00 80 3F 48 8D 83 A8 3A 00 00 0F 57 C0 0F 11 83 60 3A 00 00 4C 89 A3",
+          "yields": "owner"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "C7 83 ?? ?? ?? ?? 00 00 80 3F 48 8D 83 ?? ?? ?? ?? 0F 57 C0"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x3A50",
+      "seen": {"build": 180836, "func": "0x2D1000", "site": "0x2D112E"}
+    },
+    {
+      "name": "MRRData.AspectRatio",
+      "anchors": [
+        {"kind": "target", "name": "MRR.EnqueueRenderNodeToTexture"},
+        {
+          "kind": "sig",
+          "pattern": "40 55 53 56 57 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC E8 04 00 00 66 0F 6F 05 ?? ?? ?? ?? 41 8B F0 C1 EE 13"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "F3 0F 10 81 ?? ?? ?? ?? F3 0F 10 89 ?? ?? ?? ?? 48 8B 0D"},
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x90",
+      "seen": {"build": 180836, "func": "0x2D80560", "site": "0x2D80F55"}
+    },
+    {
+      "name": "MRRData.Fov",
+      "anchors": [
+        {"kind": "target", "name": "MRR.EnqueueRenderNodeToTexture"},
+        {
+          "kind": "sig",
+          "pattern": "40 55 53 56 57 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC E8 04 00 00 66 0F 6F 05 ?? ?? ?? ?? 41 8B F0 C1 EE 13"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "F3 0F 10 81 ?? ?? ?? ?? F3 0F 10 89 ?? ?? ?? ?? 48 8B 0D", "offset": 8},
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xA4",
+      "seen": {"build": 180836, "func": "0x2D80560", "site": "0x2D80F5D"}
+    },
+    {
+      "name": "MRRData.LightIntensityMultiplier",
+      "anchors": [
+        {"kind": "target", "name": "MRR.EnqueueRenderNodeToTexture"},
+        {
+          "kind": "sig",
+          "pattern": "40 55 53 56 57 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC E8 04 00 00 66 0F 6F 05 ?? ?? ?? ?? 41 8B F0 C1 EE 13"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "F3 44 0F 10 B0 ?? ?? ?? ?? F3 44 0F 59 B5"},
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xAC",
+      "seen": {"build": 180836, "func": "0x2D80560", "site": "0x2D809E1"}
+    },
+    {
+      "name": "MRRData.ThumbnailMode",
+      "anchors": [
+        {"kind": "target", "name": "MRR.EnqueueRender"},
+        {"kind": "sig", "pattern": "48 8B C4 55 53 56 41 54 48 8D 68 D8 48 81 EC 08 01 00 00 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {
+        "kind": "scan",
+        "pattern": "48 8B 8E ?? ?? ?? ?? 48 85 C9 0F 84 ?? ?? ?? ?? 8B 89 ?? ?? ?? ??",
+        "offset": 16
+      },
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xB0",
+      "seen": {"build": 180836, "func": "0x2D7FFD0", "site": "0x2D80187"}
+    },
+    {
+      "name": "MRRData.FocusType",
+      "anchors": [
+        {"kind": "target", "name": "MRR.CalcCameraMatrix"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 57 48 81 EC E0 00 00 00 41 0F 10 01 49 8B F1 0F 11 02 48 8B FA"
+        }
+      ],
+      "site": {
+        "kind": "scan",
+        "pattern": "48 8B A9 ?? ?? ?? ?? 48 85 ED 0F 84 ?? ?? ?? ?? 8B AD ?? ?? ?? ??",
+        "offset": 16
+      },
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xA0",
+      "seen": {"build": 180836, "func": "0x2D7D1E0", "site": "0x2D7D232"}
+    },
+    {
+      "name": "HUD.ThumbnailLightNode",
+      "anchors": [
+        {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+        }
+      ],
+      "site": {
+        "kind": "scan",
+        "pattern": "48 8B 15 ?? ?? ?? ?? 4C 8D 05 ?? ?? ?? ?? F3 0F 10 1D ?? ?? ?? ?? 48 8B CB C6 44 24 20 01 8B 92 ?? ?? ?? ??",
+        "offset": 30
+      },
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x4DE628",
+      "seen": {"build": 180836, "func": "0x921200", "site": "0x921240"}
+    },
+    {
+      "name": "Customise.FreshSlotBuild",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 B8 10 3B 00 00 E8 ?? ?? ?? ?? 48 2B E0 48 8B 0D ?? ?? ?? ?? 48 8B F2 48 81 C1 40 C2 00 00 BA 13 00 00 00"
+        },
+        {
+          "kind": "target",
+          "name": "Customise.CreateGenerationTask",
+          "hops": [
+            {"callers": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 48 89 74 24 10 57 B8 10 3B 00 00 E8"},
+      "seen": {"build": 180836, "func": "0x1411920", "site": "0x1411920"}
+    },
+    {
+      "name": "Customise.RebuildDescriptors",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 4C 24 08 55 53 56 57 41 54 41 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 68 05 00 00"
+        },
+        {
+          "kind": "target",
+          "name": "Customise.FreshSlotBuild",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 4C 24 08 55 53 56 57 41 54 41 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 68 05 00 00"
+      },
+      "seen": {"build": 180836, "func": "0x114C010", "site": "0x114C010"}
+    },
+    {
+      "name": "Customise.RebuildLook",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 4C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 D9 48 81 EC D0 00 00 00"
+        },
+        {
+          "kind": "target",
+          "name": "Customise.FreshSlotBuild",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 18 48 89 4C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 D9 48 81 EC D0 00 00 00"
+      },
+      "seen": {"build": 180836, "func": "0x114B200", "site": "0x114B200"}
+    },
+    {
+      "name": "HUD.ShipThumbnails",
+      "anchors": [
+        {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D BE ?? ?? ?? ?? 66 0F 1F 84 00 00 00 00 00 8B D3 48 8D 8E"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xDCC60",
+      "seen": {"build": 180836, "func": "0x921200", "site": "0x921260"}
+    },
+    {
+      "name": "HUD.ToolThumbnailBase",
+      "anchors": [
+        {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 98 ?? ?? ?? ?? 74 ?? 48 83 BB ?? ?? ?? ?? 00 74 ?? F3 0F 10 1D"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2B2FD0",
+      "seen": {"build": 180836, "func": "0x921200", "site": "0x9212C7"}
+    },
+    {
+      "name": "HUD.ToolThumbnailFirst",
+      "anchors": [
+        {"kind": "target", "name": "HUD.EnqueueRenderThumbnailQueue"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 30 48 8D 99 70 53 12 00 48 8D BB A0 09 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 8B ?? ?? ?? ?? 8B 90 ?? ?? ?? ?? 4C 8D 05", "index": 0},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x4450",
+      "seen": {"build": 180836, "func": "0x921200", "site": "0x9212E2"}
+    },
+    {
+      "name": "MRR.Ctor",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 57 48 83 EC 20 66 0F 6F 05 ?? ?? ?? ?? 48 8D 41 50 48 C7 41 40 10 00 00 00"
+        },
+        {
+          "kind": "aob",
+          "pattern": "48 C7 41 40 10 00 00 00 33 FF 40 88 B9 A0 00 00 00 48 8B D9 48 89 49 48",
+          "yields": "owner"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 57 48 83 EC 20 66 0F 6F 05"},
+      "seen": {"build": 180836, "func": "0x1F8FA0", "site": "0x1F8FA0"}
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Clock.Step",
+      "hook": "mid",
+      "site": {"kind": "scan", "pattern": "F3 0F 10 43 1C F3 0F 59 4B 24"},
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 48 83 EC ?? 80 79 ?? 00 48 8B D9 8B 05"},
+        {
+          "kind": "sig",
+          "pattern": "48 83 EC 28 80 3D ?? ?? ?? ?? 00 75 ?? 80 3D ?? ?? ?? ?? 00",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2C00AE0", "site": "0x2C00B9B"}
+    },
+    {
+      "name": "Player.SetToPosition",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "48 83 EC 60 48 8B FA 48 8B D9 48 8B 15"},
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 60 48 8B FA 48 8B D9 48 8B 15"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 55 53 56 41 57 48 8D A8 28 FF FF FF",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x1469C80", "site": "0x1469C80"}
+    },
+    {
+      "name": "Sky.SetStormState",
+      "hook": "mid",
+      "site": {"kind": "entry", "verify": "41 57 48 83 EC 60 4C 8B 15 ?? ?? ?? ?? 33 DB 8B F2"},
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 54 41 56 41 57 48 83 EC 60 4C 8B 15 ?? ?? ?? ?? 33 DB 8B F2"
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 55 57 48 8D AC 24 B8 FE FF FF",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x1311780", "site": "0x1311780"}
+    }
+  ]
+}

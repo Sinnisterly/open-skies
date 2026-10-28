@@ -1,0 +1,135 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Camera.Manager",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Player.SetToPosition",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 57 48 83 EC 30 4C 8B C2 48 8B D9 48 8D 54 24 20 E8"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 81 C1 ?? ?? ?? ?? 48 8B 01 FF 50 48", "index": 0},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x905B20",
+      "seen": {"build": 180836, "func": "0x1487390", "site": "0x14873CF"}
+    },
+    {
+      "name": "Player.Up",
+      "anchors": [
+        {"kind": "target", "name": "Camera.Manager"},
+        {"kind": "sig", "pattern": "48 89 5C 24 08 57 48 83 EC 30 4C 8B C2 48 8B D9 48 8D 54 24 20 E8"}
+      ],
+      "site": {"kind": "scan", "pattern": "FF 50 48 0F 10 40 10 0F 11 83", "offset": 7},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x5F30",
+      "seen": {"build": 180836, "func": "0x1487390", "site": "0x14873E0"}
+    },
+    {
+      "name": "Creature.List",
+      "anchors": [
+        {"kind": "string_xref", "string": "TAME RANDOM"},
+        {"kind": "string_xref", "string": "JUMP TO RANDOM"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 35 ?? ?? ?? ?? 49 8B D5 4C 89 6C 24 ?? 41 8B DD", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x124C830", "site": "0x124CDC8"}
+    },
+    {
+      "name": "Creature.Adopt",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "Make Pet",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 55 56 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 4C 8B F2 48 8B F1 41 BF FF FF FF FF"
+        }
+      ],
+      "site": {
+        "kind": "entry",
+        "verify": "48 8B C4 55 56 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 4C 8B F2 48 8B F1 41 BF FF FF FF FF"
+      },
+      "seen": {"build": 180836, "func": "0x507C80", "site": "0x507C80"}
+    },
+    {
+      "name": "Creature.Ownership",
+      "anchors": [
+        {"kind": "string_xref", "string": "Make Pet"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 81 C1 ?? ?? ?? ?? E8"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xE10D0",
+      "seen": {"build": 180836, "func": "0x1216F10", "site": "0x121716D"}
+    },
+    {
+      "name": "Creature.Body",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "44 0F 10 81 80 0E 00 00 48 8D 54 24 ?? 0F 10 B9 70 0E 00 00 48 8B 89",
+          "offset": 20
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 89 ?? ?? ?? ?? 66 44 0F 6F 35"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x430",
+      "seen": {"build": 180836, "func": "0x1218A60", "site": "0x1218AB6"}
+    },
+    {
+      "name": "Ship.CheckSafeLand",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "enum LandPlacementResult __cdecl cGcSpaceshipComponent::CheckSafeLandTransform(class TkHandle<unsigned int,19>,class cTkBigPosMat34 &,bool,bool,bool,class cGcBuildableSpaceshipComponent *,float)"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 44 88 4C 24 20 44 88 44 24 18 55 56 57 41 54 41 55 41 56 41 57 B8 ?? ?? 00 00 E8"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 44 88 4C 24 20 44 88 44 24 18"},
+      "seen": {"build": 180836, "func": "0x1771660", "site": "0x1771660"}
+    },
+    {
+      "name": "Ship.CanBeginLanding",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 57 48 81 EC B0 00 00 00 F3 0F 10 0D ?? ?? ?? ?? 48 8B F9 F3 0F 5C 89 ?? ?? 00 00 F3 0F 10 05"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 57 48 81 EC B0 00 00 00"},
+      "seen": {"build": 180836, "func": "0x1755E60", "site": "0x1755E60"}
+    }
+  ]
+}

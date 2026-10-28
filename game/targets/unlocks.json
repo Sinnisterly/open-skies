@@ -1,0 +1,691 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "PlayerState.LearnTech",
+      "site": {"kind": "entry", "verify": "4C 39 51 08 75"},
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_NEW_TECH_ALERT"},
+        {
+          "kind": "string_xref",
+          "string": "Learn every tech",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 6C 24 18 56 57 41 56 48 81 EC 90 00 00 00"}
+      ],
+      "seen": {"build": 180836, "func": "0x5A95A0", "site": "0x5A95A0"}
+    },
+    {
+      "name": "PlayerState.LearnProduct",
+      "site": {"kind": "entry", "verify": "57 41 56 41 57"},
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_NEW_PRODUCT_BP_ALERT"},
+        {
+          "kind": "string_xref",
+          "string": "Learn every product",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 56 41 57 48 8D 6C 24 C9 48 81 EC B0 00 00 00 48 8B F1"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5AAFD0", "site": "0x5AAFD0"}
+    },
+    {
+      "name": "PlayerState.UnlockTitle",
+      "site": {"kind": "entry"},
+      "anchors": [
+        {"kind": "string_xref", "string": "TITLE_UNLOCK"},
+        {"kind": "string_xref", "string": "TITLE_UNLOCKED_TITLE"},
+        {"kind": "sig", "pattern": "48 89 4C 24 08 53 41 56 41 57 48 81 EC 20 02 00 00"}
+      ],
+      "seen": {"build": 180836, "func": "0x5816B0", "site": "0x5816B0"}
+    },
+    {
+      "name": "PlayerState.LearnSpecial",
+      "site": {"kind": "entry", "verify": "48 83 79 10 00"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.UnlockTitle",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnProduct",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 40 48 8B 3D ?? ?? ?? ?? 48 8B E9"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5AB380", "site": "0x5AB380"}
+    },
+    {
+      "name": "UserSettings.UnlockTitle",
+      "site": {"kind": "entry", "verify": "57 48 83 EC 70"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.UnlockTitle",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 6C 24 20 57 48 83 EC 70 48 8B 05"}
+      ],
+      "seen": {"build": 180836, "func": "0x60AB50", "site": "0x60AB50"}
+    },
+    {
+      "name": "UserSettings.UnlockSpecial",
+      "site": {"kind": "entry", "verify": "48 83 79 10 00"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "sig",
+          "hops": [
+            {"callees": 1}
+          ],
+          "pattern": "44 89 44 24 18 89 54 24 10 48 89 4C 24 08 55 57"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 48 8B 3D ?? ?? ?? ?? 48 8B E9"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x60AD70", "site": "0x60AD70"}
+    },
+    {
+      "name": "UserSettings.UnlockSeasonReward",
+      "site": {"kind": "entry", "verify": "FE 40 0C B0 01"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Reward.Dispatch",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callers": 1},
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 48 8B 3D ?? ?? ?? ?? 48 8B F1"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x60AE70", "site": "0x60AE70"}
+    },
+    {
+      "name": "UserSettings.Save",
+      "site": {"kind": "entry", "verify": "75 ?? 48 8B 53 20"},
+      "anchors": [
+        {
+          "kind": "sig",
+          "hops": [
+            {"callees": 1}
+          ],
+          "pattern": "44 89 44 24 18 89 54 24 10 48 89 4C 24 08 55 57"
+        },
+        {
+          "kind": "sig",
+          "hops": [
+            {"callees": 2}
+          ],
+          "pattern": "48 89 4C 24 08 55 53 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? B8 00 B2 00 00"
+        },
+        {"kind": "sig", "pattern": "40 53 48 83 EC 20 48 8B 91 ?? ?? ?? ?? 48 8B D9 48 89 6C 24 30"}
+      ],
+      "seen": {"build": 180836, "func": "0x60AF50", "site": "0x60AF50"}
+    },
+    {
+      "name": "PlayerState.LearnWordGroup",
+      "site": {"kind": "entry", "verify": "48 89 5C 24 18"},
+      "anchors": [
+        {"kind": "string_xref", "string": "WORDS_LEARNT"},
+        {
+          "kind": "string_xref",
+          "string": "Learn All Words",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 18 48 89 7C 24 20 55 41 56"}
+      ],
+      "seen": {"build": 180836, "func": "0x5AC740", "site": "0x5AC740"}
+    },
+    {
+      "name": "Stats.UpdateStatInt",
+      "site": {"kind": "entry", "verify": "4C 8B F1 FF 15"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnWordGroup",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_NANITES_REWARD_MSG",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 81 EC 80 00 00 00 8B 1D"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x610C60", "site": "0x610C60"}
+    },
+    {
+      "name": "Reward.GiveGenericReward",
+      "site": {"kind": "entry", "verify": "57 41 56 41 57"},
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "R_S12_CONTRIBSL",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 56 41 57 48 83 EC 70 48 8B 3D"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0xF140F0", "site": "0xF140F0"}
+    },
+    {
+      "name": "Reward.Dispatch",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "48 8D 6C 24 D0"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Reward.GiveGenericReward",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "LEARNED_WORD",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 48 89 7C 24 20 55 41 56 41 57 48 8D 6C 24 D0 48 81 EC 30 01 00 00 48 8B DA"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0xF1BAE0", "site": "0xF1BAE0"}
+    },
+    {
+      "name": "Unlock.RefinerUpdate",
+      "helper": true,
+      "site": {"kind": "entry"},
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcRefinerUnitComponent", "index": 32},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 D9 48 81 EC C0 00 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x10B3ED0", "site": "0x10B3ED0"}
+    },
+    {
+      "name": "Set.EmplaceFixedString32",
+      "site": {"kind": "entry", "verify": "48 89 6C 24 10"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Unlock.RefinerUpdate",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 20 33 ED 49 8B F8 44 8B FD 4C 8B E2 48 8B D9 49 BD 15 AE 47 E1 7A 14 AE 47"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5C41F0", "site": "0x5C41F0"}
+    },
+    {
+      "name": "Set.EmplaceTkID",
+      "site": {"kind": "entry", "verify": "57 41 54 41 55"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "UserSettings.UnlockSpecial",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "UserSettings.UnlockSeasonReward",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "UserSettings.UnlockTitle",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x3DF740", "site": "0x3DF740"}
+    },
+    {
+      "name": "Data.KnownTech",
+      "site": {
+        "kind": "scan",
+        "pattern": "48 8D 8E ?? ?? ?? ?? 45 33 C9 48 89 7C 24 20 E8 ?? ?? ?? ?? 48 89 86 ?? ?? ?? ?? 45 84 F6"
+      },
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_NEW_TECH_ALERT"},
+        {
+          "kind": "string_xref",
+          "string": "Learn every tech",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 6C 24 18 56 57 41 56 48 81 EC 90 00 00 00"}
+      ],
+      "seen": {"build": 180836, "func": "0x5A95A0", "site": "0x5A972C"}
+    },
+    {
+      "name": "Data.KnownProducts",
+      "site": {
+        "kind": "scan",
+        "pattern": "48 8D 8E ?? ?? ?? ?? 45 33 C9 48 89 7C 24 20 E8 ?? ?? ?? ?? 48 89 86 ?? ?? ?? ?? 48 8B 05"
+      },
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_NEW_PRODUCT_BP_ALERT"},
+        {
+          "kind": "string_xref",
+          "string": "Learn every product",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 56 41 57 48 8D 6C 24 C9 48 81 EC B0 00 00 00 48 8B F1"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5AAFD0", "site": "0x5AB283"}
+    },
+    {
+      "name": "Data.KnownSpecials",
+      "site": {"kind": "scan", "pattern": "48 8D B9 ?? ?? ?? ?? 48 8B F1"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "UserSettings.UnlockSpecial",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8D B9"}
+      ],
+      "seen": {"build": 180836, "func": "0x5AB660", "site": "0x5AB66F"}
+    },
+    {
+      "name": "Data.RedeemedSeasonRewards",
+      "site": {"kind": "scan", "pattern": "48 8D 9D ?? ?? ?? ?? 48 8B D6"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.UnlockTitle",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnProduct",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 48 89 7C 24 20 41 56 48 83 EC 40 48 8B 3D ?? ?? ?? ?? 48 8B E9"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5AB380", "site": "0x5AB471"}
+    },
+    {
+      "name": "Data.UserSettings",
+      "site": {"kind": "scan", "pattern": "49 8D 89 ?? ?? ?? ?? 48 8B D3"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "UserSettings.UnlockSpecial",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8D B9"}
+      ],
+      "seen": {"build": 180836, "func": "0x5AB660", "site": "0x5AB721"}
+    },
+    {
+      "name": "Data.UserSettingsTitles",
+      "site": {"kind": "scan", "pattern": "48 89 B4 24 ?? ?? ?? ?? 48 8D 54 24 20", "offset": 13},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.UnlockTitle",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 6C 24 20 57 48 83 EC 70 48 8B 05"}
+      ],
+      "seen": {"build": 180836, "func": "0x60AB50", "site": "0x60AC11"}
+    },
+    {
+      "name": "Data.UserSettingsSpecials",
+      "site": {"kind": "scan", "pattern": "48 8D 9D ?? ?? ?? ?? 48 8B D6"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "sig",
+          "hops": [
+            {"callees": 1}
+          ],
+          "pattern": "44 89 44 24 18 89 54 24 10 48 89 4C 24 08 55 57"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 48 8B 3D ?? ?? ?? ?? 48 8B E9"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x60AD70", "site": "0x60ADDD"}
+    },
+    {
+      "name": "Data.UserSettingsSeason",
+      "site": {"kind": "scan", "pattern": "0F 10 45 00 4C 8D 44 24 30 48 8D 54 24 20", "offset": 14},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Reward.Dispatch",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callers": 1},
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 48 8B 3D ?? ?? ?? ?? 48 8B F1"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x60AE70", "site": "0x60AECA"}
+    },
+    {
+      "name": "Data.UserSettingsDirty",
+      "site": {"kind": "scan", "pattern": "C6 85 ?? ?? ?? ?? 01 48 63 83"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.UnlockTitle",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LearnSpecial",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 6C 24 20 57 48 83 EC 70 48 8B 05"}
+      ],
+      "seen": {"build": 180836, "func": "0x60AB50", "site": "0x60AC55"}
+    },
+    {
+      "name": "Data.TitleTable",
+      "site": {"kind": "scan", "pattern": "48 8B 8F ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 8F"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "TITLE_UNLOCK"},
+        {"kind": "string_xref", "string": "TITLE_UNLOCKED_TITLE"},
+        {"kind": "sig", "pattern": "48 89 4C 24 08 53 41 56 41 57 48 81 EC 20 02 00 00"}
+      ],
+      "seen": {"build": 180836, "func": "0x5816B0", "site": "0x581774"}
+    },
+    {
+      "name": "Data.KnownWordGroups",
+      "site": {"kind": "scan", "pattern": "48 8D 8F ?? ?? ?? ?? 0F 10 4B 10"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "WORDS_LEARNT"},
+        {
+          "kind": "string_xref",
+          "string": "Learn All Words",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 18 48 89 7C 24 20 55 41 56"}
+      ],
+      "seen": {"build": 180836, "func": "0x5AC740", "site": "0x5AC7D0"}
+    },
+    {
+      "name": "Data.StatsManager",
+      "site": {"kind": "scan", "pattern": "49 8D 8A ?? ?? ?? ?? C6 45 CF 00"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "WORDS_LEARNT"},
+        {
+          "kind": "string_xref",
+          "string": "Learn All Words",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 18 48 89 7C 24 20 55 41 56"}
+      ],
+      "seen": {"build": 180836, "func": "0x5AC740", "site": "0x5AC894"}
+    },
+    {
+      "name": "Data.KnownPortalRunes",
+      "site": {"kind": "scan", "pattern": "8B 81 ?? ?? ?? ?? 0F BA E8 00"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_GUIDE_PORTAL_%02d_NAME"},
+        {
+          "kind": "target",
+          "name": "Reward.Dispatch",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 18 48 89 7C 24 20 55 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 90 07 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0xF3A200", "site": "0xF3A26C"}
+    },
+    {
+      "name": "Data.KnownRefinerRecipes",
+      "site": {"kind": "scan", "pattern": "4D 8D B7 ?? ?? ?? ?? 49 8B CE"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcRefinerUnitComponent", "index": 32},
+        {
+          "kind": "target",
+          "name": "Set.EmplaceFixedString32",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 D9 48 81 EC C0 00 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x10B3ED0", "site": "0x10B4010"}
+    },
+    {
+      "name": "Data.RewardManager",
+      "site": {"kind": "scan", "pattern": "48 8D 0D ?? ?? ?? ?? 40 88 74 24 28 40 88 74 24 20 89 74 24 70"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "R_S12_CONTRIBSL"},
+        {
+          "kind": "target",
+          "name": "Reward.GiveGenericReward",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 4C 24 08 57 48 83 EC 60 8B 05"}
+      ],
+      "seen": {"build": 180836, "func": "0x515F90", "site": "0x516205"}
+    }
+  ]
+}

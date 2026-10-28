@@ -1,0 +1,154 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "App.Update",
+      "hook": "mid",
+      "site": {"kind": "entry", "verify": "E8 ?? ?? ?? ?? 48 89 05 ?? ?? ?? ?? E8 ?? ?? ?? ?? 80 3D"},
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 48 83 EC 20 E8 ?? ?? ?? ?? 48 89"},
+        {
+          "kind": "string_xref",
+          "string": "APPSHUTDOWN",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Globals.Reload",
+          "hops": [
+            {"callers": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2D7580", "site": "0x2D7580"}
+    },
+    {
+      "name": "Globals.Reload",
+      "hook": "postfix",
+      "site": {"kind": "entry", "verify": "33 DB 48 8B F1 39 59"},
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 5C 24 ?? 56 48 83 EC ?? 33 DB 48 8B F1 39 59"},
+        {
+          "kind": "string_xref",
+          "string": "APPSHUTDOWN",
+          "hops": [
+            {"callees": 2}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x316540", "site": "0x316540"}
+    },
+    {
+      "name": "Graph.DataSlot",
+      "hook": "data",
+      "site": {"kind": "scan", "pattern": "48 8B 0D ?? ?? ?? ?? 48 69 D2", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "anchors": [
+        {"kind": "sig", "pattern": "48 83 EC ?? 48 63 91 ?? ?? ?? ?? 8B CA"},
+        {
+          "kind": "target",
+          "name": "MultiTool.Update",
+          "hops": [
+            {"callees": 2}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x140F520", "site": "0x140F53F"}
+    },
+    {
+      "name": "Graph.PlayerState",
+      "hook": "data",
+      "site": {"kind": "scan", "pattern": "48 81 C1 ?? ?? ?? ?? 48 89 44 24 ?? 88 44 24 ?? 88 44 24 ?? E8"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "sig", "pattern": "48 83 EC ?? 48 63 91 ?? ?? ?? ?? 8B CA"},
+        {"kind": "target", "name": "Graph.DataSlot"}
+      ],
+      "seen": {"build": 180836, "func": "0x140F520", "site": "0x140F592"}
+    },
+    {
+      "name": "Graph.RealityManager",
+      "hook": "data",
+      "site": {"kind": "scan", "pattern": "48 83 C1 ?? 41 B0 01 48 8B D3 E8"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "anchors": [
+        {"kind": "sig", "pattern": "4C 8B DC 53 48 81 EC ?? ?? ?? ?? 49 89 6B ?? 41 8B C0"},
+        {
+          "kind": "target",
+          "name": "Crafting.ItemCount",
+          "hops": [
+            {"callers": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x596E50", "site": "0x596EBB"}
+    },
+    {
+      "name": "Lang.GetInstance",
+      "hook": "call",
+      "site": {
+        "kind": "entry",
+        "verify": "65 48 8B 04 25 ?? ?? ?? ?? B9 ?? ?? ?? ?? 48 8B 00 8B 04 01 39 05 ?? ?? ?? ?? 0F 8F"
+      },
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 83 EC ?? 65 48 8B 04 25 ?? ?? ?? ?? B9 ?? ?? ?? ?? 48 8B 00 8B 04 01 39 05 ?? ?? ?? ?? 0F 8F ?? ?? ?? ?? 48 8D 05 ?? ?? ?? ?? 48 83 C4 ?? C3 4C 89 00"
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_CLOUD_WELCOME_TITLE",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_PREVIOUS_EXPEDITION",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x1CB3B0", "site": "0x1CB3B0"}
+    },
+    {
+      "name": "Lang.Translate",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "0F 57 C0 49 8B E8"},
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC ?? 0F 57 C0 49 8B E8"},
+        {
+          "kind": "string_xref",
+          "string": "UI_CLOUD_WELCOME_TITLE",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_PREVIOUS_EXPEDITION",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2BE4E20", "site": "0x2BE4E20"}
+    }
+  ]
+}

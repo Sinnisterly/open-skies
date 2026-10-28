@@ -1,0 +1,122 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Effects.Manager",
+      "anchors": [
+        {"kind": "string_xref", "string": "MODELS/TESTS/DEBUGGROUND.SCENE.MBIN"},
+        {
+          "kind": "aob",
+          "pattern": "4C 0F AB C0 48 89 84 D3 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48 81 C1 ?? ?? ?? ?? E8",
+          "yields": "owner"
+        }
+      ],
+      "site": {
+        "kind": "scan",
+        "pattern": "4C 0F AB C0 48 89 84 D3 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 48 81 C1 ?? ?? ?? ?? E8",
+        "offset": 19,
+        "index": 0
+      },
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x4DE6C0",
+      "seen": {"build": 180836, "func": "0x1B0C40", "site": "0x1B0E31"}
+    },
+    {
+      "name": "Effects.AddManaged",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 57 48 81 EC"},
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "44 8B 8E ?? ?? ?? ?? 4C 8B C7 66 0F 7E F0 48 8B D5 C6 44 24 28 00",
+          "yields": "owner"
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_PACKAGE_DROPOFF_REJECTED_OSD",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0xADE170", "site": "0xADE170"}
+    },
+    {
+      "name": "Effects.Add",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "4C 8B DC 49 89 5B 08 57 48 81 EC"},
+      "anchors": [
+        {"kind": "sig", "pattern": "4C 8B DC 49 89 5B 08 57 48 81 EC 00 01 00 00 48 8B 84 24 30 01 00 00 48 8B DA"},
+        {
+          "kind": "target",
+          "name": "Effects.AddManaged",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x13F0FE0", "site": "0x13F0FE0"}
+    },
+    {
+      "name": "Effects.DefaultHandle",
+      "anchors": [
+        {"kind": "target", "name": "Effects.AddManaged"},
+        {
+          "kind": "aob",
+          "pattern": "44 8B 8E ?? ?? ?? ?? 4C 8B C7 66 0F 7E F0 48 8B D5 C6 44 24 28 00",
+          "yields": "owner"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "44 8B 8E ?? ?? ?? ?? 4C 8B C7", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x98",
+      "seen": {"build": 180836, "func": "0xADE170", "site": "0xADE200"}
+    },
+    {
+      "name": "Effects.Retire",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "40 53 48 83 EC 30 8B 02 48 8B DA"},
+      "anchors": [
+        {"kind": "sig", "pattern": "40 53 48 83 EC 30 8B 02 48 8B DA A9 00 00 F8 FF"},
+        {
+          "kind": "string_xref",
+          "string": "UW_JET_BUBBLES",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "START_EXT_TUT",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x13F17C0", "site": "0x13F17C0"}
+    },
+    {
+      "name": "Effects.IsActive",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "48 89 4C 24 ?? 53 48 83 EC 60 8B 0A"},
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 4C 24 08 53 48 83 EC 60 8B 0A 48 8B DA E8"},
+        {
+          "kind": "aob",
+          "pattern": "8B 0B F7 C1 00 00 F8 FF 76 ?? 8B C1 25 FF FF 07 00 3D FF FF 07 00 74 ?? 48 8D 05 ?? ?? ?? ?? C6 44 24 70 00",
+          "yields": "owner"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x13F1720", "site": "0x13F1720"}
+    }
+  ]
+}

@@ -1,0 +1,1020 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "PlayerState.LoadFromData",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "POLICESHIP.SCENE.MBIN"},
+        {"kind": "sig", "pattern": "44 88 4C 24 20 4C 89 44 24 18 48 89 54 24 10 48 89 4C 24 08 55 41 54"}
+      ],
+      "site": {"kind": "entry", "verify": "44 88 4C 24 ?? 4C 89 44 24"},
+      "seen": {"build": 180836, "func": "0x573500", "site": "0x573500"}
+    },
+    {
+      "name": "PlayerState.SaveToData",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "cGcPlayerState::SaveToData"},
+        {"kind": "sig", "pattern": "48 8B C4 48 89 50 10 48 89 48 08 55 48 8D A8 ?? ?? ?? ?? 48 81 EC 10 04 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 50"},
+      "seen": {"build": 180836, "func": "0x57B4C0", "site": "0x57B4C0"}
+    },
+    {
+      "name": "GameState.Update",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "Rich Presence: %s"},
+        {"kind": "string_xref", "string": "PS4_IO_NOTICE_PARTIAL"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC 60 08 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58"},
+      "seen": {"build": 180836, "func": "0x489150", "site": "0x489150"}
+    },
+    {
+      "name": "Customise.ApplySaveData",
+      "anchors": [
+        {"kind": "string_xref", "string": "_PICK_BY_NET_ID"},
+        {"kind": "string_xref", "string": "START_%02d"},
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 6C 24 18 48 89 74 24 20 57 48 83 EC 40 0F 10 42 58"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24"},
+      "seen": {"build": 180836, "func": "0x114AA20", "site": "0x114AA20"}
+    },
+    {
+      "name": "Customise.ApplyImpl",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 74 24"},
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x1149F50"}
+    },
+    {
+      "name": "Customise.GetPalette",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplyImpl",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 63 C2 48 69 C0 40 04 00 00 49 03 C3 75", "offset": -132}
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 38 0F 28 02"},
+      "seen": {"build": 180836, "func": "0x5A7040", "site": "0x5A7040"}
+    },
+    {
+      "name": "Customise.SlotSeedSource",
+      "anchors": [
+        {"kind": "target", "name": "PlayerState.LoadFromData"},
+        {"kind": "sig", "pattern": "44 88 4C 24 20 4C 89 44 24 18 48 89 54 24 10 48 89 4C 24 08 55 41 54"}
+      ],
+      "site": {"kind": "scan", "pattern": "41 0F 10 84 C5"},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x17F10",
+      "seen": {"build": 180836, "func": "0x573500", "site": "0x5774E2"}
+    },
+    {
+      "name": "Customise.SlotStride",
+      "anchors": [
+        {"kind": "target", "name": "PlayerState.LoadFromData"},
+        {"kind": "sig", "pattern": "44 88 4C 24 20 4C 89 44 24 18 48 89 54 24 10 48 89 4C 24 08 55 41 54"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 69 C8 ?? ?? ?? ?? 66 0F 7F 45"},
+      "shape": {
+        "mnemonic": "imul",
+        "operands": ["reg", "reg", "imm"],
+        "offset_operand": 2
+      },
+      "expect_offset": "0x3AE0",
+      "seen": {"build": 180836, "func": "0x573500", "site": "0x5775E0"}
+    },
+    {
+      "name": "Customise.SlotBase",
+      "anchors": [
+        {"kind": "target", "name": "PlayerState.LoadFromData"},
+        {"kind": "sig", "pattern": "44 88 4C 24 20 4C 89 44 24 18 48 89 54 24 10 48 89 4C 24 08 55 41 54"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 81 C1 ?? ?? ?? ?? 48 89 44 24"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x1CA10",
+      "seen": {"build": 180836, "func": "0x573500", "site": "0x5775F3"}
+    },
+    {
+      "name": "Customise.SlotBoneScales",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "49 8D 4E ?? E8 ?? ?? ?? ?? 48 8B 45"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x30",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x1149FA5"}
+    },
+    {
+      "name": "Customise.SlotLegacyColours",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "41 88 46 ?? E8 ?? ?? ?? ?? 49 8B CE"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x70",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A3BC"}
+    },
+    {
+      "name": "Customise.SlotEditedFlag",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "41 C6 46 ?? 01 0F 28 DF"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x71",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A250"}
+    },
+    {
+      "name": "Customise.SlotPaletteId",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "41 0F 11 46 ?? 48 8B 0D"},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x78",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A1EE"}
+    },
+    {
+      "name": "Customise.SlotEditColours",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "49 8D 8E ?? ?? ?? ?? F3 0F 10 80"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x90",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A3D9"}
+    },
+    {
+      "name": "Customise.SlotFinalColours",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "49 8D 86 ?? ?? ?? ?? BA ?? ?? ?? ?? 49 8D 8E"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x1D70",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A3CD"}
+    },
+    {
+      "name": "Customise.SlotScale",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "F3 41 0F 11 86 ?? ?? ?? ?? 85 F6"},
+      "shape": {
+        "mnemonic": "movss",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x3A50",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A38C"}
+    },
+    {
+      "name": "Customise.SlotDescriptors",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "49 8D 8E ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B D0"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x3A70",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A100"}
+    },
+    {
+      "name": "Customise.SlotTextureOptions",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplySaveData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D B1 ?? ?? ?? ?? 48 8B CE"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x3A80",
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x1149F96"}
+    },
+    {
+      "name": "Customise.DescriptorGroups",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationPresetCustomisationsData.mXml"
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationDescriptorGroupsData.mXml",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/ModularCustomisationDataTable.mXml",
+          "hops": [
+            {"callers": 1},
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 41 55 41 57 48 8D 6C 24 C9 48 81 EC 90 00 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "49 89 87 ?? ?? ?? ?? E8 ?? ?? ?? ?? 49 89 87"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xCA500",
+      "seen": {"build": 180836, "func": "0x57FB10", "site": "0x57FB39"}
+    },
+    {
+      "name": "Customise.TextureOptions",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationPresetCustomisationsData.mXml"
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationDescriptorGroupsData.mXml",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/ModularCustomisationDataTable.mXml",
+          "hops": [
+            {"callers": 1},
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 41 55 41 57 48 8D 6C 24 C9 48 81 EC 90 00 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "49 89 87 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 15"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xCA508",
+      "seen": {"build": 180836, "func": "0x57FB10", "site": "0x57FB45"}
+    },
+    {
+      "name": "Customise.ColourPalettes",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationPresetCustomisationsData.mXml"
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationDescriptorGroupsData.mXml",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/ModularCustomisationDataTable.mXml",
+          "hops": [
+            {"callers": 1},
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 41 55 41 57 48 8D 6C 24 C9 48 81 EC 90 00 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "49 89 87 18 A5 0C 00"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xCA518",
+      "seen": {"build": 180836, "func": "0x57FB10", "site": "0x57FBA7"}
+    },
+    {
+      "name": "Customise.ModularTable",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationPresetCustomisationsData.mXml"
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/CharacterCustomisationDescriptorGroupsData.mXml",
+          "hops": [
+            {"callers": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "Metadata/GameState/PlayerData/ModularCustomisationDataTable.mXml",
+          "hops": [
+            {"callers": 1},
+            {"callers": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 41 55 41 57 48 8D 6C 24 C9 48 81 EC 90 00 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "49 89 87 ?? ?? ?? ?? E8 ?? ?? ?? ?? 49 8B CF"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xCA538",
+      "seen": {"build": 180836, "func": "0x57FB10", "site": "0x57FC2E"}
+    },
+    {
+      "name": "Ship.UpgradeClass",
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_SALVAGE_CLASS_OSD"},
+        {"kind": "string_xref", "string": "UI_COST_NO_CLASS"},
+        {"kind": "sig", "pattern": "4C 8B DC 49 89 4B 08 55 53 57"}
+      ],
+      "site": {"kind": "entry", "verify": "4C 8B DC 49 89 4B"},
+      "seen": {"build": 180836, "func": "0xF3E760", "site": "0xF3E760"}
+    },
+    {
+      "name": "Multitool.UpgradeClass",
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_WEAPON_CLASS_OSD"},
+        {"kind": "string_xref", "string": "UI_COST_NO_CLASS"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 4C 24 08 55 53 57 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 00 08 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 4C 24 ?? 55"},
+      "seen": {"build": 180836, "func": "0xF3EF20", "site": "0xF3EF20"}
+    },
+    {
+      "name": "Inventory.GenerateBaseStats",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Multitool.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 6C 24 20 56 57 41 56 48 81 EC A0 00 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24"},
+      "seen": {"build": 180836, "func": "0x4CEAB0", "site": "0x4CEAB0"}
+    },
+    {
+      "name": "Inventory.BaseStatTable",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Inventory.GenerateBaseStats",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "8D 41 FC 83 F8 05 76"}
+      ],
+      "site": {"kind": "entry", "verify": "8D 41 ?? 83 F8 05"},
+      "seen": {"build": 180836, "func": "0x4CEA40", "site": "0x4CEA40"}
+    },
+    {
+      "name": "Inventory.GenerateSpecialSlots",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Multitool.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "4C 8B DC 53 55 48 81 EC 98 00 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "4C 8B DC 53 55"},
+      "seen": {"build": 180836, "func": "0x4D2350", "site": "0x4D2350"}
+    },
+    {
+      "name": "Inventory.Notify",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Multitool.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 54 24 10 48 89 4C 24 08 53 48 81 EC 80 00 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 54 24 ?? 48 89 4C 24"},
+      "seen": {"build": 180836, "func": "0x54D060", "site": "0x54D060"}
+    },
+    {
+      "name": "Weapon.GetClass",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Multitool.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 56 41 57 48 8D 6C 24 C1 48 81 EC D8 00 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 56 41 57"},
+      "seen": {"build": 180836, "func": "0x4D5720", "site": "0x4D5720"}
+    },
+    {
+      "name": "Inventory.BaseStats",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Multitool.UpgradeClass",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 10 48 89 6C 24 20 56 57 41 56 48 81 EC A0 00 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 8E ?? ?? ?? ?? 48 C7 44 24"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xD0",
+      "seen": {"build": 180836, "func": "0x4CEAB0", "site": "0x4CECB7"}
+    },
+    {
+      "name": "Reality.InventoryTable",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Inventory.GenerateBaseStats",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "8D 41 FC 83 F8 05 76"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 80 ?? ?? ?? ?? 48 05"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x218",
+      "seen": {"build": 180836, "func": "0x4CEA40", "site": "0x4CEA7F"}
+    },
+    {
+      "name": "Multitool.SlotSeed",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.SaveToData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 18 56 57 41 56 48 83 EC 60 45 33 F6"}
+      ],
+      "site": {"kind": "scan", "pattern": "0F 10 83 ?? ?? ?? ?? 48 8D 6C 24"},
+      "shape": {
+        "mnemonic": "movups",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2C0",
+      "seen": {"build": 180836, "func": "0x551E60", "site": "0x551ED6"}
+    },
+    {
+      "name": "Multitool.SlotUseSeed",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.SaveToData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 18 56 57 41 56 48 83 EC 60 45 33 F6"}
+      ],
+      "site": {"kind": "scan", "pattern": "44 38 B3 ?? ?? ?? ?? 74 ?? 0F 10 83"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x2C8",
+      "seen": {"build": 180836, "func": "0x551E60", "site": "0x551ECD"}
+    },
+    {
+      "name": "Freighter.ResourceFile",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "GameState.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 57"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 8E ?? ?? ?? ?? 49 81 C6"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2E8",
+      "seen": {"build": 180836, "func": "0x542D20", "site": "0x542EAD"}
+    },
+    {
+      "name": "Frontend.Manager",
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcApplicationSimulationState", "index": 10},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 10 48 89 70 18 48 89 78 20 55 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC C0 09 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8B 05"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x859090",
+      "seen": {"build": 180836, "func": "0x3362B0", "site": "0x33812F"}
+    },
+    {
+      "name": "Frontend.UpdateRender",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcApplicationSimulationState",
+          "index": 10,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 10 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC 50 02 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58 ?? 55 56"},
+      "seen": {"build": 180836, "func": "0x8FA160", "site": "0x8FA160"}
+    },
+    {
+      "name": "Frontend.ModelRenderer",
+      "anchors": [
+        {"kind": "target", "name": "Frontend.UpdateRender"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 10 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC 50 02 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 8E ?? ?? ?? ?? 41 0F 28 CA E8 ?? ?? ?? ?? 44 38 76"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x1C430",
+      "seen": {"build": 180836, "func": "0x8FA160", "site": "0x8FC892"}
+    },
+    {
+      "name": "ModelRenderer.Update",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Frontend.UpdateRender",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "string_xref", "string": "RENDERBACK"},
+        {"kind": "sig", "pattern": "48 8B C4 55 56 41 55 48 8D A8 ?? ?? ?? ?? 48 81 EC D0 02 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 55 56"},
+      "seen": {"build": 180836, "func": "0x1D4BA0", "site": "0x1D4BA0"}
+    },
+    {
+      "name": "ModelRenderer.UpdateLogic",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "ModelRenderer.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "string_xref", "string": "CARGOCOUNTER"},
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 48 89 4C 24 08 55 53 56 41 54"}
+      ],
+      "site": {"kind": "entry", "verify": "F3 0F 11 4C 24"},
+      "seen": {"build": 180836, "func": "0x1D7670", "site": "0x1D7670"}
+    },
+    {
+      "name": "Customise.IsGroupUnlocked",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.ApplyImpl",
+          "hops": [
+            {"callees": 1},
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 56 48 83 EC 30 48 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 56 48 83 EC 30"},
+      "seen": {"build": 180836, "func": "0x5B1510", "site": "0x5B1510"}
+    },
+    {
+      "name": "Customise.CloseInteract",
+      "helper": true,
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcCustomiserInteraction", "index": 6},
+        {"kind": "string_xref", "string": "CUSTOMISE_INTERACT"},
+        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+      ],
+      "site": {"kind": "entry", "verify": "83 FA 0E 0F 85"},
+      "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A580"}
+    },
+    {
+      "name": "Customise.PlayerModelPtr",
+      "anchors": [
+        {"kind": "target", "name": "Customise.CloseInteract"},
+        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 88 ?? ?? ?? ?? C6 81 ?? ?? ?? ?? 01"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x72C838",
+      "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A76B"}
+    },
+    {
+      "name": "Customise.PlayerRefreshFlag",
+      "anchors": [
+        {"kind": "target", "name": "Customise.CloseInteract"},
+        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+      ],
+      "site": {"kind": "scan", "pattern": "C6 81 ?? ?? ?? ?? 01 48 C7 41"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x15C",
+      "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A772"}
+    },
+    {
+      "name": "Customise.VehicleRefreshFlag",
+      "anchors": [
+        {"kind": "target", "name": "Customise.CloseInteract"},
+        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+      ],
+      "site": {"kind": "scan", "pattern": "C6 80 F0 F0 72 00 01"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x72F0F0",
+      "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A793"}
+    },
+    {
+      "name": "Customise.PetRefreshFlag",
+      "anchors": [
+        {"kind": "target", "name": "Customise.CloseInteract"},
+        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+      ],
+      "site": {"kind": "scan", "pattern": "C6 80 ?? ?? ?? ?? 01 48 83 C4 40 5B C3 48 8B 0D"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xE10C0",
+      "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A5EF"}
+    },
+    {
+      "name": "Customise.RefreshPreview",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.IsGroupUnlocked",
+          "hops": [
+            {"callers": 1},
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 55 48 8B EC 48 83 EC 40 48 63 DA"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 55"},
+      "seen": {"build": 180836, "func": "0x7A2110", "site": "0x7A2110"}
+    },
+    {
+      "name": "Customise.FishingRodRefreshFlag",
+      "anchors": [
+        {"kind": "target", "name": "Customise.RefreshPreview"},
+        {"kind": "sig", "pattern": "48 89 5C 24 08 55 48 8B EC 48 83 EC 40 48 63 DA"}
+      ],
+      "site": {"kind": "scan", "pattern": "C6 80 ?? ?? ?? ?? 01 48 8B 5C 24 ?? 48 83 C4 40 5D C3 E8"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x259D",
+      "seen": {"build": 180836, "func": "0x7A2110", "site": "0x7A2138"}
+    },
+    {
+      "name": "Customise.RefreshSummonedPet",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Customise.RefreshPreview",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 55 41 55 48 8D 68 88 48 81 EC 68 01 00 00 8B 91"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 55 41 55"},
+      "seen": {"build": 180836, "func": "0x1223EB0", "site": "0x1223EB0"}
+    },
+    {
+      "name": "Corvette.GetShipBase",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "SWAP_SHIP",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 57 48 83 EC 20 4C 8B 05"}
+      ],
+      "site": {"kind": "entry", "verify": "40 57 48 83 EC 20"},
+      "seen": {"build": 180836, "func": "0x562760", "site": "0x562760"}
+    },
+    {
+      "name": "Corvette.PopulateShipFromBase",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "cGcSimulation::PollToRelease",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "SWAP_SHIP",
+          "hops": [
+            {"callees": 1},
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "89 54 24 10 4C 8B DC 55 41 54"}
+      ],
+      "site": {"kind": "entry", "verify": "89 54 24 ?? 4C 8B DC"},
+      "seen": {"build": 180836, "func": "0x55C580", "site": "0x55C580"}
+    },
+    {
+      "name": "Inventory.GenerateClass",
+      "anchors": [
+        {"kind": "aob", "pattern": "44 89 87 00 01 00 00 0F 57 C9 41 8B C2", "yields": "owner"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 57 48 83 EC 20 48 8B F9 48 8B DA 48 8D 4C 24 30 E8 ?? ?? ?? ?? 45 33 C0 44 38 43 08"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 10 57 48 83 EC 20"},
+      "seen": {"build": 180836, "func": "0x4CFDA0", "site": "0x4CFDA0"}
+    },
+    {
+      "name": "Player.InstanceOffset",
+      "anchors": [
+        {"kind": "target", "name": "Customise.RefreshPreview"},
+        {"kind": "sig", "pattern": "48 89 5C 24 08 55 48 8B EC 48 83 EC 40 48 63 DA"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 81 C1 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 85 C0 0F 84"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x72C6F0",
+      "seen": {"build": 180836, "func": "0x7A2110", "site": "0x7A22DE"}
+    },
+    {
+      "name": "Customise.ApplySnap",
+      "anchors": [
+        {"kind": "target", "name": "Customise.ApplyImpl"},
+        {"kind": "target", "name": "Customise.Apply"}
+      ],
+      "site": {"kind": "scan", "pattern": "4C 63 14 87 43 0F 10 14 08 4D 85 D2 7E", "offset": 9},
+      "shape": {
+        "mnemonic": "test",
+        "operands": ["reg", "reg"]
+      },
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x114A26F"}
+    },
+    {
+      "name": "PlayerState.ResetCaches",
+      "anchors": [
+        {"kind": "aob", "pattern": "C6 80 44 03 00 00 01 48 05 48 03 00 00", "yields": "owner"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 48 8B F9 48 81 C1 E0 07 00 00 E8"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 48 89 6C 24 10"},
+      "seen": {"build": 180836, "func": "0x5732D0", "site": "0x5732D0"}
+    }
+  ]
+}

@@ -1,0 +1,71 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Inventory.Add",
+      "hook": "call",
+      "site": {"kind": "entry", "verify": "48 81 EC ?? ?? ?? ?? 41 0F 10 00"},
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 ?? 48 89 74 24 ?? 55 57 41 56 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 41 0F 10 00"
+        },
+        {
+          "kind": "string_xref",
+          "string": "TECH_ALREADY_INSTALLED",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "BUILD_PROD",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x4D0780", "site": "0x4D0780"}
+    },
+    {
+      "name": "String.Set",
+      "hook": "call",
+      "site": {
+        "kind": "entry",
+        "verify": "48 8B FA 48 8B D9 48 C7 C0 FF FF FF FF 0F 1F 40 00 80 7C 02 01 00 48 8D 40 01 75 F5 8D 70 01 83 FE 01 75"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.AddToSlot",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Freighter.Transfer",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Ship.Remove",
+          "hops": [
+            {"callees": 2}
+          ]
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x1CC560", "site": "0x1CC560"}
+    }
+  ]
+}

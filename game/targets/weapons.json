@@ -1,0 +1,578 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Weapons.Fire",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "4C 89 4C 24 20 4C 89 44 24 18"},
+      "anchors": [
+        {"kind": "string_xref", "string": "AMMO_FIRED"},
+        {"kind": "target", "name": "MultiTool.BoltcasterAmmo"},
+        {
+          "kind": "sig",
+          "pattern": "4C 89 4C 24 20 4C 89 44 24 18 89 54 24 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.Reload",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "MultiTool.Update",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 4C 8B 0D ?? ?? ?? ?? 45 0F B6 E0"
+        },
+        {
+          "kind": "string_xref",
+          "string": "WPN_NOAMMO_ALT",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 4C 8B 0D ?? ?? ?? ?? 45 0F B6 E0"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 4C 8B 0D ?? ?? ?? ?? 45 0F B6 E0"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.AddHealth",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"},
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Exosuit.NoDamage",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"
+        },
+        {
+          "kind": "target",
+          "name": "Player.Update",
+          "hops": [
+            {"callees": 2}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_REPAIR_TECH_SUB",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"}
+      ]
+    },
+    {
+      "name": "Weapons.ChargeFactor",
+      "tab": "MultiTool",
+      "hook": "postfix",
+      "action": "return 1.0 (full charge, every charged mode)",
+      "site": {"kind": "scan", "pattern": "48 63 81 ?? ?? 00 00 83 F8 03 74"},
+      "shape": {
+        "mnemonic": "movsxd",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "meWeaponMode"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Weapons.Fire",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "MultiTool.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 83 EC ?? 48 63 81 ?? ?? ?? ?? 83 F8"}
+      ]
+    },
+    {
+      "name": "Weapons.ChargedShotAmmo",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "skip the 8 byte store (ChargedProjectile clip reset after a shot)",
+      "site": {"kind": "scan", "pattern": "41 89 84 B7 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 4C 8B 89 ?? ?? ?? ?? 48 81 C1"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0,
+        "offset_name": "maiAmmo"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.Fire"},
+        {"kind": "string_xref", "string": "AMMO_FIRED"},
+        {
+          "kind": "sig",
+          "pattern": "4C 89 4C 24 20 4C 89 44 24 18 89 54 24 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.FireDrainA",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "after the load, eax = 0 (take the FuelUse=Free branch, no tech charge spent)",
+      "site": {"kind": "scan", "pattern": "8B 81 ?? ?? ?? ?? 85 C0 0F 84 ?? ?? ?? ?? 41 3B C6 0F 84"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "Data.Difficulty.FuelUse"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.Fire"},
+        {"kind": "string_xref", "string": "AMMO_FIRED"},
+        {
+          "kind": "sig",
+          "pattern": "4C 89 4C 24 20 4C 89 44 24 18 89 54 24 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.FireDrainB",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "after the load, eax = 0 (skip dec + SetElementCharge)",
+      "site": {"kind": "scan", "pattern": "8B 81 ?? ?? ?? ?? 85 C0 74 ?? 41 3B C6 74 ?? FF 4D"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "Data.Difficulty.FuelUse"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.Fire"},
+        {"kind": "string_xref", "string": "AMMO_FIRED"},
+        {
+          "kind": "sig",
+          "pattern": "4C 89 4C 24 20 4C 89 44 24 18 89 54 24 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D AC 24"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.ReloadFreeAmmo",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "after the load, ecx = 0 (refill clip without taking inventory ammo)",
+      "site": {"kind": "scan", "pattern": "8B 88 ?? ?? ?? ?? 85 C9 0F 84 ?? ?? ?? ?? 83 F9 01 0F 84"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "Data.Difficulty.FuelUse"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.Reload"},
+        {
+          "kind": "target",
+          "name": "MultiTool.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 4C 8B 0D ?? ?? ?? ?? 45 0F B6 E0"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.ReloadFreeCharge",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "after the load, r8d = 0 (refill clip without spending tech charge)",
+      "site": {"kind": "scan", "pattern": "44 8B 82 ?? ?? ?? ?? 0F AF CB 45 85 C0"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "Data.Difficulty.FuelUse"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.Reload"},
+        {
+          "kind": "target",
+          "name": "MultiTool.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 4C 8B 0D ?? ?? ?? ?? 45 0F B6 E0"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.ReloadClipMax",
+      "tab": "MultiTool",
+      "hook": "data",
+      "action": "read only: clip refill writes [this+off+mode*4]; confirms the ammo array offset for per-frame writes",
+      "site": {"kind": "scan", "pattern": "41 01 BC B6 ?? ?? ?? ?? B8 04 00 00 00 E9"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0,
+        "offset_name": "maiAmmo"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.Reload"},
+        {
+          "kind": "target",
+          "name": "MultiTool.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 55 56 57 41 54 41 55 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 4C 8B 0D ?? ?? ?? ?? 45 0F B6 E0"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.LaserDrain",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "after the store, write 0 to [rsi+off] (laser modes never spend charge)",
+      "site": {"kind": "scan", "pattern": "F3 0F 58 B6 ?? ?? ?? ?? F3 0F 11 B6 ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F 2F F0 0F 86"},
+      "shape": {
+        "mnemonic": "addss",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "mfLaserDrainTimer"
+      },
+      "anchors": [
+        {"kind": "target", "name": "MultiTool.Update"},
+        {"kind": "string_xref", "string": "LASERSHAKE"},
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 55 48 8D AC 24"}
+      ]
+    },
+    {
+      "name": "Weapons.LaserOverheatFlag",
+      "tab": "MultiTool",
+      "hook": "mid",
+      "action": "skip the 7 byte store (never enter overheat); pair with MultiTool.BeamHeat",
+      "site": {"kind": "scan", "pattern": "C6 86 ?? ?? 00 00 01 48 8D 95 ?? ?? ?? ?? 48 8B 8E"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0,
+        "offset_name": "mbOverheat"
+      },
+      "anchors": [
+        {"kind": "target", "name": "MultiTool.Update"},
+        {"kind": "string_xref", "string": "LASERSHAKE"},
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 55 48 8D AC 24"}
+      ]
+    },
+    {
+      "name": "Weapons.ShipHeat",
+      "tab": "Starship",
+      "hook": "mid",
+      "action": "write 0 to heat[mode] before the overheat compare (all 7 ship weapons, rocket cooldown too)",
+      "site": {"kind": "scan", "pattern": "49 63 86 ?? ?? ?? ?? F3 41 0F 10 84 86 ?? ?? ?? ?? 0F 2F 05"},
+      "shape": {
+        "mnemonic": "movsxd",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "meWeaponMode"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcSpaceshipComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Ship.Update",
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 F3 0F 11 48 10 48 89 48 08 55 57"}
+      ]
+    },
+    {
+      "name": "Weapons.ShipHeatFactor",
+      "tab": "Starship",
+      "hook": "postfix",
+      "action": "return 0.0 (HUD heat bar)",
+      "site": {"kind": "scan", "pattern": "48 63 81 ?? ?? ?? ?? F3 0F 10 84 81 ?? ?? ?? ?? C3"},
+      "shape": {
+        "mnemonic": "movsxd",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "meWeaponMode"
+      },
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcSpaceshipWeapons", "index": 18},
+        {"kind": "sig", "pattern": "48 63 81 ?? ?? ?? ?? F3 0F 10 84 81 ?? ?? ?? ?? C3"}
+      ]
+    },
+    {
+      "name": "Weapons.ShipOverheatProgress",
+      "tab": "Starship",
+      "hook": "postfix",
+      "action": "return 0.0",
+      "site": {"kind": "scan", "pattern": "80 BC 08 ?? ?? ?? ?? 00 74 ?? F3 0F 10 84 81"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["mem", "imm"],
+        "offset_operand": 0,
+        "offset_name": "mabWeaponOverheated"
+      },
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcSpaceshipWeapons", "index": 9},
+        {"kind": "sig", "pattern": "48 63 81 ?? ?? 00 00 80 BC 08 ?? ?? 00 00 00 74"}
+      ]
+    },
+    {
+      "name": "Weapons.ShipShieldFloor",
+      "tab": "Starship",
+      "hook": "mid",
+      "action": "ebx = 0 (ship shield charge unchanged by the hit)",
+      "site": {"kind": "scan", "pattern": "8D 0C 1A 85 C9 44 0F 4F C1 44 3B C0 44 0F 4D C0"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"]
+      },
+      "anchors": [
+        {"kind": "target", "name": "Exosuit.NoDamage"},
+        {"kind": "string_xref", "string": "SELF_SHIP"},
+        {"kind": "string_xref", "string": "MP_VEHICLE"},
+        {"kind": "sig", "pattern": "48 8B C4 4C 89 48 20 44 89 40 18 55 53 56"}
+      ]
+    },
+    {
+      "name": "Weapons.ShipHullFloor",
+      "tab": "Starship",
+      "hook": "mid",
+      "action": "ebx = max(ebx, 0) (hull never drops)",
+      "site": {"kind": "scan", "pattern": "01 9E ?? ?? 00 00 E8 ?? ?? ?? ?? 8B 8E"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0,
+        "offset_name": "cGcPlayerState.miShipHealth"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.AddHealth"},
+        {
+          "kind": "target",
+          "name": "Exosuit.NoDamage",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"}
+      ]
+    },
+    {
+      "name": "Weapons.PlayerHealthFloor",
+      "tab": "Exosuit",
+      "hook": "mid",
+      "action": "ebx = max(ebx, 0) (health never drops)",
+      "site": {"kind": "scan", "pattern": "01 9E ?? ?? 00 00 45 33 C9 8B 1D"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0,
+        "offset_name": "cGcPlayerState.miHealth"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Weapons.AddHealth"},
+        {
+          "kind": "target",
+          "name": "Exosuit.NoDamage",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B F1 33 FF 40 38 3D"}
+      ]
+    },
+    {
+      "name": "Weapons.PlayerShieldFloor",
+      "tab": "Exosuit",
+      "hook": "mid",
+      "action": "ebx = 0 (exosuit shield unchanged by the hit)",
+      "site": {"kind": "scan", "pattern": "41 01 9E ?? ?? 00 00 41 8B D5 E8 ?? ?? ?? ?? 41 8B 8E"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0,
+        "offset_name": "cGcPlayerState.miShield"
+      },
+      "anchors": [
+        {"kind": "target", "name": "Exosuit.NoDamage"},
+        {"kind": "string_xref", "string": "SELF_SHIP"},
+        {"kind": "string_xref", "string": "MP_VEHICLE"},
+        {"kind": "sig", "pattern": "48 8B C4 4C 89 48 20 44 89 40 18 55 53 56"}
+      ]
+    },
+    {
+      "name": "Weapons.NoTechBreak",
+      "tab": "Exosuit",
+      "hook": "prefix",
+      "action": "skip original (no tech damage from hits; void return)",
+      "site": {"kind": "scan", "pattern": "48 63 88 ?? ?? ?? ?? 48 8B 05 ?? ?? ?? ?? F3 0F 10 A6"},
+      "shape": {
+        "mnemonic": "movsxd",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "Data.Difficulty.BreakTechOnDamage"
+      },
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_TECH_BREAKAGE_ALERT"},
+        {
+          "kind": "target",
+          "name": "Exosuit.NoDamage",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 8B C4 48 89 58 18 55 56 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? F3 0F 10 82"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 18 55 56 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? F3 0F 10 82"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.ExoLaserDrain",
+      "tab": "Exocraft",
+      "hook": "mid",
+      "action": "at the test after cvttss2si: edx = 0 and zero the accumulator",
+      "site": {"kind": "scan", "pattern": "F3 0F 2C D0 85 D2 7E ?? 66 0F 6E C2 0F 5B C0 F3 0F 5C F8 F3 0F 11 BE"},
+      "shape": {
+        "mnemonic": "cvttss2si",
+        "operands": ["reg", "reg"],
+        "offset_insn": 6,
+        "offset_operand": 0,
+        "offset_name": "mfLaserDrainAcc"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcVehicleComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Vehicle.Update",
+          "hops": [
+            {"callers": 1},
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 55 56 41 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B F1 44 0F 29 94 24"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.ExoGunDrain",
+      "tab": "Exocraft",
+      "hook": "mid",
+      "action": "at the test after cvttss2si: edx = 0 and zero the accumulator",
+      "site": {"kind": "scan", "pattern": "F3 0F 2C D0 85 D2 7E ?? 8B 4D ?? 2B CA"},
+      "shape": {
+        "mnemonic": "cvttss2si",
+        "operands": ["reg", "reg"],
+        "offset_insn": 10,
+        "offset_operand": 0,
+        "offset_name": "mfGunDrainAcc"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcVehicleComponent",
+          "index": 1,
+          "hops": [
+            {"callees": 2}
+          ]
+        },
+        {"kind": "string_xref", "string": "VEHICLESTUNGUN"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 4C 89 40 18 48 89 50 10 55 53 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81"
+        }
+      ]
+    },
+    {
+      "name": "Weapons.FrigateStat",
+      "tab": "Freighter",
+      "hook": "postfix",
+      "action": "stat 4 (FuelBurnRate) -> 0; stat 9 (Invulnerable) -> max",
+      "site": {"kind": "scan", "pattern": "8B 9C 81 ?? ?? 00 00 83 FA 04"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_name": "maiStats"
+      },
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "FLEET_UI_FUEL_BODY",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "FLEET_COMPARE_EFFICIENCY",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 53 48 83 EC 40 33 DB 83 FA 0B 7D ?? 48 63 C2 8B 9C 81"}
+      ]
+    },
+    {
+      "name": "Weapons.FrigateDamageChance",
+      "tab": "Freighter",
+      "hook": "data",
+      "action": "write GcFleetGlobals.PercentChanceOfDamageOnFailedEvent = (0, 0)",
+      "site": {"kind": "scan", "pattern": "F3 0F 2C 05 ?? ?? ?? ?? EB ?? 8B 05 ?? ?? ?? ?? 3B F0"},
+      "shape": {
+        "mnemonic": "cvttss2si",
+        "operands": ["reg", "mem"]
+      },
+      "global_field": {"class": "cGcFleetGlobals", "field": "PercentChanceOfDamageOnFailedEvent"},
+      "anchors": [
+        {"kind": "aob", "pattern": "F3 0F 2C 05 ?? ?? ?? ?? EB ?? 8B 05 ?? ?? ?? ?? 3B F0 7C"},
+        {"kind": "sig", "pattern": "48 89 4C 24 08 53 55 56 57 48 83 EC 48 48 8B 2D ?? ?? ?? ?? 4C 8D 05"}
+      ]
+    }
+  ]
+}

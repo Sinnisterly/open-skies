@@ -1,0 +1,189 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Galaxy.ClassifyVoxel",
+      "helper": true,
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 0F BF 41 02"},
+        {
+          "kind": "target",
+          "name": "Portal.CheckUAIsValid",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "entry", "verify": "57 48 83 EC 40 0F BF 41 02"},
+      "seen": {"build": 180836, "func": "0x132AC60", "site": "0x132AC60"}
+    },
+    {
+      "name": "Galaxy.ClassifyStarSystem",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 54 24 10 55 53 56 57 41 54 41 55 41 56 48 8B EC 48 81 EC 80 00 00 00 48 8B F9 48 8B F2 48 C1 EF 20"
+        },
+        {
+          "kind": "target",
+          "name": "Portal.CheckUAIsValid",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B F9 48 8B F2 48 C1 EF 20"},
+      "seen": {"build": 180836, "func": "0x132BF90", "site": "0x132BF90"}
+    },
+    {
+      "name": "Data.SolarSystem",
+      "anchors": [
+        {"kind": "sig", "pattern": "40 55 53 56 57 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC B0 01 00 00"},
+        {"kind": "aob", "pattern": "48 8B 88 ?? ?? ?? ?? 48 89 4D A8 48 89 4D B0 48 8D 81", "yields": "owner"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 88 ?? ?? ?? ?? 48 89 4D A8 48 89 4D B0", "index": 0},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x72AFB0",
+      "seen": {"build": 180836, "func": "0x1B09E0", "site": "0x1B1CA5"}
+    },
+    {
+      "name": "SolarSystem.Planets",
+      "anchors": [
+        {"kind": "aob", "pattern": "48 8D 9F ?? ?? ?? ?? F3 0F 11 87 ?? ?? ?? ?? BE 06 00 00 00", "yields": "owner"},
+        {
+          "kind": "aob",
+          "pattern": "BE 06 00 00 00 0F 1F 80 00 00 00 00 48 8B CB E8 ?? ?? ?? ?? 48 81 C3 ?? ?? ?? ?? 48 83 EE 01",
+          "yields": "owner"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 9F ?? ?? ?? ?? F3 0F 11 87 ?? ?? ?? ?? BE 06 00 00 00", "index": 0},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x2E30",
+      "seen": {"build": 180836, "func": "0x1637C60", "site": "0x1637F65"}
+    },
+    {
+      "name": "SolarSystem.PlanetStride",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "BE 06 00 00 00 0F 1F 80 00 00 00 00 48 8B CB E8 ?? ?? ?? ?? 48 81 C3 ?? ?? ?? ?? 48 83 EE 01",
+          "yields": "owner"
+        },
+        {"kind": "aob", "pattern": "48 8D 9F ?? ?? ?? ?? F3 0F 11 87 ?? ?? ?? ?? BE 06 00 00 00", "yields": "owner"}
+      ],
+      "site": {
+        "kind": "scan",
+        "pattern": "48 8B CB E8 ?? ?? ?? ?? 48 81 C3 ?? ?? ?? ?? 48 83 EE 01 75",
+        "index": 0,
+        "offset": 8
+      },
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xD9170",
+      "seen": {"build": 180836, "func": "0x1637C60", "site": "0x1637F88"}
+    },
+    {
+      "name": "Galaxy.GenerateBiomesInfo",
+      "helper": true,
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 5C 24 18 55 56 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? 00 00 48 8B DA"},
+        {"kind": "aob", "pattern": "48 B8 FF FF FF FF FF FF 0F 00 48 8D 55 ?? 48 23 D8 48 8B F9", "yields": "owner"}
+      ],
+      "site": {"kind": "entry", "verify": "48 B8 FF FF FF FF FF FF 0F 00"},
+      "seen": {"build": 180836, "func": "0x164A190", "site": "0x164A190"}
+    },
+    {
+      "name": "Planet.GenerateWeatherInfo",
+      "helper": true,
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 4C 24 08 55 56 41 54 41 55 41 57 48 8D AC 24"},
+        {"kind": "aob", "pattern": "49 8D 8E ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F 28 B4 24", "yields": "owner"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 4C 24 08 55 56 41 54"},
+      "seen": {"build": 180836, "func": "0x168EA60", "site": "0x168EA60"}
+    },
+    {
+      "name": "SolarSystem.Generator",
+      "anchors": [
+        {"kind": "target", "name": "Planet.GenerateWeatherInfo"},
+        {"kind": "aob", "pattern": "4C 8D 44 24 20 49 8B D4 49 8D 8E ?? ?? ?? ?? E8", "yields": "owner"}
+      ],
+      "site": {"kind": "scan", "pattern": "49 8D 8E ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F 28 B4 24", "index": 0},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x521180",
+      "seen": {"build": 180836, "func": "0x168EA60", "site": "0x168EC95"}
+    },
+    {
+      "name": "SolarSystemData.SetDefaults",
+      "helper": true,
+      "anchors": [
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 0F 29 74 24 30 48 8B D9"},
+        {
+          "kind": "aob",
+          "pattern": "48 8B D9 E8 ?? ?? ?? ?? 66 0F 6F 35 ?? ?? ?? ?? 48 8D 8B E0 1E 00 00 0F 11 B3 E0 1C 00 00",
+          "yields": "owner"
+        },
+        {
+          "kind": "target",
+          "name": "Planet.GenerateWeatherInfo",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B D9 E8 ?? ?? ?? ?? 66 0F 6F 35 ?? ?? ?? ?? 48 8D 8B E0 1E 00 00"},
+      "seen": {"build": 180836, "func": "0x1E54AC0", "site": "0x1E54AC0"}
+    },
+    {
+      "name": "Galaxy.AttributeStrings",
+      "helper": true,
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_CONFLICT_LEVEL_PIRATE"},
+        {"kind": "string_xref", "string": "UI_ECON_LEVEL_PIRATE"},
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 44 89 44 24 18 55 56 57 41 54 41 55 41 56 41 57 48 8D AC 24 ?? ?? ?? ?? 48 81 EC ?? ?? 00 00 48 8B D9 49 63 F9"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 10 44 89 44 24 18"},
+      "seen": {"build": 180836, "func": "0x1651380", "site": "0x1651380"}
+    },
+    {
+      "name": "SolarSystemData.Destroy",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "48 8B 91 A0 24 00 00 48 8B D9 48 85 D2 74 ?? 80 B9 AC 24 00 00 00",
+          "yields": "owner"
+        },
+        {
+          "kind": "target",
+          "name": "Planet.GenerateWeatherInfo",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B 91 A0 24 00 00 48 8B D9 48 85 D2"},
+      "seen": {"build": 180836, "func": "0x316EB0", "site": "0x316EB0"}
+    }
+  ]
+}

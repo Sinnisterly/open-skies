@@ -1,0 +1,545 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Ship.OwnershipUpdate",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "GameState.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 55 53 56 48 8D A8 ?? ?? ?? ?? 48 81 EC F0 01 00 00 80 B9 ?? ?? ?? ?? 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 55 53 56"},
+      "seen": {"build": 180836, "func": "0x558E40", "site": "0x558E40"}
+    },
+    {
+      "name": "Ship.UpdateMeshRefresh",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.OwnershipUpdate",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 55 57 41 54 41 56 41 57 48 8D 6C 24 A0 48 81 EC 60 01 00 00 45 33 E4"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 74 24 ?? 55 57 41 54"},
+      "seen": {"build": 180836, "func": "0x563580", "site": "0x563580"}
+    },
+    {
+      "name": "Ship.RefreshFlag",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.OwnershipUpdate",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 74 24 18 55 57 41 54 41 56 41 57 48 8D 6C 24 A0 48 81 EC 60 01 00 00 45 33 E4"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "44 38 A1 ?? ?? ?? ?? 0F 84"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0xA9F0",
+      "seen": {"build": 180836, "func": "0x563580", "site": "0x5635A4"}
+    },
+    {
+      "name": "Ship.SpawnNewShip",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.Remove",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "44 89 44 24 18 55 53 56 57 41 54 41 55 41 57"}
+      ],
+      "site": {"kind": "entry", "verify": "44 89 44 24 ?? 55"},
+      "seen": {"build": 180836, "func": "0x55AD70", "site": "0x55AD70"}
+    },
+    {
+      "name": "Ship.DestroyShip",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.SpawnNewShip",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Ship.Remove",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 41 55 41 56 41 57 48 8D 6C 24 D1 48 81 EC A8 00 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 57 41 55"},
+      "seen": {"build": 180836, "func": "0x55BAB0", "site": "0x55BAB0"}
+    },
+    {
+      "name": "Ship.AddToSlot",
+      "anchors": [
+        {"kind": "string_xref", "string": "MODELS/COMMON/SPACECRAFT"},
+        {"kind": "sig", "pattern": "4C 89 4C 24 20 89 54 24 10 48 89 4C 24 08 55 53 56 57 48 8D 6C 24 A8"}
+      ],
+      "site": {"kind": "entry", "verify": "4C 89 4C 24 ?? 89 54 24 ?? 48 89 4C 24"},
+      "seen": {"build": 180836, "func": "0x55D320", "site": "0x55D320"}
+    },
+    {
+      "name": "Ship.Remove",
+      "anchors": [
+        {"kind": "string_xref", "string": "SWAP_SHIP"},
+        {"kind": "sig", "pattern": "89 54 24 10 55 53 57 41 54 41 55 41 56 41 57 48 8D 6C 24 A0"}
+      ],
+      "site": {"kind": "entry", "verify": "89 54 24 ?? 55 53"},
+      "seen": {"build": 180836, "func": "0x560FC0", "site": "0x560FC0"}
+    },
+    {
+      "name": "Ship.GetShipComponent",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.Remove",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "83 FA FF 75 ?? 48 8B 05 ?? ?? ?? ?? 8B 90 ?? ?? ?? ?? 48 63 C2 48 8D 14 40"}
+      ],
+      "site": {"kind": "entry", "verify": "83 FA FF 75 ?? 48 8B 05"},
+      "seen": {"build": 180836, "func": "0x55DFB0", "site": "0x55DFB0"}
+    },
+    {
+      "name": "Ship.PrimaryIndex",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.Remove",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "83 FA FF 75 ?? 48 8B 05 ?? ?? ?? ?? 8B 90 ?? ?? ?? ?? 48 63 C2 48 8D 14 40"}
+      ],
+      "site": {"kind": "scan", "pattern": "8B 90 ?? ?? ?? ?? 48 63 C2 48 8D 14 40"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x23BE0",
+      "seen": {"build": 180836, "func": "0x55DFB0", "site": "0x55DFBC"}
+    },
+    {
+      "name": "PlayerState.SetPrimaryShip",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.Remove",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "39 91 A0 82 01 00"}
+      ],
+      "site": {"kind": "entry", "verify": "39 91 ?? ?? ?? ?? 74 ?? 48 8B 05"},
+      "seen": {"build": 180836, "func": "0x56AE50", "site": "0x56AE50"}
+    },
+    {
+      "name": "Customise.Refresh",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "CUSTOMISE_CAPE_L",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "CUST_PLAYER_PRESETS_TITLE",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 55 48 8B EC 48 83 EC 40 48 63 DA"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 55"},
+      "seen": {"build": 180836, "func": "0x7A2110", "site": "0x7A2110"}
+    },
+    {
+      "name": "Customise.CreateGenerationTask",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.UpdateMeshRefresh",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 48 89 58 08 48 89 68 10 48 89 70 18 57 48 81 EC F0 00 00 00 48 8B F2"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58 ?? 48 89 68"},
+      "seen": {"build": 180836, "func": "0x114BE90", "site": "0x114BE90"}
+    },
+    {
+      "name": "Customise.Apply",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.AddToSlot",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Multitool.SetFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 20 44 89 44 24 18 55 41 54 41 55 41 56 41 57 48 8D 6C 24 D9"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 44 89 44 24"},
+      "seen": {"build": 180836, "func": "0x1149F50", "site": "0x1149F50"}
+    },
+    {
+      "name": "Customise.Reset",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.Remove",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "Multitool.SetFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 57 48 83 EC 20 0F 57 C0 33 FF 0F 11 81"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 57 48 83 EC 20 0F 57 C0"},
+      "seen": {"build": 180836, "func": "0x114AB80", "site": "0x114AB80"}
+    },
+    {
+      "name": "Multitool.OwnershipUpdate",
+      "helper": true,
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "GameState.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 8B C4 48 89 58 10 48 89 68 18 48 89 78 20"}
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58 ?? 48 89 68"},
+      "seen": {"build": 180836, "func": "0x552F70", "site": "0x552F70"}
+    },
+    {
+      "name": "Multitool.Switch",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Multitool.OwnershipUpdate",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 48 8D 6C 24 B9 48 81 EC A0 00 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 57 48 8D 6C 24"},
+      "seen": {"build": 180836, "func": "0x553680", "site": "0x553680"}
+    },
+    {
+      "name": "Multitool.ActiveIndex",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Multitool.OwnershipUpdate",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 48 8D 6C 24 B9 48 81 EC A0 00 00 00"}
+      ],
+      "site": {"kind": "scan", "pattern": "89 9F ?? ?? ?? ?? 48 85 C0"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x6144",
+      "seen": {"build": 180836, "func": "0x553680", "site": "0x5537A5"}
+    },
+    {
+      "name": "Multitool.SetFromData",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 55 53 57 41 56 48 8D AC 24 ?? ?? ?? ?? B8 18 3C 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 53 57 41 56"},
+      "seen": {"build": 180836, "func": "0x5516B0", "site": "0x5516B0"}
+    },
+    {
+      "name": "Multitool.GetData",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.SaveToData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 18 56 57 41 56 48 83 EC 60 45 33 F6"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 56 57"},
+      "seen": {"build": 180836, "func": "0x551E60", "site": "0x551E60"}
+    },
+    {
+      "name": "Freighter.OwnershipUpdate",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "GameState.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 57"}
+      ],
+      "site": {"kind": "entry", "verify": "F3 0F 11 4C 24"},
+      "seen": {"build": 180836, "func": "0x542D20", "site": "0x542D20"}
+    },
+    {
+      "name": "Freighter.RefreshFlag",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "GameState.Update",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "F3 0F 11 4C 24 10 55 56 41 57"}
+      ],
+      "site": {"kind": "scan", "pattern": "44 38 BE ?? ?? ?? ?? 0F 84 ?? ?? ?? ?? 44 39 BE"},
+      "shape": {
+        "mnemonic": "cmp",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x4B0",
+      "seen": {"build": 180836, "func": "0x542D20", "site": "0x542E85"}
+    },
+    {
+      "name": "Freighter.Transfer",
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_FREIGHT_BASE_TRANSFER_OSD"},
+        {"kind": "sig", "pattern": "44 88 44 24 18 48 89 4C 24 08 55 53 56 41 55"}
+      ],
+      "site": {"kind": "entry", "verify": "44 88 44 24 ?? 48 89 4C 24"},
+      "seen": {"build": 180836, "func": "0x5472D0", "site": "0x5472D0"}
+    },
+    {
+      "name": "Freighter.Summon",
+      "anchors": [
+        {"kind": "string_xref", "string": "SUMM_FREIGHTER"},
+        {"kind": "string_xref", "string": "%FREIGHT_NAME%"},
+        {"kind": "sig", "pattern": "40 55 56 57 41 54 41 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC 10 03 00 00"}
+      ],
+      "site": {"kind": "entry", "verify": "40 55 56 57 41 54"},
+      "seen": {"build": 180836, "func": "0x543720", "site": "0x543720"}
+    },
+    {
+      "name": "Customiser.OnClose",
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcCustomiserInteraction", "index": 6},
+        {"kind": "sig", "pattern": "83 FA 0E 0F 85 ?? ?? ?? ?? 53"}
+      ],
+      "site": {"kind": "entry", "verify": "83 FA 0E 0F 85"},
+      "seen": {"build": 180836, "func": "0x109A580", "site": "0x109A580"}
+    },
+    {
+      "name": "Pet.SetFromData",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "40 57 48 83 EC 20 48 63 FA 4D 8B D0"}
+      ],
+      "site": {"kind": "entry", "verify": "40 57 48 83 EC 20 48 63 FA"},
+      "seen": {"build": 180836, "func": "0x506C60", "site": "0x506C60"}
+    },
+    {
+      "name": "Pet.GetData",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.SaveToData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 10 57 48 83 EC 20 48 83 B9 ?? ?? ?? ?? 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 57 48 83 EC 20 48 83 B9 ?? ?? ?? ?? 00"},
+      "seen": {"build": 180836, "func": "0x1208B60", "site": "0x1208B60"}
+    },
+    {
+      "name": "Inventory.AddSlot",
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "UI_NEW_SHIP_SLOT",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_NEW_WEAP_SLOT",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 20 44 0F B7 91"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 44 0F B7 91"},
+      "seen": {"build": 180836, "func": "0x4D0EA0", "site": "0x4D0EA0"}
+    },
+    {
+      "name": "Inventory.FromContainer",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Multitool.SetFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 20 44 89 44 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 70"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 44 89 44 24"},
+      "seen": {"build": 180836, "func": "0x4D1C00", "site": "0x4D1C00"}
+    },
+    {
+      "name": "Inventory.ClassField",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Multitool.SetFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 20 44 89 44 24 18 57 41 54 41 55 41 56 41 57 48 83 EC 70"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "89 86 ?? ?? ?? ?? 48 8D 86"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"],
+        "offset_operand": 0
+      },
+      "expect_offset": "0x100",
+      "seen": {"build": 180836, "func": "0x4D1C00", "site": "0x4D1C58"}
+    },
+    {
+      "name": "Customise.Export",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "PlayerState.SaveToData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "target",
+          "name": "PlayerState.LoadFromData",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 08 48 89 70 10 48 89 78 18 55 41 54 41 55 41 56 41 57 48 8D 68 A1 48 81 EC D0 00 00 00"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 48 89 58 ?? 48 89 70"},
+      "seen": {"build": 180836, "func": "0x114A4F0", "site": "0x114A4F0"}
+    },
+    {
+      "name": "Inventory.Copy",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Ship.AddToSlot",
+          "hops": [
+            {"callees": 1}
+          ]
+        },
+        {"kind": "sig", "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 40 0F B7 82"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 40"},
+      "seen": {"build": 180836, "func": "0x4D12D0", "site": "0x4D12D0"}
+    },
+    {
+      "name": "Descriptor.Generate",
+      "anchors": [
+        {"kind": "sig", "pattern": "48 83 EC 38 83 79 04 00 76 ?? C7 41 04 00 00 00 00 41 0F 10 00"}
+      ],
+      "site": {"kind": "entry", "verify": "48 83 EC 38 83 79 04 00"},
+      "seen": {"build": 180836, "func": "0x2D67410", "site": "0x2D67410"}
+    }
+  ]
+}

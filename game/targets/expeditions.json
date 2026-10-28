@@ -1,0 +1,472 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Expedition.QueryResponse",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "40 55 56 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B FA E8"
+      },
+      "anchors": [
+        {"kind": "rtti_vfunc", "class": "cGcAtlasSendQuerySeasonData", "index": 2},
+        {
+          "kind": "string_xref",
+          "string": "SEASON_DATA_CACHE_S22.JSON",
+          "entry": "40 55 56 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B FA E8"
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 55 56 57 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 48 8B FA E8 ?? ?? ?? ?? 81 7F 0C CC 00 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x36C320", "site": "0x36C320"}
+    },
+    {
+      "name": "Expedition.LoadCache",
+      "helper": true,
+      "site": {"kind": "entry", "verify": "40 53 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85"},
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "SEASON_DATA_CACHE_S22.JSON",
+          "entry": "40 53 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85"
+        },
+        {
+          "kind": "target",
+          "name": "Expedition.SetServerInfo",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 53 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85"
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 53 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85 ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 0F 85 ?? ?? ?? ?? 33 C0"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5E3B20", "site": "0x5E3B20"}
+    },
+    {
+      "name": "Expedition.SetServerInfo",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 80 B9 ?? ?? ?? ?? 00 49 8B F9 49 8B F0 8B EA"
+      },
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "seasonRequiredChangeList",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 80 B9 ?? ?? ?? ?? 00 49 8B F9 49 8B F0 8B EA"
+        },
+        {
+          "kind": "string_xref",
+          "string": "fullSeasonEndDate",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 80 B9 ?? ?? ?? ?? 00 49 8B F9 49 8B F0 8B EA"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 80 B9 ?? ?? ?? ?? 00 49 8B F9 49 8B F0 8B EA 48 8B D9 75 05 E8"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5DC670", "site": "0x5DC670"}
+    },
+    {
+      "name": "Expedition.ApplySeason",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 8B C4 55 41 57 48 8D 68 ?? 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 4C 8B F9 0F 85"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Expedition.QueryResponse",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 8B C4 55 41 57 48 8D 68 ?? 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 4C 8B F9 0F 85"
+        },
+        {
+          "kind": "target",
+          "name": "Expedition.SetServerInfo",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 8B C4 55 41 57 48 8D 68 ?? 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 4C 8B F9 0F 85"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 55 41 57 48 8D 68 ?? 48 81 EC ?? ?? ?? ?? 80 B9 ?? ?? ?? ?? 00 4C 8B F9 0F 85 ?? ?? ?? ?? 48 89 58 10 48 89 70"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5DE8B0", "site": "0x5DE8B0"}
+    },
+    {
+      "name": "Expedition.ResetSeason",
+      "tab": "Expeditions",
+      "hook": "postfix",
+      "action": "after the original returns, ApplySeason(SeasonMgr, &chosen) when the launcher has a pick",
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 10 55 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85"
+      },
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "TEXTURES\\UI\\FRONTEND\\BACKGROUNDS\\SELECTMODE.EXPEDITION.DDS",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 10 55 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85"
+        },
+        {
+          "kind": "target",
+          "name": "Expedition.ApplySeason",
+          "hops": [
+            {"callers": 1}
+          ],
+          "entry": "48 89 5C 24 10 55 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 55 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 2B E0 80 B9 ?? ?? ?? ?? 00 48 8B D9 0F 85 ?? ?? ?? ?? 4C 8D 0D"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5DCBD0", "site": "0x5DCBD0"}
+    },
+    {
+      "name": "Expedition.SeasonCtor",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 4C 89 74 24 20 55 48 8B EC 48 83 EC 30 48 8B D9 48 8B F9 BE 1E 00 00 00"
+      },
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "GAMEMODE_SEASONAL_SUMMARY",
+          "entry": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 4C 89 74 24 20 55 48 8B EC 48 83 EC 30 48 8B D9 48 8B F9 BE 1E 00 00 00"
+        },
+        {
+          "kind": "target",
+          "name": "Expedition.QueryResponse",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 4C 89 74 24 20 55 48 8B EC 48 83 EC 30 48 8B D9 48 8B F9 BE 1E 00 00 00"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 48 89 7C 24 18 4C 89 74 24 20 55 48 8B EC 48 83 EC 30 48 8B D9 48 8B F9 BE 1E 00 00 00 48"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2999100", "site": "0x2999100"}
+    },
+    {
+      "name": "Expedition.SeasonDtor",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 08 57 48 83 EC 20 48 8B 91 ?? ?? ?? ?? 48 8B D9 48 85 D2 74 ?? 80 B9 ?? ?? ?? ?? 00 75"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Expedition.QueryResponse",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 57 48 83 EC 20 48 8B 91 ?? ?? ?? ?? 48 8B D9 48 85 D2 74 ?? 80 B9 ?? ?? ?? ?? 00 75"
+        },
+        {
+          "kind": "target",
+          "name": "Expedition.ResetSeason",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 57 48 83 EC 20 48 8B 91 ?? ?? ?? ?? 48 8B D9 48 85 D2 74 ?? 80 B9 ?? ?? ?? ?? 00 75"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 57 48 83 EC 20 48 8B 91 28 67 00 00 48 8B D9 48 85 D2 74 ?? 80 B9 34 67 00 00 00 75 ?? 41 B8 11 00 00 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x325F60", "site": "0x325F60"}
+    },
+    {
+      "name": "Expedition.SeasonFromJson",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 08 48 89 74 24 10 55 57 41 54 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B DA 48 8B F9 41 F6 C0 01"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Expedition.QueryResponse",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 55 57 41 54 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B DA 48 8B F9 41 F6 C0 01"
+        },
+        {
+          "kind": "target",
+          "name": "Expedition.LoadCache",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 48 89 74 24 10 55 57 41 54 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B DA 48 8B F9 41 F6 C0 01"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 55 57 41 54 41 56 41 57 48 8D 6C 24 ?? 48 81 EC ?? ?? ?? ?? 48 8B DA 48 8B F9 41 F6 C0 01"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2991730", "site": "0x2991730"}
+    },
+    {
+      "name": "Expedition.JsonReaderCtor",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 08 57 48 83 EC 20 33 FF 48 8D 05 ?? ?? ?? ?? 48 89 01 0F 57 C0 0F 11 41 08 48 89 79 18 48 8B D9"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Expedition.LoadCache",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 57 48 83 EC 20 33 FF 48 8D 05 ?? ?? ?? ?? 48 89 01 0F 57 C0 0F 11 41 08 48 89 79 18 48 8B D9"
+        },
+        {
+          "kind": "string_xref",
+          "string": "SEASON_DATA_CACHE_S22.JSON",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 08 57 48 83 EC 20 33 FF 48 8D 05 ?? ?? ?? ?? 48 89 01 0F 57 C0 0F 11 41 08 48 89 79 18 48 8B D9"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 57 48 83 EC 20 33 FF 48 8D 05 ?? ?? ?? ?? 48 89 01 0F 57 C0 0F 11 41 08 48 89 79 18 48 8B D9 48 89 79 20"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2BEA2A0", "site": "0x2BEA2A0"}
+    },
+    {
+      "name": "Expedition.JsonReaderParse",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "40 53 48 83 EC 30 48 8B D9 48 89 54 24 20 48 89 54 24 28 48 83 C1 08 48 8D 54 24 20 E8"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Expedition.LoadCache",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 53 48 83 EC 30 48 8B D9 48 89 54 24 20 48 89 54 24 28 48 83 C1 08 48 8D 54 24 20 E8"
+        },
+        {
+          "kind": "string_xref",
+          "string": "SEASON_DATA_CACHE_S22.JSON",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "40 53 48 83 EC 30 48 8B D9 48 89 54 24 20 48 89 54 24 28 48 83 C1 08 48 8D 54 24 20 E8"
+        },
+        {
+          "kind": "sig",
+          "pattern": "40 53 48 83 EC 30 48 8B D9 48 89 54 24 20 48 89 54 24 28 48 83 C1 08 48 8D 54 24 20 E8 ?? ?? ?? ?? 48 8B CB 48 83 C4 30 5B E9"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2BF0100", "site": "0x2BF0100"}
+    },
+    {
+      "name": "Expedition.SeasonCopy",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 18 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 40 48 8B EA 48 8B F1 E8"
+      },
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Expedition.ApplySeason",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 18 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 40 48 8B EA 48 8B F1 E8"
+        },
+        {
+          "kind": "target",
+          "name": "Expedition.QueryResponse",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 18 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 40 48 8B EA 48 8B F1 E8"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 48 89 54 24 10 55 56 57 41 54 41 55 41 56 41 57 48 83 EC 40 48 8B EA 48 8B F1 E8 ?? ?? ?? ?? 48 8D 95 ?? ?? ?? ?? 48 8D 8E"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5DD3C0", "site": "0x5DD3C0"}
+    },
+    {
+      "name": "Expedition.TimeLeft",
+      "tab": "Expeditions",
+      "hook": "data",
+      "action": "decoded disp is EndTimeUTC inside cGcSeasonalGameModeData; StartTimeUTC is +0x10 from it",
+      "site": {"kind": "scan", "pattern": "48 8B 81 ?? ?? ?? ?? 4D 85 C0"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "text": "mov rax, qword ptr [rcx + 0x6748]",
+        "size": 7,
+        "offset_operand": 1,
+        "offset": "0x6748"
+      },
+      "anchors": [
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcGenericSectionConditionSeasonAvailable",
+          "index": 1,
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "4C 8B 05 ?? ?? ?? ?? 48 8B 81 ?? ?? ?? ?? 4D 85 C0 4C 0F 44 05"
+        },
+        {
+          "kind": "string_xref",
+          "string": "UI_EXPED_OFFLINE",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "4C 8B 05 ?? ?? ?? ?? 48 8B 81 ?? ?? ?? ?? 4D 85 C0 4C 0F 44 05"
+        },
+        {"kind": "sig", "pattern": "4C 8B 05 ?? ?? ?? ?? 48 8B 81 ?? ?? ?? ?? 4D 85 C0 4C 0F 44 05"}
+      ],
+      "seen": {"build": 180836, "func": "0x5E1740", "site": "0x5E1747"}
+    },
+    {
+      "name": "Expedition.SeasonMgr",
+      "tab": "Expeditions",
+      "hook": "data",
+      "action": "SeasonMgr = [mpData] + decoded imm; +0 active season, +0x6BA0 cached season, flags at +0xD790..+0xD794",
+      "site": {"kind": "scan", "pattern": "49 81 C6 ?? ?? ?? ?? E8"},
+      "shape": {
+        "mnemonic": "add",
+        "operands": ["reg", "imm"],
+        "text": "add r14, 0x4bf7f0",
+        "size": 7,
+        "offset_operand": 1,
+        "offset": "0x4BF7F0"
+      },
+      "base_load": {"register": "r14", "max_back": 32},
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_EXPED_OFFLINE"},
+        {"kind": "string_xref", "string": "UI_EXPED_COMING_SOON"},
+        {
+          "kind": "sig",
+          "pattern": "4C 8B DC 55 57 49 8D AB ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 8B 81 ?? ?? ?? ?? 48 8B F9 48 8B 50 48 80 7A 61 00"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x2EBA60", "site": "0x2EBABE"}
+    },
+    {
+      "name": "Expedition.HistoryTable",
+      "tab": "Expeditions",
+      "hook": "data",
+      "action": "[mpData + disp] is cGcHistoricalSeasonDataTable*: +0 entries (stride 0xB8), +8 count",
+      "site": {"kind": "scan", "pattern": "4C 8B B0 ?? ?? ?? ?? 44 39 69 ?? 76"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "text": "mov r14, qword ptr [rax + 0x278]",
+        "size": 7,
+        "offset_operand": 1,
+        "offset": "0x278"
+      },
+      "base_load": {"register": "rax", "max_back": 16},
+      "anchors": [
+        {"kind": "string_xref", "string": "UI_OLD_EXPED_DESC_TITLE"},
+        {"kind": "string_xref", "string": "%FINALREWARD%"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 55 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? ?? ?? 48 89 70 E8 4C 89 60 D8 4C 8B E1"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x6F6440", "site": "0x6F6471"}
+    },
+    {
+      "name": "Reward.UnlockableTable",
+      "tab": "Expeditions",
+      "hook": "data",
+      "action": "[mpData + disp] is cGcUnlockableSeasonRewards*: +0 entries (stride 0x78, ID at +0x40), +8 count",
+      "site": {"kind": "scan", "pattern": "4C 8B B0 ?? ?? ?? ?? 4C 89 75 00"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "text": "mov r14, qword ptr [rax + 0x280]",
+        "size": 7,
+        "offset_operand": 1,
+        "offset": "0x280"
+      },
+      "base_load": {"register": "rax", "max_back": 16},
+      "anchors": [
+        {"kind": "string_xref", "string": "TRADE_FILTER_SEASON_%d"},
+        {"kind": "string_xref", "string": "TRADE_FILTER_NOT_OWNED"},
+        {
+          "kind": "sig",
+          "pattern": "48 8B C4 48 89 58 18 4C 89 48 20 48 89 50 10 48 89 48 08 55 56 57 41 54 41 55 41 56 41 57 48 8D A8 ?? ?? ?? ?? 48 81 EC"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x887E90", "site": "0x887EE2"}
+    },
+    {
+      "name": "Reward.UnlockTableEntry",
+      "helper": true,
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 18 57 48 83 EC 20 48 8B 3D ?? ?? ?? ?? 48 8B D1 48 8D 8F ?? ?? ?? ?? E8"
+      },
+      "anchors": [
+        {
+          "kind": "string_xref",
+          "string": "UI_SEASON_REWARD_FORMAT",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 18 57 48 83 EC 20 48 8B 3D ?? ?? ?? ?? 48 8B D1 48 8D 8F ?? ?? ?? ?? E8"
+        },
+        {
+          "kind": "string_xref",
+          "string": "S_MILESTONES",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "48 89 5C 24 18 57 48 83 EC 20 48 8B 3D ?? ?? ?? ?? 48 8B D1 48 8D 8F ?? ?? ?? ?? E8"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 18 57 48 83 EC 20 48 8B 3D ?? ?? ?? ?? 48 8B D1 48 8D 8F ?? ?? ?? ?? E8 ?? ?? ?? ?? 48 8D 0C 40"
+        }
+      ],
+      "seen": {"build": 180836, "func": "0x5EDE90", "site": "0x5EDE90"}
+    }
+  ]
+}
