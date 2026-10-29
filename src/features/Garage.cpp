@@ -1984,7 +1984,8 @@ float DrawPreview(ImDrawList* dl, float x, float y, float bw, const Owned& o, co
     uint64_t s64 = seedPreview ? g.seedPrev : o.seed;
     memcpy(seed, &s64, 8);
     seed[8] = seedPreview || o.useSeed;
-    {
+    // the character has no seeded look: built with no parts picked it pulls in every option, which can take the GPU down
+    if (o.kind != SuitKind || detail) {
         render::preview::Request r;
         r.key = o.Key();
         r.file = file;

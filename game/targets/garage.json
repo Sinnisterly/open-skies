@@ -248,10 +248,18 @@
             {"callees": 1}
           ]
         },
-        {"kind": "sig", "pattern": "48 89 5C 24 08 57 48 83 EC 20 0F 57 C0 33 FF 0F 11 81"}
+        {
+          "kind": "aob",
+          "pattern": "0F 57 C0 33 ?? 0F 11 81 ?? 3A 00 00 48 8B F1 39 A9 ?? 3A 00 00",
+          "yields": "owner"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 6C 24 10 48 89 74 24 18 57 48 83 EC 20 0F 57 C0 33 ED 0F 11 81"
+        }
       ],
-      "site": {"kind": "entry", "verify": "48 89 5C 24 ?? 57 48 83 EC 20 0F 57 C0"},
-      "seen": {"build": 180836, "func": "0x114AB80", "site": "0x114AB80"}
+      "site": {"kind": "entry", "verify": "0F 11 81 ?? 3A 00 00"},
+      "seen": {"build": 183791, "func": "0x116E160", "site": "0x116E160"}
     },
     {
       "name": "Multitool.OwnershipUpdate",
