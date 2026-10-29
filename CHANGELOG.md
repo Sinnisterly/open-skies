@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.9.6
+
+### Garage
+- Fixed: editing your character (or any look) crashed or did nothing after the Forsaken update. A game function Garage uses before applying a look had moved, and the menu was calling the wrong one.
+- Fixed: opening Character could freeze the game. The preview tried to draw your character before your look was read; it now waits for it.
+- Fixed: the preview could get stuck on the first item it showed after one of the crashes above.
+
 ## 0.9.5
 
 ### Forsaken update
