@@ -746,6 +746,10 @@ void Install()
     catch (...) { log::Error("Feature", "Encounter binding failed"); }
     try { InstallBuilding(); }
     catch (...) { log::Error("Feature", "Building binding failed"); }
+    try { InstallBlueprints(); }
+    catch (...) { log::Error("Feature", "Blueprints page failed"); }
+    try { InstallBases(); }
+    catch (...) { log::Error("Feature", "Bases page failed"); }
     Loc().Finish();
     Publish();
 }

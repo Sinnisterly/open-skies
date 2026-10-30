@@ -31,6 +31,29 @@ std::vector<Msg> g_queue;
 
 safetyhook::InlineHook h_rawData, h_rawBuffer, h_setCursorPos, h_clipCursor, h_asyncKey, h_xinput;
 
+std::atomic<bool (*)(uint16_t)> g_swallow{ nullptr };
+std::atomic<int> g_wheel{ 0 };
+std::atomic<bool> g_rawWheel{ false }; // the game reads raw mouse input, so the wheel is counted there
+
+bool Swallows(uint16_t vk)
+{
+    auto f = g_swallow.load();
+    return f && !g_menuOpen.load() && f(vk);
+}
+
+// Raw mouse buttons and wheel the preview wants are taken out; movement stays so you can look around.
+void SwallowMouse(RAWMOUSE& m)
+{
+    if ((m.usButtonFlags & RI_MOUSE_WHEEL) && Swallows(kWheel)) {
+        g_wheel += (short)m.usButtonData;
+        g_rawWheel = true;
+        m.usButtonFlags &= ~RI_MOUSE_WHEEL;
+        m.usButtonData = 0;
+    }
+    if (Swallows(VK_LBUTTON)) m.usButtonFlags &= ~(RI_MOUSE_LEFT_BUTTON_DOWN | RI_MOUSE_LEFT_BUTTON_UP);
+    if (Swallows(VK_RBUTTON)) m.usButtonFlags &= ~(RI_MOUSE_RIGHT_BUTTON_DOWN | RI_MOUSE_RIGHT_BUTTON_UP);
+}
+
 bool FromSelf(void* ret) { auto r = (uintptr_t)ret; return r >= g_selfLo && r < g_selfHi; }
 
 bool IsInputMsg(UINT m)
@@ -74,6 +97,16 @@ LRESULT CALLBACK WndProc(HWND h, UINT m, WPARAM w, LPARAM l)
         }
     }
 
+    if (!open && g_swallow.load()) {
+        if ((m == WM_KEYDOWN || m == WM_KEYUP || m == WM_SYSKEYDOWN || m == WM_SYSKEYUP) && Swallows((uint16_t)w)) return 0;
+        if ((m == WM_LBUTTONDOWN || m == WM_LBUTTONUP || m == WM_LBUTTONDBLCLK) && Swallows(VK_LBUTTON)) return 0;
+        if ((m == WM_RBUTTONDOWN || m == WM_RBUTTONUP || m == WM_RBUTTONDBLCLK) && Swallows(VK_RBUTTON)) return 0;
+        if (m == WM_MOUSEWHEEL && Swallows(kWheel)) {
+            if (!g_rawWheel) g_wheel += GET_WHEEL_DELTA_WPARAM(w);
+            return 0;
+        }
+    }
+
     if (open) {
         if (IsInputMsg(m) || m == WM_CHAR || m == WM_SETFOCUS || m == WM_KILLFOCUS) Queue(m, w, l);
         if (Settings::Get().Data().blockGameInputs) {
@@ -94,6 +127,11 @@ UINT WINAPI Hk_GetRawInputData(HRAWINPUT ri, UINT cmd, LPVOID data, PUINT size, 
         if (in->header.dwType == RIM_TYPEMOUSE) { in->data.mouse.lLastX = in->data.mouse.lLastY = 0; in->data.mouse.usButtonFlags = 0; in->data.mouse.usButtonData = 0; }
         else if (in->header.dwType == RIM_TYPEKEYBOARD) { in->data.keyboard.VKey = 0xFF; in->data.keyboard.Flags = RI_KEY_BREAK; }
     }
+    else if (g_swallow.load() && data && cmd == RID_INPUT && r != (UINT)-1 && !FromSelf(_ReturnAddress())) {
+        auto* in = (RAWINPUT*)data;
+        if (in->header.dwType == RIM_TYPEMOUSE) SwallowMouse(in->data.mouse);
+        else if (in->header.dwType == RIM_TYPEKEYBOARD && Swallows(in->data.keyboard.VKey)) { in->data.keyboard.VKey = 0xFF; in->data.keyboard.Flags = RI_KEY_BREAK; }
+    }
     return r;
 }
 
@@ -105,6 +143,14 @@ UINT WINAPI Hk_GetRawInputBuffer(PRAWINPUT data, PUINT size, UINT hdr)
         for (UINT i = 0; i < n; ++i) {
             if (in->header.dwType == RIM_TYPEMOUSE) { in->data.mouse.lLastX = in->data.mouse.lLastY = 0; in->data.mouse.usButtonFlags = 0; }
             else if (in->header.dwType == RIM_TYPEKEYBOARD) { in->data.keyboard.VKey = 0xFF; in->data.keyboard.Flags = RI_KEY_BREAK; }
+            in = NEXTRAWINPUTBLOCK(in);
+        }
+    }
+    else if (g_swallow.load() && data && n != (UINT)-1 && n > 0) {
+        RAWINPUT* in = data;
+        for (UINT i = 0; i < n; ++i) {
+            if (in->header.dwType == RIM_TYPEMOUSE) SwallowMouse(in->data.mouse);
+            else if (in->header.dwType == RIM_TYPEKEYBOARD && Swallows(in->data.keyboard.VKey)) { in->data.keyboard.VKey = 0xFF; in->data.keyboard.Flags = RI_KEY_BREAK; }
             in = NEXTRAWINPUTBLOCK(in);
         }
     }
@@ -125,7 +171,7 @@ BOOL WINAPI Hk_ClipCursor(const RECT* r)
 
 SHORT WINAPI Hk_GetAsyncKeyState(int vk)
 {
-    if (Blocking() && !FromSelf(_ReturnAddress())) return 0;
+    if ((Blocking() || Swallows((uint16_t)vk)) && !FromSelf(_ReturnAddress())) return 0;
     return h_asyncKey.stdcall<SHORT>(vk);
 }
 
@@ -152,6 +198,14 @@ template <class Fn> void HookExport(safetyhook::InlineHook& h, const wchar_t* mo
 }
 
 bool Blocking() { return g_menuOpen.load() && Settings::Get().Data().blockGameInputs; }
+
+void SetSwallow(bool (*wants)(uint16_t vk))
+{
+    g_swallow = wants;
+    g_wheel = 0;
+}
+
+int TakeWheel() { return g_wheel.exchange(0); }
 
 void OnMenuOpen(bool open)
 {

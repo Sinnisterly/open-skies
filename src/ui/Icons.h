@@ -39,4 +39,5 @@ constexpr unsigned Star      = 0xf005;
 constexpr unsigned Sun       = 0xf185;
 constexpr unsigned Dolly     = 0xf472;
 constexpr unsigned Wand      = 0xf0d0;
+constexpr unsigned Clone     = 0xf24d;
 }

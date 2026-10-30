@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.0.0
+
+### Blueprints (new tab)
+- Copy a whole base, or only the parts within a radius of you, into a blueprint. Works on other players' bases too.
+- Paste a blueprint into any of your bases. Pasted parts are normal game parts, so they save and upload like parts you built.
+- Preview and place: the blueprint shows as the game's own blue building ghosts and follows you until you place it.
+  - Left click places, right click cancels, P locks it in place.
+  - Mouse wheel turns (Shift: fine), Page Up / Page Down change height, arrow keys nudge.
+  - These keys only do this while a preview is up.
+- Place now pastes straight away, using the distance, height and turn set on the page.
+- Undo last paste removes everything the last paste placed.
+- The base computer is left out by default, so pasting doesn't add a second one you can't remove. Switch it back on if you want it.
+- Paste outside your bases (switch): place a blueprint with no base nearby. Those parts don't belong to a base, so they don't upload with one.
+- Blueprints are plain files in `OpenSkies.blueprints\`, so you can share them.
+- Terrain edits are not copied.
+
+### Bases (new tab)
+- Featured and seen:
+  - Featured bases are fetched from the game's featured list.
+  - Other players' bases are recorded as the game loads them near you, with owner, platform, and system and planet names when known.
+  - The list is kept per save slot.
+- Your bases: every base of yours, with where it is and how far away.
+- Portal Repository (main branch only): search the addresses shared on portalrepository.com by name, player or place, filter by galaxy and bases only, then warp there.
+- Every entry can be warped to, saved as a Teleport spot, and shows its distance from you (metres in the same system, light years otherwise).
+
+### Building
+- All Building Parts now also shows the space station decor (statues, holograms, signs and more) under Furniture, so it can be built at planet bases.
+
+### Interface
+- Long names no longer run past the edge of the info panel or the Scout report.
+
 ## 0.9.6
 
 ### Garage

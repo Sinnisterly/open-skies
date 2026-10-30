@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "game_build": 180836,
+  "targets": [
+    {
+      "name": "Bases.DownloadsManager",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "48 8D 05 ?? ?? ?? ?? C3 CC CC CC CC CC CC CC CC 4C 8B DC 55 48 81 EC C0 00 00 00"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 05 ?? ?? ?? ?? C3"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "rip_operand": 1
+      },
+      "seen": {"build": 180836, "func": "0x39E9F0", "site": "0x39E9F0"}
+    },
+    {
+      "name": "Bases.FeaturedQuery",
+      "anchors": [
+        {"kind": "string_xref", "string": "GetFeaturedBases"}
+      ],
+      "site": {"kind": "scan", "pattern": "48 89 74 24 70 4C 8D 05"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["mem", "reg"]
+      },
+      "seen": {"build": 180836, "func": "0x3A35F0", "site": "0x3A3690"}
+    }
+  ]
+}

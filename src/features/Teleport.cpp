@@ -780,6 +780,12 @@ bool CurrentAddress(uint64_t& ua)
 
 void WarpToAddress(uint64_t ua, const std::string& name) { Warp(ua & ~(0xFull << 52), name, nullptr); }
 
+bool GlyphsToAddress(const std::string& glyphs, int galaxy, uint64_t& ua) { return ParseAddress(glyphs, galaxy, ua); }
+
+std::string AddressGlyphs(uint64_t ua) { return Glyphs(ua); }
+
+std::string AddressWhere(uint64_t ua) { return Where(ua); }
+
 void SaveSystemSpot(uint64_t ua, const std::string& name)
 {
     std::lock_guard lk(g_mx);
