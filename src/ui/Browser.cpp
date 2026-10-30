@@ -340,6 +340,17 @@ float RichText(ImDrawList* dl, ImFont* font, float size, ImVec2 pos, float wrap,
     return y + line;
 }
 
+// One UTF-8 character shorter, ending in "...".
+static std::string Trimmed(std::string s)
+{
+    if (s.size() >= 3 && s.compare(s.size() - 3, 3, "...") == 0) s.resize(s.size() - 3);
+    if (!s.empty()) s.pop_back();
+    while (!s.empty() && ((unsigned char)s.back() & 0xC0) == 0x80) s.pop_back(); // continuation bytes
+    if (!s.empty() && (unsigned char)s.back() >= 0xC0) s.pop_back();               // the lead byte left behind
+    while (!s.empty() && s.back() == ' ') s.pop_back();
+    return s + "...";
+}
+
 float DrawEntryHeader(ImDrawList* dl, ImVec2 a, float w, const BrowserEntry& e)
 {
     const auto& p = P();
@@ -349,11 +360,18 @@ float DrawEntryHeader(ImDrawList* dl, ImVec2 a, float w, const BrowserEntry& e)
     dl->AddRect(ia, ImVec2(ia.x + ib, ia.y + ib), Alpha(p.blueText, 0.5f), 0.f, S(1));
     DrawIconBox(dl, ia, ib, e);
     float tx = ia.x + ib + S(16);
+    float room = a.x + w - tx - S(14);
     std::string up = Upper(StripTags(e.title).c_str());
     float tfs = S(25);
-    while (tfs > S(15) && SpacedWidth(theme::Title(), tfs, up.c_str(), S(1.5f)) > a.x + w - tx - S(14)) tfs -= S(1);
+    while (tfs > S(15) && SpacedWidth(theme::Title(), tfs, up.c_str(), S(1.5f)) > room) tfs -= S(1);
+    // still too long at the smallest size: cut it with an ellipsis
+    while (up.size() > 4 && SpacedWidth(theme::Title(), tfs, up.c_str(), S(1.5f)) > room) up = Trimmed(up);
     SpacedText(dl, theme::Title(), tfs, ImVec2(tx, a.y + S(18)), p.text, up.c_str(), S(1.5f));
-    dl->AddText(theme::Body(), S(17), ImVec2(tx, a.y + S(50)), p.textBody, StripTags(e.subtitle).c_str());
+    std::string sub = StripTags(e.subtitle);
+    float sfs = S(17);
+    while (sfs > S(14) && theme::Body()->CalcTextSizeA(sfs, FLT_MAX, 0, sub.c_str()).x > room) sfs -= S(1);
+    while (sub.size() > 4 && theme::Body()->CalcTextSizeA(sfs, FLT_MAX, 0, sub.c_str()).x > room) sub = Trimmed(sub);
+    dl->AddText(theme::Body(), sfs, ImVec2(tx, a.y + S(50)), p.textBody, sub.c_str());
     float y = a.y + headH + pad;
     if (!e.body.empty()) {
         float bw = w - pad * 2;

@@ -50,7 +50,7 @@ enum Fl { Show, Placeable, Floating, Decoration, Removes, Unsnapped, Scale, Colo
 enum Lim { PlanetLim, RegionLim, BaseLim, FreighterLim, CorvetteLim, LimCount };
 struct
 {
-    uint32_t objects = 0x1C8, stride = 0x278, id = 0x1C8, groups = 0x1A8, groupSize = 0x24, subName = 0x10, deco = 0x218;
+    uint32_t objects = 0x1C8, stride = 0x278, id = 0x1C8, groups = 0x1A8, groupSize = 0x24, group = 0, subName = 0x10, deco = 0x218;
     uint32_t fl[FlCount] = { 623, 616, 617, 613, 620, 621, 604, 600, 601, 607, 606, 588, 599, 591, 593, 597, 596, 590, 589, 592 };
     uint32_t lim[LimCount] = { 564, 568, 560, 540, 532 };
     uint32_t lo = 0, hi = 0; // saved byte range
@@ -64,6 +64,8 @@ const char* kLimNames[LimCount] = { "PlanetLimit", "RegionLimit", "PlanetBaseLim
 constexpr int32_t kTerrain = 3, kNormal = 0; // GcBaseBuildingObjectDecorationTypes
 
 struct { uintptr_t data = 0; int32_t n = 0; std::vector<uint8_t> bytes; } g_saved; // game thread
+struct GroupCopy { uintptr_t at; std::vector<uint8_t> bytes; };
+std::vector<GroupCopy> g_savedGroups; // group records lent a planet tab, restored on every sync
 struct { bool all = false, free = false; uintptr_t data = 0; int32_t n = 0; } g_applied;
 
 bool AvailHk(void* menu, uintptr_t entry, bool flag)
@@ -175,10 +177,23 @@ void SyncParts()
         g_saved.data = data;
         g_saved.n = n;
         g_saved.bytes.assign(span * n, 0);
+        g_savedGroups.clear(); // the old table is gone, nothing to restore
         for (int32_t i = 0; i < n; ++i)
             for (size_t b = 0; b < span; ++b) Rd(data + (uintptr_t)i * E.stride + E.lo + b, g_saved.bytes[i * span + b]);
     }
-    int changed = 0;
+    for (auto& c : g_savedGroups)
+        for (size_t b = 0; b < c.bytes.size(); ++b) Wr<uint8_t>(c.at + b, c.bytes[b]);
+    g_savedGroups.clear();
+    // Station decor only sits in the station exterior tab; with all parts on it borrows the station sofa's furniture group.
+    std::vector<uint8_t> furniture;
+    if (all)
+        for (int32_t i = 0; i < n && furniture.empty(); ++i) {
+            uintptr_t e = data + (uintptr_t)i * E.stride, g = 0;
+            if (Id16(e + E.id) != "STATION_SOFA" || !Rd(e + E.groups, g) || !g) continue;
+            furniture.resize(E.groupSize);
+            for (uint32_t b = 0; b < E.groupSize; ++b) Rd(g + b, furniture[b]);
+        }
+    int changed = 0, lent = 0;
     for (int32_t i = 0; i < n; ++i) {
         uintptr_t e = data + (uintptr_t)i * E.stride;
         for (size_t b = 0; b < span; ++b) Wr<uint8_t>(e + E.lo + b, g_saved.bytes[i * span + b]);
@@ -187,14 +202,28 @@ void SyncParts()
         std::vector<std::string> subs;
         uintptr_t g = 0;
         int32_t gn = 0;
-        if (Rd(e + E.groups, g) && Rd(e + E.groups + 8, gn) && g && gn > 0 && gn < 64)
-            for (int32_t k = 0; k < gn; ++k) subs.push_back(Id16(g + (uintptr_t)k * E.groupSize + E.subName));
+        bool stationOnly = false;
+        if (Rd(e + E.groups, g) && Rd(e + E.groups + 8, gn) && g && gn > 0 && gn < 64) {
+            stationOnly = true;
+            for (int32_t k = 0; k < gn; ++k) {
+                subs.push_back(Id16(g + (uintptr_t)k * E.groupSize + E.subName));
+                std::string grp = Id16(g + (uintptr_t)k * E.groupSize + E.group);
+                stationOnly = stationOnly && grp.starts_with("STATION_EXT");
+            }
+        }
+        if (all && stationOnly && !furniture.empty()) {
+            GroupCopy c{ g, std::vector<uint8_t>(E.groupSize) };
+            for (uint32_t b = 0; b < E.groupSize; ++b) Rd(g + b, c.bytes[b]);
+            g_savedGroups.push_back(std::move(c));
+            for (uint32_t b = 0; b < E.groupSize; ++b) Wr<uint8_t>(g + b, furniture[b]);
+            ++lent;
+        }
         if (all) AllPartsRules(e, id, subs);
         if (free) FreestyleRules(e, id);
         ++changed;
     }
     g_applied = { all, free, data, n };
-    log::Info("Building", "Part table: all parts {}, freestyle {}, {} of {} parts edited", all, free, changed, n);
+    log::Info("Building", "Part table: all parts {}, freestyle {}, {} of {} parts edited, {} station parts in furniture", all, free, changed, n, lent);
 }
 
 void Tick()
@@ -276,6 +305,7 @@ void InstallBuilding()
         if (auto* ci = meta::Get("cGcBaseBuildingEntry")) E.stride = ci->size;
         if (auto* ci = meta::Get("cGcBaseBuildingEntryGroup")) E.groupSize = ci->size;
         off("cGcBaseBuildingEntryGroup", "SubGroupName", E.subName);
+        off("cGcBaseBuildingEntryGroup", "Group", E.group);
         off("cGcBaseBuildingEntry", "ID", E.id);
         off("cGcBaseBuildingEntry", "Groups", E.groups);
         off("cGcBaseBuildingEntry", "DecorationType", E.deco);

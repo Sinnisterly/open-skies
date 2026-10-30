@@ -50,6 +50,8 @@ void RegisterCatalog(Registry& r)
     r.AddTab({ "economy",   icon::Coins,     { "currency", "standing" } });
     r.AddTab({ "world",     icon::Planet,    {} });
     r.AddTab({ "effects",   icon::Wand,      {} });
+    r.AddTab({ "blueprints", icon::Clone,    {} });
+    r.AddTab({ "bases",     icon::Satellite, {} });
     r.AddTab({ "teleport",  icon::Pin,       {} });
     r.AddTab({ "scout",     icon::Binoculars, {} });
     r.AddTab({ "missions",  icon::Scroll,    {} });
@@ -179,6 +181,11 @@ void RegisterCatalog(Registry& r)
     for (const char* id : { "fx.move_left", "fx.move_right", "fx.move_fwd", "fx.move_back", "fx.move_up", "fx.move_down", "fx.turn_left",
                             "fx.turn_right", "fx.tilt_up", "fx.tilt_down", "fx.roll_left", "fx.roll_right", "fx.to_me", "fx.sky_toggle" }) {
         Feature a = T(id, "effects", "", "placed");
+        a.kind = Kind::Action;
+        r.Add(std::move(a));
+    }
+    for (const char* id : { "bp.paste", "bp.undo" }) {
+        Feature a = T(id, "blueprints", "", "paste");
         a.kind = Kind::Action;
         r.Add(std::move(a));
     }

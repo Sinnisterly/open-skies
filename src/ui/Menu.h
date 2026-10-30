@@ -18,7 +18,7 @@ struct Host
     virtual ImTextureID CreditLogo(float& aspect) { (void)aspect; return ImTextureID{}; } // 0 until uploaded
 };
 
-constexpr const char* kVersion = "0.9.6";
+constexpr const char* kVersion = "1.0.0";
 
 void Init(Host* host);
 void SetOpen(bool open);

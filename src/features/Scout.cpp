@@ -1016,13 +1016,15 @@ void DrawReport()
     }
     std::string star = O.star.Of(r.sys.star);
     std::string title = Printable(r.name) ? r.name : SysName(r.sys);
-    dl->AddText(ui::theme::Title(), S(20), ImVec2(x, y), P().text, title.c_str());
+    // long names wrap, leaving room for the star
+    float tw = w - S(24);
+    ImVec2 ts = ui::theme::Title()->CalcTextSizeA(S(20), FLT_MAX, tw, title.c_str());
+    dl->AddText(ui::theme::Title(), S(20), ImVec2(x, y), P().text, title.c_str(), nullptr, tw);
     if (Rarity(r.sys, g.freq) > 0) {
         std::string st = ui::Utf8(icon::Star);
-        float tw = ui::theme::Title()->CalcTextSizeA(S(20), FLT_MAX, 0, title.c_str()).x;
-        dl->AddText(ui::theme::Body(), S(14), ImVec2(x + tw + S(8), y + S(3)), P().gold, st.c_str());
+        dl->AddText(ui::theme::Body(), S(14), ImVec2(x + std::min(ts.x, tw) + S(8), y + S(3)), P().gold, st.c_str());
     }
-    y += S(28);
+    y += ts.y + S(6);
     Fact(dl, x, y, w, L::T("scout.f.star"), Pretty(star), 0);
     Fact(dl, x, y, w, L::T("scout.f.economy"), EconomyText(r.sys, &r.words));
     Fact(dl, x, y, w, L::T("scout.f.conflict"), ConflictText(r.sys, &r.words));
@@ -1040,13 +1042,13 @@ void DrawReport()
         dl->AddLine(ImVec2(x, y), ImVec2(x + w, y), P().line, S(1));
         y += S(8);
         std::string head = pl.name + (pl.biome.empty() ? "" : "   /   " + pl.biome) + (pl.subtype.empty() ? "" : "   /   " + pl.subtype);
-        dl->AddText(ui::theme::Title(), S(17), ImVec2(x, y), P().text, head.c_str());
+        ImVec2 hs = ui::theme::Title()->CalcTextSizeA(S(17), FLT_MAX, tw, head.c_str());
+        dl->AddText(ui::theme::Title(), S(17), ImVec2(x, y), P().text, head.c_str(), nullptr, tw);
         if (pl.exotic || pl.special) {
             std::string st = ui::Utf8(icon::Star);
-            float tw = ui::theme::Title()->CalcTextSizeA(S(17), FLT_MAX, 0, head.c_str()).x;
-            dl->AddText(ui::theme::Body(), S(13), ImVec2(x + tw + S(8), y + S(2)), P().gold, st.c_str());
+            dl->AddText(ui::theme::Body(), S(13), ImVec2(x + std::min(hs.x, tw) + S(8), y + S(2)), P().gold, st.c_str());
         }
-        y += S(24);
+        y += hs.y + S(4);
         Fact(dl, x, y, w, L::T("scout.p.type"), pl.type);
         Fact(dl, x, y, w, L::T("scout.p.weather"), pl.weather, pl.extreme ? P().gold : 0);
         Fact(dl, x, y, w, L::T("scout.p.sentinels"), pl.sentinels);
@@ -1235,6 +1237,26 @@ float DrawInspector(ImVec2 a, float w)
     return y;
 }
 
+}
+
+bool CurrentSystemNames(uint64_t& ua, std::string& system, std::vector<std::string>& planets)
+{
+    uintptr_t d = game::Data(), sys = 0;
+    if (!d || !Rd(d + g_sysPtr, sys) || !sys || !CurrentAddress(ua) || !ua) return false;
+    InitOffsets();
+    system = Str(sys + O.yName, 0x80);
+    if (!Printable(system)) system.clear();
+    int32_t n = 0;
+    Rd(sys + O.yPlanets, n);
+    planets.clear();
+    for (int i = 0; i < std::clamp(n, 0, 6); ++i) {
+        uintptr_t pd = sys + g_planets + (uintptr_t)i * g_stride + kPlanetData;
+        int32_t idx = -1;
+        if (!Rd(pd + O.pIndex, idx) || idx != i) break;
+        std::string name = Str(pd + O.pName, 0x80);
+        planets.push_back(Printable(name) ? name : std::string());
+    }
+    return true;
 }
 
 void InstallScout()
