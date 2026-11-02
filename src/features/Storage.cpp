@@ -688,11 +688,55 @@ void Tick()
     Snapshot();
 }
 
+uint32_t g_classOff = 0x100; // Inventory.ClassField
+
+}
+
+bool ShipStacks(int slot, int which, std::vector<ShipStack>& out)
+{
+    static const int kChoice[] = { Ship, ShipTech, ShipCargo };
+    if (which < 0 || which > 2) return false;
+    uintptr_t s = StoreOf(kChoice[which], slot);
+    if (!s) return false;
+    std::vector<Stack> stacks;
+    ReadStacks(s, stacks);
+    for (auto& st : stacks) out.push_back({ st.id, st.x, st.y, st.amount, st.max, st.type });
+    return true;
+}
+
+uintptr_t ShipStore(int slot, int which)
+{
+    static const int kChoice[] = { Ship, ShipTech, ShipCargo };
+    return which >= 0 && which <= 2 ? StoreOf(kChoice[which], slot) : 0;
+}
+
+int ShipClass(int slot)
+{
+    int32_t c = -1;
+    uintptr_t s = StoreOf(Ship, slot);
+    return s && Rd(s + g_classOff, c) && c >= 0 && c <= 3 ? c : -1;
+}
+
+std::string ShipName(int slot)
+{
+    uintptr_t ps = game::PlayerState();
+    return ps && slot >= 0 && slot < 32 ? ReadFixed(ps + kShipNames + slot * kNameLen, kNameLen) : std::string();
+}
+
+// A slot is in use when its tech store holds something, as in the Storage list.
+int OwnedShipSlots(int& total)
+{
+    static const int slots = [] { auto m = meta::Path("cGcPlayerStateData", "ShipOwnership"); return m && m->count ? (int)m->count : 12; }();
+    total = slots;
+    int used = 0;
+    for (int i = 0; i < slots; ++i) used += ElemCount(StoreOf(ShipTech, i)) > 0;
+    return used;
 }
 
 void InstallStorage()
 {
     E.Load();
+    if (const Target& t = Loc().Resolve("Inventory.ClassField"); t.ok && t.offset) g_classOff = (uint32_t)*t.offset;
     auto bind = [](const char* name, auto& fn) {
         if (const Target& t = Loc().Resolve(name); t.ok) fn = (std::remove_reference_t<decltype(fn)>)Abs(t.func);
         else log::Warn("Storage", "{} missing: {}", name, t.reason);

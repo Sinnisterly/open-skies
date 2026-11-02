@@ -69,10 +69,12 @@ uint32_t g_handleOff = 0x118;                           // object's handle, base
 // with the entry at +0x10, the address it is loaded in now +0x40, base matrix at +0x50, the base's own address +0xA0,
 // owner (cGcDiscoveryOwner: timestamp, local id +0x4, platform +0x84, username +0xC4) at +0xF0,
 // name +0x1F4, base type +0x23C. The list holds your bases and the other players' bases the game has loaded.
-struct { uint32_t count = 0x34, data = 0x38, slot = 0xD0, entry = 0x10, loadedIn = 0x40, matrix = 0x50, ua = 0xA0, owner = 0xF0, name = 0x1F4, type = 0x23C; } B;
+// UserData +0xA8 is the ship slot of a corvette base (Corvette.GetShipBase compares it).
+struct { uint32_t count = 0x34, data = 0x38, slot = 0xD0, entry = 0x10, loadedIn = 0x40, matrix = 0x50, ua = 0xA0, user = 0xA8, owner = 0xF0, name = 0x1F4, type = 0x23C; } B;
 // cGcPersistentBaseEntry, from the game's metadata when it has them. A zero timestamp is a free slot.
 struct { uint32_t at = 0, pos = 0x10, up = 0x20, id = 0x30, time = 0x40, user = 0x48; } R;
 constexpr int32_t kShipBase = 12;   // corvette base, it follows the ship
+constexpr int32_t kFriendShip = 13; // another player's corvette (FriendsShipBase)
 constexpr float kReach = 600.f;     // how far from a base computer counts as at that base
 constexpr int kPerFrame = 12;       // parts placed or removed per game frame
 constexpr uint32_t kUploadLimit = 3000;
@@ -173,6 +175,7 @@ struct BaseInfo
     int32_t type = 0;
     uint64_t ua = 0;
     bool others = false, generated = false; // someone else's base, or a game-made one (settlements)
+    bool placed = true;                      // its matrix is set; other players' corvettes may not have one
 };
 
 // GcPersistentBaseTypes names from the game's metadata, by value.
@@ -242,7 +245,9 @@ std::vector<BaseInfo> Bases(const Vec4& off)
         bi.pos[0] = (double)local.x + boff.x;
         bi.pos[1] = (double)local.y + boff.y;
         bi.pos[2] = (double)local.z + boff.z;
-        if (Len(bi.u) < 0.5f) continue; // not set up
+        bi.placed = Len(bi.u) >= 0.5f;
+        Rd(bi.p + B.type, bi.type);
+        if (!bi.placed && bi.type != kShipBase && bi.type != kFriendShip) continue; // not set up
         Rd(bi.p + B.type, bi.type);
         if (!Rd(bi.p + B.ua, bi.ua) || !bi.ua) Rd(bi.p + B.loadedIn, bi.ua);
         bi.name = Text(bi.p + B.name, 64);
@@ -261,7 +266,7 @@ const BaseInfo* Nearest(const std::vector<BaseInfo>& bases, V3 at, float* dist =
     float bd = kReach;
     for (auto& b : bases) {
         float dd = Len(b.o - at);
-        if (b.type == kShipBase || (mine && (b.others || b.generated))) continue;
+        if (!b.placed || b.type == kShipBase || b.type == kFriendShip || (mine && (b.others || b.generated))) continue;
         if (dd < bd) { bd = dd; best = &b; }
     }
     if (dist) *dist = bd;
@@ -1061,7 +1066,7 @@ std::vector<SeenBase> Listed(bool others)
     std::vector<SeenBase> out;
     Vec4 off;
     for (auto& b : Bases(off)) {
-        if (b.others != others || (!others && b.generated) || b.name.empty()) continue;
+        if (!b.placed || b.others != others || (!others && b.generated) || b.name.empty()) continue;
         SeenBase s{ b.name, b.owner, b.platform, TypeName(b.type), b.ua };
         for (int k = 0; k < 3; ++k) s.pos[k] = b.pos[k];
         out.push_back(std::move(s));
@@ -1074,6 +1079,51 @@ std::vector<SeenBase> Listed(bool others)
 std::vector<SeenBase> OtherBasesHere() { return Listed(true); }
 
 std::vector<SeenBase> MyBases() { return Listed(false); }
+
+uintptr_t BaseBuffer(int index)
+{
+    uintptr_t d = game::Data(), arr = 0, p = 0;
+    uint32_t cnt = 0;
+    if (!d || index < 0 || !Rd(d + g_baseList - 4, cnt) || (uint32_t)index >= cnt || cnt > 512 || !Rd(d + g_baseList, arr) || !arr) return 0;
+    return Rd(arr + (uintptr_t)index * 8, p) ? p : 0;
+}
+
+std::vector<CorvetteSeen> CorvettesLoaded()
+{
+    std::vector<CorvetteSeen> out;
+    Me me;
+    if (!Player(me)) return out;
+    for (auto& b : Bases(me.off)) {
+        if (b.type != kShipBase && b.type != kFriendShip) continue;
+        CorvetteSeen c;
+        c.name = b.name;
+        c.owner = b.owner;
+        c.mine = !b.others;
+        c.base = b.idx;
+        c.dist = b.placed ? Len(b.o - me.pos) : 1e9f;
+        int32_t slot = -1;
+        if (c.mine && Rd(b.p + B.user, slot)) c.slot = slot;
+        uint32_t n = 0;
+        uintptr_t data = 0;
+        if (Rd(b.p + B.count, n) && Rd(b.p + B.data, data) && data && n <= 50000)
+            for (uint32_t i = 0; i < n; ++i) {
+                uintptr_t e = data + (uintptr_t)i * B.slot + B.entry;
+                CorvettePart p;
+                V3 pos, up, at;
+                if (!Rd(e + R.time, p.time) || !p.time) continue;
+                p.id = Text(e + R.id, 16);
+                if (p.id.empty() || !Rd3(e + R.pos, pos) || !Rd3(e + R.up, up) || !Rd3(e + R.at, at)) continue;
+                Rd(e + R.user, p.user);
+                p.p[0] = pos.x; p.p[1] = pos.y; p.p[2] = pos.z;
+                p.up[0] = up.x; p.up[1] = up.y; p.up[2] = up.z;
+                p.at[0] = at.x; p.at[1] = at.y; p.at[2] = at.z;
+                c.parts.push_back(std::move(p));
+            }
+        if (!c.parts.empty()) out.push_back(std::move(c));
+    }
+    std::sort(out.begin(), out.end(), [](auto& a, auto& b) { return a.dist < b.dist; });
+    return out;
+}
 
 bool PlayerSpot(uint64_t& ua, double pos[3])
 {

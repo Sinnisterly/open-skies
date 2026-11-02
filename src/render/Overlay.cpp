@@ -1,5 +1,6 @@
 #include "assets/PakIndex.h"
 #include "features/GameFeatures.h"
+#include "features/WorldFx.h"
 #include "render/Overlay.h"
 #include "core/AppLog.h"
 #include "core/AppPaths.h"
@@ -51,6 +52,7 @@ bool BuildFrame()
     io.MouseDrawCursor = ui::IsOpen();
     ImGui_ImplWin32_NewFrame();
     ImGui::NewFrame();
+    features::DrawMarkers();
     try { ui::Draw(); }
     catch (...) {
         log::Error("Overlay", "Menu draw threw, closing menu");

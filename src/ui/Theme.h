@@ -56,4 +56,6 @@ float S(float v);
 ImU32 Alpha(ImU32 c, float a);
 ImU32 Mix(ImU32 a, ImU32 b, float t);
 
+ImU32 MarkerColour(int kind);
+
 }

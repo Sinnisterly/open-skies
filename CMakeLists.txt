@@ -64,7 +64,7 @@ target_link_libraries(os_ui PUBLIC imgui zstd_dec)
 # The mod: version.dll proxy
 file(GLOB OS_MOD src/mod/*.cpp src/game/*.cpp src/hooks/*.cpp src/render/*.cpp src/input/*.cpp src/features/*.cpp)
 add_library(version SHARED proxy/version_exports.c ${OS_MOD} ${EXT}/imgui/backends/imgui_impl_vulkan.cpp)
-target_include_directories(version PRIVATE src ${CMAKE_CURRENT_BINARY_DIR}/gen ${EXT}/Vulkan-Headers/include)
+target_include_directories(version PRIVATE src ${CMAKE_CURRENT_BINARY_DIR}/gen ${EXT}/Vulkan-Headers/include ${EXT}/stb)
 target_compile_definitions(version PRIVATE VK_NO_PROTOTYPES IMGUI_IMPL_VULKAN_NO_PROTOTYPES VK_USE_PLATFORM_WIN32_KHR)
 target_link_libraries(version PRIVATE os_ui safetyhook)
 target_link_options(version PRIVATE "/DEF:${CMAKE_CURRENT_SOURCE_DIR}/proxy/version.def")

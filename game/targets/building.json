@@ -5,17 +5,17 @@
     {
       "name": "Building.Validate",
       "anchors": [
-        {"kind": "aob", "pattern": "89 85 ?? 17 00 00 0F BA E0 09", "yields": "owner"},
+        {"kind": "aob", "pattern": "0F BA F0 06 0F BA F0 07 48 8B ?? ?? 89 ?? ?? 17 00 00", "yields": "owner"},
         {"kind": "aob", "pattern": "41 89 9B ?? 17 00 00 48 81 C4 88 00 00 00", "yields": "owner"}
       ],
-      "site": {"kind": "scan", "pattern": "89 85 ?? ?? ?? ?? 0F BA E0 09", "index": 0},
+      "site": {"kind": "scan", "pattern": "0F BA F0 07 48 8B ?? ?? 89", "offset": 8, "index": 0},
       "shape": {
         "mnemonic": "mov",
         "operands": ["mem", "reg"],
         "offset_operand": 0
       },
       "expect_offset": "0x1750",
-      "seen": {"build": 180836, "func": "0x1433190", "site": "0x1433A7E"}
+      "seen": {"build": 183877, "func": "0x145E870", "site": "0x145EF55"}
     },
     {
       "name": "Base.UploadLimitA",

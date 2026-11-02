@@ -18,7 +18,7 @@ struct Host
     virtual ImTextureID CreditLogo(float& aspect) { (void)aspect; return ImTextureID{}; } // 0 until uploaded
 };
 
-constexpr const char* kVersion = "1.0.0";
+constexpr const char* kVersion = "1.0.5";
 
 void Init(Host* host);
 void SetOpen(bool open);
@@ -40,8 +40,11 @@ struct Page
     std::function<float(ImVec2 a, float w)> inspector; // right panel content, returns its bottom y; empty = default
     std::function<std::string()> badge;               // header text after the title
     float inspectorWidth = 0;                          // unscaled; 0 keeps the default
+    bool inspectorScrolls = true;                      // false: the page scrolls its own inspector parts
 };
 void RegisterPage(const std::string& tab, Page page);
+// A feature's own row (switch, sliders, hotkey) inside a page, so the page and its home tab share one setting.
+void DrawFeatureRow(const std::string& id);
 
 // Navigation helpers
 void SelectTab(const std::string& tab, const std::string& sub = "");

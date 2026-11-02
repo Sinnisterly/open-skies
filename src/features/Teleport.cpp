@@ -800,6 +800,24 @@ void SaveSystemSpot(uint64_t ua, const std::string& name)
     g.dirty = true;
 }
 
+std::vector<MarkerSpot> TeleportMarkers()
+{
+    std::lock_guard lk(g_mx);
+    if (!g_loaded) Load();
+    std::vector<MarkerSpot> out;
+    for (auto& m : g_marks) {
+        if (m.noPos) continue;
+        MarkerSpot s;
+        s.name = m.name;
+        s.ua = m.ua;
+        s.pos[0] = (double)m.pos.local.x + m.pos.offset.x;
+        s.pos[1] = (double)m.pos.local.y + m.pos.offset.y;
+        s.pos[2] = (double)m.pos.local.z + m.pos.offset.z;
+        out.push_back(std::move(s));
+    }
+    return out;
+}
+
 void InstallTeleport()
 {
     const Target& t = Loc().Resolve("Player.SetToPosition");

@@ -2,8 +2,8 @@
 
 Drop-in No Man's Sky mod menu. You put one file (`version.dll`) next to `NMS.exe` and you're done. No loader needed. Offline singleplayer only.
 
-- **Version:** 1.0.0
-- **Game:** No Man's Sky, Steam build 183877, Windows, Vulkan
+- **Version:** 1.0.5
+- **Game:** No Man's Sky, Steam build 184271, Windows, Vulkan
 - **Open menu:** F8 (rebindable in Settings). Q / E switch tabs.
 
 ## Unofficial Disclaimer
@@ -24,9 +24,9 @@ This mod is and will always remain free to use and download.
 
 ## What you get
 
-A full overlay menu: survival and movement cheats, an item spawner, unlocks, expeditions, a Garage for ships, Multi-Tools and characters (parts, paint, seeds, Add to Garage), storage transfers from any distance, a system scout, teleport and warp to any galaxy, building tools, base blueprints (copy, preview and paste), a Bases tab (featured, seen and your bases, Portal Repository search, warp to any of them), effects and custom weather, a tuner, and hotkey binds.
+A full overlay menu: survival and movement cheats, an item spawner, unlocks, expeditions, a Garage for ships, Multi-Tools and characters (parts, paint, seeds, Add to Garage), storage transfers from any distance, a system scout, teleport and warp to any galaxy, building tools, base blueprints (copy, preview and paste), a Corvettes tab (copy any corvette, put it in a new slot or on one of yours), in-world HUD markers, a Bases tab (featured, seen and your bases, Portal Repository search, warp to any of them), effects and custom weather, a tuner, and hotkey binds.
 
-Settings, teleport spots, placed effects, blueprints, seen bases and a log land next to the game: `OpenSkies.settings.json`, `OpenSkies.bookmarks.json`, `OpenSkies.effects.json`, `OpenSkies.blueprints\`, `OpenSkies.bases\`, `OpenSkies.log`. If that folder isn't writable, they go under `%AppData%\OpenSkies\` instead. A save backup is made in `OpenSkies.backups\` before the first save change of each session.
+Settings, teleport spots, placed effects, blueprints, seen bases, saved corvettes and a log land next to the game: `OpenSkies.settings.json`, `OpenSkies.bookmarks.json`, `OpenSkies.effects.json`, `OpenSkies.blueprints\`, `OpenSkies.bases\`, `OpenSkies.corvettes\`, `OpenSkies.log`. If that folder isn't writable, they go under `%AppData%\OpenSkies\` instead. A save backup is made in `OpenSkies.backups\` before the first save change of each session.
 
 See [CHANGELOG.md](CHANGELOG.md) for every version.
 
@@ -52,9 +52,9 @@ To uninstall, delete `version.dll` or run `Uninstall-OpenSkies.ps1 -Game "..."`.
 | Branch | What's on it |
 |--------|--------------|
 | `main` | Default. Normal credits with the logo. |
-| `forum` | Same code; in-menu credit text is `by loathecsgo`, no logo. |
+| `forum` | Same code without any website links or online features (no Portal Repository search); in-menu credit text is `by loathecsgo`, no logo. |
 
-New work goes on `main`. `forum` is `main` plus one commit that changes `ui.credit` and `ui.credit.logo` in `locales/en.json`.
+New work goes on `main`. `forum` is `main` plus the commits that change the credit (`ui.credit`, `ui.credit.logo`) and remove the website links and online features.
 
 ---
 

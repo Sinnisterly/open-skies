@@ -110,10 +110,88 @@ void BindHooks(const char* id, std::vector<safetyhook::MidHook*> hooks)
 std::atomic<float> g_walkMult{ 2.f };
 void WalkCb(Context& c) { c.xmm6.f32[0] *= g_walkMult.load(); }
 
-std::atomic<int> g_spawnClass{ 3 };
+// Class rolls: Inventory.GenerateClass runs from the inventory generator (player-side ships, tools, freighters)
+// and from AI ship Prepare (ships flying around, the ones you can buy). Each kind can force its own class.
+enum ClassKind { AnyKind = -1, FreighterKind = 0, ShipKind = 1, ToolKind = 2 };
+struct ClassRule
+{
+    const char* id;
+    ClassKind kind;
+    std::vector<int> types; // cGcSpaceshipClasses or cGcWeaponClasses values
+    std::atomic<int> cls{ -1 }, pick{ 3 }; // cls is -1 while the toggle is off
+};
+ClassRule g_classRules[] = {
+    { "world.spawn_class", AnyKind, {} },
+    { "world.cls_freighter", FreighterKind, {} },
+    { "world.cls_hauler", ShipKind, { 1 } },
+    { "world.cls_fighter", ShipKind, { 2 } },
+    { "world.cls_explorer", ShipKind, { 3 } },
+    { "world.cls_shuttle", ShipKind, { 4 } },
+    { "world.cls_solar", ShipKind, { 8 } },
+    { "world.cls_interceptor", ShipKind, { 9 } },
+    { "world.cls_pistol", ToolKind, { 0 } },
+    { "world.cls_rifle", ToolKind, { 1 } },
+    { "world.cls_experimental", ToolKind, { 2 } },
+    { "world.cls_alien", ToolKind, { 3 } },
+    { "world.cls_royal", ToolKind, { 4 } },
+    { "world.cls_mt_sentinel", ToolKind, { 5 } },
+    { "world.cls_atlantid", ToolKind, { 6, 7, 8 } },
+    { "world.cls_staff", ToolKind, { 9 } },
+};
+safetyhook::MidHook* g_classHook = nullptr;
+std::atomic<int> g_classUsers{ 0 };
+
+struct
+{
+    using ShipFromSizeFn = int (*)(int);
+    ShipFromSizeFn shipFromSize = nullptr;
+    int64_t aiData = -1, aiClass = -1, aiStore = -1;
+} g_cls;
+
+// Set by the generator's entry hook, read by the class roll it makes right after on the same thread.
+thread_local struct { uintptr_t store; int choice, size, weapon; } g_gen{};
+
+void GenInventoryCb(Context& c)
+{
+    int32_t size = -1, weapon = -1;
+    Rd(c.rsp + 0x28, size);
+    Rd(c.rsp + 0x30, weapon);
+    g_gen = { c.rcx, (int)(uint32_t)c.rdx, size, weapon };
+}
+
+int ClassFor(ClassKind kind, int type)
+{
+    int any = -1;
+    for (auto& r : g_classRules) {
+        int cls = r.cls.load();
+        if (cls < 0) continue;
+        if (r.kind == AnyKind) any = cls;
+        else if (r.kind == kind && (r.types.empty() || std::find(r.types.begin(), r.types.end(), type) != r.types.end())) return cls;
+    }
+    return any;
+}
+
 void SpawnClassCb(Context& c)
 {
-    int cls = std::clamp(g_spawnClass.load(), 0, 3);
+    ClassKind kind = AnyKind;
+    int type = -1;
+    if (g_gen.store && g_gen.store == c.rcx) {
+        // InventoryChoice: 3 Weapon, 4 Ship, 7 Freighter
+        if (g_gen.choice == 3) { kind = ToolKind; type = g_gen.weapon; }
+        else if (g_gen.choice == 4) { kind = ShipKind; type = g_cls.shipFromSize ? g_cls.shipFromSize(g_gen.size) : -1; }
+        else if (g_gen.choice == 7) kind = FreighterKind;
+    }
+    else if (g_cls.aiStore > 0 && c.rcx - c.rdi == (uint64_t)g_cls.aiStore) {
+        uintptr_t data = 0;
+        int32_t sc = -1;
+        if (Rd(c.rdi + g_cls.aiData, data) && data && Rd(data + g_cls.aiClass, sc)) {
+            kind = sc == 0 ? FreighterKind : ShipKind;
+            type = sc;
+        }
+    }
+    g_gen.store = 0;
+    int cls = ClassFor(kind, type);
+    if (cls < 0) return; // nothing forced for this kind: the game rolls
     if (c.rcx) Wr<int32_t>(c.rcx + 0x100, cls);
     c.rax = (uint64_t)cls;
     c.rip = RetGadget();
@@ -674,6 +752,53 @@ void Economy()
     }
 }
 
+// Per-kind rules need to know what is rolling; without those hooks only the all-kinds rule works.
+void ClassRules()
+{
+    std::vector<const char*> ids;
+    for (auto& r : g_classRules) ids.push_back(r.id);
+    auto failAll = [&](const char* why) { for (auto* id : ids) Fail(id, why); };
+    auto& roll = Loc().Resolve("Inventory.GenerateClass");
+    if (!roll.ok) return failAll("class roll not found");
+    if (!(g_classHook = Mid(roll.func, SpawnClassCb))) return failAll("hook could not be placed");
+
+    bool kinds = false;
+    auto& gen = Loc().Resolve("Inventory.GenerateInventory");
+    auto& size = Loc().Resolve("Inventory.ShipClassFromSize");
+    if (gen.ok && size.ok)
+        if (auto* h = Mid(gen.func, GenInventoryCb); h && h->enable()) {
+            g_cls.shipFromSize = reinterpret_cast<decltype(g_cls.shipFromSize)>(Abs(size.func));
+            kinds = true;
+        }
+    auto& ad = Loc().Resolve("AIShip.DataPtr");
+    auto& ac = Loc().Resolve("AIShip.DataClass");
+    auto& as = Loc().Resolve("AIShip.InventoryOffset");
+    if (ad.ok && ac.ok && as.ok && ad.offset && ac.offset && as.offset) {
+        g_cls.aiData = *ad.offset; g_cls.aiClass = *ac.offset; g_cls.aiStore = *as.offset;
+    }
+    else log::Warn("Features", "AI ship class targets missing; ships flying around keep the all-kinds class only");
+
+    for (auto& r : g_classRules) {
+        if (r.kind != AnyKind && !kinds) { Fail(r.id, "could not tell ship and tool types apart"); continue; }
+        Bound b;
+        b.id = r.id;
+        // One hook serves every rule: on while any rule is on.
+        b.toggle = [&r](bool on) {
+            if (on && g_classUsers == 0 && !g_classHook->enable()) return false;
+            if (!on && g_classUsers == 1 && !g_classHook->disable()) return false;
+            g_classUsers += on ? 1 : -1;
+            r.cls = on ? r.pick.load() : -1;
+            return true;
+        };
+        b.slider = [&r](int i, float v) {
+            if (i != 0) return;
+            r.pick = std::clamp((int)(v + 0.5f), 0, 3);
+            if (r.cls >= 0) r.cls = r.pick.load();
+        };
+        Ok(std::move(b));
+    }
+}
+
 void World()
 {
     if (auto* t = Need("General.InstantInteract", { "world.interact" })) {
@@ -681,17 +806,7 @@ void World()
         if (!a || a->ops.size() != 2 || !IsXmm(a->ops[0].reg) || !IsGpr(a->ops[1].base)) Fail("world.interact", "unexpected code at the site");
         else { g_interact = { a->ops[0].reg, a->ops[1].base }; BindMid("world.interact", t->site, InteractCb); }
     }
-    if (auto* t = Need("Inventory.GenerateClass", { "world.spawn_class" })) {
-        auto* h = Mid(t->func, SpawnClassCb);
-        if (!h) Fail("world.spawn_class", "hook could not be placed");
-        else {
-            Bound b;
-            b.id = "world.spawn_class";
-            b.toggle = HookToggle(h);
-            b.slider = [](int i, float v) { if (i == 0) g_spawnClass = std::clamp((int)(v + 0.5f), 0, 3); };
-            Ok(std::move(b));
-        }
-    }
+    ClassRules();
 }
 
 }
@@ -738,6 +853,8 @@ void Install()
     catch (...) { log::Error("Feature", "Flight binding failed"); }
     try { InstallCreatures(); }
     catch (...) { log::Error("Feature", "Creature binding failed"); }
+    try { InstallPilot(); }
+    catch (...) { log::Error("Feature", "Pilot binding failed"); }
     try { render::preview::Install(); }
     catch (...) { log::Error("Feature", "Item preview failed"); }
     try { game::prices::Install(); }
@@ -750,6 +867,10 @@ void Install()
     catch (...) { log::Error("Feature", "Blueprints page failed"); }
     try { InstallBases(); }
     catch (...) { log::Error("Feature", "Bases page failed"); }
+    try { InstallCorvettes(); }
+    catch (...) { log::Error("Feature", "Corvettes page failed"); }
+    try { InstallMarkers(); }
+    catch (...) { log::Error("Feature", "HUD markers failed"); }
     Loc().Finish();
     Publish();
 }

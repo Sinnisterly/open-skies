@@ -381,21 +381,30 @@ void Build()
     }
 
     // Reward items whose claim runs a reward instead.
+    // Base parts, emotes and customisation parts (character, ship, tool cosmetics) are unlocked by the flag;
+    // as items they sit dead in the inventory, so they get no item.
     {
         std::unordered_map<std::string, std::string> rewards;
+        std::unordered_set<std::string> flagOnly;
         uint32_t sz = Size("cGcProductData", 0x300), id = Field("cGcProductData", "ID", 0x150);
         uint32_t give = Field("cGcProductData", "GiveRewardOnSpecialPurchase", 0x130);
+        uint32_t type = Field("cGcProductData", "Type", 0x1E8);
         for (uint32_t slot : { 0x18u, 0x20u, 0x28u }) {
             auto [arr, n] = Array(rm + slot, id);
             for (int32_t i = 0; i < n; ++i) {
                 uintptr_t r = arr + (uintptr_t)i * sz;
-                std::string g = Id16(r + give);
-                if (Printable(g)) rewards[Id16(r + id)] = g;
+                std::string pid = Id16(r + id), g = Id16(r + give);
+                int32_t t = -1;
+                Rd(r + type, t);
+                if (Printable(g)) rewards[pid] = g;
+                else if (t == 4 || t == 6 || t == 7) flagOnly.insert(pid);
             }
         }
-        for (auto& e : *out)
-            if (!e.item.empty())
+        for (auto& e : *out) {
+            if (e.item.empty()) continue;
                 if (auto it = rewards.find(e.item); it != rewards.end()) e.reward = it->second;
+            else if (flagOnly.count(e.item)) e.item.clear();
+        }
     }
 
     {
