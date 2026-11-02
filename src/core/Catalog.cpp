@@ -59,6 +59,7 @@ void RegisterCatalog(Registry& r)
     r.AddTab({ "items",     icon::Cubes,     {} });
     r.AddTab({ "unlocks",   icon::Lock,      {} });
     r.AddTab({ "garage",    icon::Garage,    {} });
+    r.AddTab({ "corvettes", icon::Ship,      {} });
     r.AddTab({ "expeditions", icon::Flag,    {} });
     r.AddTab({ "tuner",     icon::Sliders,   {} });
     r.AddTab({ "hotkeys",   icon::Keyboard,  {} });
@@ -106,6 +107,11 @@ void RegisterCatalog(Registry& r)
     r.Add(Toggle("ship.hyperdrive",   "starship", "", "flight"));
     r.Add(Toggle("ship.core_swap",    "starship", "", "systems"));
     r.Add(Toggle("ship.land_anywhere", "starship", "", "flight"));
+    {
+        Feature a = T("ship.board", "starship", "", "boarding");
+        a.kind = Kind::Action;
+        r.Add(std::move(a));
+    }
 
     // Exocraft
     r.Add(Toggle("vehicle.fuel",     "exocraft", "", "systems"));
@@ -165,8 +171,17 @@ void RegisterCatalog(Registry& r)
     // World
     r.Add(Toggle("world.interact",    "world", "", "interaction"));
     r.Add(Toggle("world.portal",      "world", "", "interaction"));
-    r.Add(Toggle("world.spawn_class", "world", "", "spawner",
-                 { { "cls", 0.f, 3.f, 3.f, "%.0f", { "cls.c", "cls.b", "cls.a", "cls.s" } } }));
+    {
+        Slider cls{ "cls", 0.f, 3.f, 3.f, "%.0f", { "cls.c", "cls.b", "cls.a", "cls.s" } };
+        r.Add(Toggle("world.spawn_class", "world", "", "spawner", { cls }));
+        r.Add(Toggle("world.cls_freighter", "world", "", "spawner", { cls }));
+        for (const char* id : { "world.cls_hauler", "world.cls_fighter", "world.cls_explorer", "world.cls_shuttle",
+                                "world.cls_solar", "world.cls_interceptor" })
+            r.Add(Toggle(id, "world", "", "spawn_ships", { cls }));
+        for (const char* id : { "world.cls_pistol", "world.cls_rifle", "world.cls_experimental", "world.cls_alien",
+                                "world.cls_royal", "world.cls_mt_sentinel", "world.cls_atlantid", "world.cls_staff" })
+            r.Add(Toggle(id, "world", "", "spawn_tools", { cls }));
+    }
     r.Add(Toggle("world.time",        "world", "", "time", { { "hour", 0.f, 24.f, 12.f, "%.1f h" } }));
     r.Add(Toggle("world.speed",  "world", "", "time", { { "mult", 0.1f, 3.f, 1.f } }));
     r.Add(Toggle("world.storms", "world", "", "weather"));
@@ -186,6 +201,11 @@ void RegisterCatalog(Registry& r)
     }
     for (const char* id : { "bp.paste", "bp.undo" }) {
         Feature a = T(id, "blueprints", "", "paste");
+        a.kind = Kind::Action;
+        r.Add(std::move(a));
+    }
+    {
+        Feature a = T("corv.copy", "corvettes", "", "library");
         a.kind = Kind::Action;
         r.Add(std::move(a));
     }

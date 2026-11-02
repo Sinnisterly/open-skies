@@ -175,6 +175,74 @@ std::string KeyOf(const Entry& e)
     return std::to_string(e.source) + "|" + b + "|" + e.owner + "|" + e.name;
 }
 
+// Bases marked for in-world HUD markers, kept apart from the lists so a marker outlives them.
+std::vector<MarkerSpot> g_marked; // under g_mx; name holds the display name
+std::vector<std::string> g_markedKeys;
+bool g_markedLoaded = false;
+
+std::filesystem::path MarkedFile() { return Folder() / L"markers.json"; }
+
+void LoadMarked()
+{
+    g_markedLoaded = true;
+    std::ifstream in(MarkedFile());
+    if (!in) return;
+    try {
+        for (auto& j : json::parse(in)) {
+            MarkerSpot s;
+            s.kind = 1;
+            s.name = j.value("name", "");
+            s.ua = j.value("ua", 0ull);
+            auto p = j.value("pos", json::array());
+            if (p.size() < 3) continue;
+            for (int k = 0; k < 3; ++k) s.pos[k] = p[k];
+            g_marked.push_back(std::move(s));
+            g_markedKeys.push_back(j.value("key", ""));
+        }
+    }
+    catch (...) { log::Warn("Bases", "Could not read markers.json"); }
+}
+
+void SaveMarked()
+{
+    json a = json::array();
+    for (size_t i = 0; i < g_marked.size(); ++i) {
+        auto& s = g_marked[i];
+        a.push_back({ { "key", g_markedKeys[i] }, { "name", s.name }, { "ua", s.ua }, { "pos", { s.pos[0], s.pos[1], s.pos[2] } } });
+    }
+    std::error_code ec;
+    std::filesystem::create_directories(Folder(), ec);
+    std::ofstream(MarkedFile()) << a.dump(1);
+}
+
+bool IsMarked(const std::string& key)
+{
+    std::lock_guard lk(g_mx);
+    if (!g_markedLoaded) LoadMarked();
+    return std::find(g_markedKeys.begin(), g_markedKeys.end(), key) != g_markedKeys.end();
+}
+
+void SetMarked(const Entry& e, const std::string& name, bool on)
+{
+    std::lock_guard lk(g_mx);
+    if (!g_markedLoaded) LoadMarked();
+    auto it = std::find(g_markedKeys.begin(), g_markedKeys.end(), e.key);
+    if (it != g_markedKeys.end()) {
+        g_marked.erase(g_marked.begin() + (it - g_markedKeys.begin()));
+        g_markedKeys.erase(it);
+    }
+    if (on) {
+        MarkerSpot s;
+        s.kind = 1;
+        s.name = name;
+        s.ua = e.ua;
+        for (int k = 0; k < 3; ++k) s.pos[k] = e.pos[k];
+        g_marked.push_back(std::move(s));
+        g_markedKeys.push_back(e.key);
+    }
+    SaveMarked();
+}
+
 // ---- game data (game thread) ----
 
 std::string Text(uintptr_t a, size_t n)
@@ -859,6 +927,15 @@ float DrawInspector(ImVec2 a, float w)
         ui::Toast(L::T("bases.spotsaved"), name, icon::Pin);
     }
     y += S(46);
+    if (e.hasPos) {
+        bool marked = IsMarked(e.key);
+        ImGui::SetCursorScreenPos(ImVec2(x, y));
+        if (ui::Button("##basesmark", L::T(marked ? "bases.unmark" : "bases.mark"), bw, marked ? ui::Tone::Neutral : ui::Tone::Teal, true)) {
+            SetMarked(e, name, !marked);
+            ui::Toast(L::T(marked ? "bases.unmarked" : "bases.marked"), name, icon::Pin);
+        }
+        y += S(46);
+    }
     if (!e.link.empty()) {
         ImGui::SetCursorScreenPos(ImVec2(x, y));
         if (ui::Button("##basesopen", L::T("bases.open"), bw, ui::Tone::Neutral, true))
@@ -879,6 +956,13 @@ float DrawInspector(ImVec2 a, float w)
     return y;
 }
 
+}
+
+std::vector<MarkerSpot> BaseMarkers()
+{
+    std::lock_guard lk(g_mx);
+    if (!g_markedLoaded) LoadMarked();
+    return g_marked;
 }
 
 void InstallBases()

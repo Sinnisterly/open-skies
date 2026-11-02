@@ -159,4 +159,12 @@ void ApplyStyle(float scale)
 
 }
 
+
+ImU32 MarkerColour(int kind)
+{
+    const auto& p = theme::P();
+    ImU32 kinds[] = { p.teal, p.gold, p.blueText, p.red, p.yellow, p.green, p.textDim };
+    return kinds[kind < 0 ? 0 : kind >= 7 ? 6 : kind];
+}
+
 }

@@ -457,6 +457,60 @@ void DrawSettings()
     }
     ImGui::Dummy(ImVec2(0, S(8)));
 
+    if (SectionHeader("settings/markers", Lt("set.section.markers"), 0, 0)) {
+        toggleRow("markers", "set.markers", d.markers, [] {});
+        toggleRow("mark_tp", "set.mark_tp", d.markTeleports, [] {});
+        toggleRow("mark_bases", "set.mark_bases", d.markBases, [] {});
+        toggleRow("mark_pois", "set.mark_pois", d.markPois, [] {});
+        const char* groups[] = { "set.poi.buildings", "set.poi.crashes", "set.poi.ancient", "set.poi.settlements", "set.poi.sentinels" };
+        for (int i = 0; i < 5; ++i) {
+            bool on = d.poiGroups >> i & 1;
+            toggleRow(groups[i], groups[i], on, [&] { d.poiGroups = on ? d.poiGroups | 1 << i : d.poiGroups & ~(1 << i); });
+        }
+        // the look of each kind: marker colour, then name and distance, each with its own switch and colour
+        const char* kinds[kMarkerKinds] = { "set.mark_tp", "set.mark_bases", "set.poi.buildings", "set.poi.crashes", "set.poi.ancient",
+                                            "set.poi.settlements", "set.poi.sentinels" };
+        for (int k = 0; k < kMarkerKinds; ++k) {
+            auto& st = d.markerStyles[k];
+            std::string id = "mstyle" + std::to_string(k), label = Lt("set.mark_style") + std::string("  /  ") + Lt(kinds[k]);
+            SettingRow(id.c_str(), label.c_str(), Lt("set.mark_style.tip"), S(360), S(26), [&] {
+                ImDrawList* dl = ImGui::GetWindowDrawList();
+                ImVec2 p0 = ImGui::GetCursorScreenPos();
+                float x = p0.x, sw = S(24), fs = S(14);
+                bool changed = false;
+                auto at = [&](float dx) { ImGui::SetCursorScreenPos(ImVec2(x + dx, p0.y)); };
+                at(0);
+                changed |= ColorSwatch("##icon", &st.icon, MarkerColour(k), sw);
+                auto part = [&](float dx, const char* key, const char* sid, const char* cid, bool* on, uint32_t* col, ImU32 def) {
+                    dl->AddText(theme::Body(), fs, ImVec2(x + dx, p0.y + S(4)), P().textDim, Lt(key));
+                    float tw = theme::Body()->CalcTextSizeA(fs, FLT_MAX, 0, Lt(key)).x + S(6);
+                    at(dx + tw);
+                    changed |= Switch(sid, on);
+                    at(dx + tw + S(64));
+                    changed |= ColorSwatch(cid, col, def, sw);
+                };
+                part(S(40), "set.mark_style.name", "##nsw", "##ncol", &st.showName, &st.name, P().text);
+                part(S(200), "set.mark_style.dist", "##dsw", "##dcol", &st.showDist, &st.dist, P().textDim);
+                if (changed) Cfg().MarkDirty();
+            });
+        }
+        SettingRow("mark_range", Lt("set.mark_range"), Lt("set.mark_range.tip"), S(360), S(26), [&] {
+            // a curve, 1 km to 100,000 km: the bar is 0..100 and km = 10^(bar / 20); all the way left is no limit
+            float km = d.markerRange, v = km <= 0 ? 0.f : std::clamp(std::log10(km) * 20.f, 1.f, 100.f);
+            char label[32];
+            if (km <= 0) snprintf(label, sizeof label, "%s", Lt("set.mark_range.none"));
+            else if (km < 10) snprintf(label, sizeof label, "%.1f km", km);
+            else snprintf(label, sizeof label, "%.0f km", km);
+            std::string safe = label;
+            for (size_t i = safe.find('%'); i != std::string::npos; i = safe.find('%', i + 2)) safe.insert(i, "%"); // EnergyBar formats it
+            if (EnergyBar("##mrange", &v, 0.f, 100.f, safe.c_str(), S(360))) {
+                d.markerRange = v < 0.5f ? 0.f : std::pow(10.f, v / 20.f);
+                Cfg().MarkDirty();
+            }
+        });
+    }
+    ImGui::Dummy(ImVec2(0, S(8)));
+
     if (SectionHeader("settings/saved", Lt("set.section.saved"), 0, 0)) {
         toggleRow("autosave", "set.autosave", d.autoSave, [] {});
         toggleRow("remember", "set.remember", d.rememberToggles, [] {});
@@ -755,17 +809,32 @@ void DrawInfo(ImVec2 a, float w)
     const Page* page = PageOf(g.tab);
     float headH = S(86);
     if (page && page->inspector && !(g.search[0] && !page)) {
-        dl->ChannelsSplit(2);
-        dl->ChannelsSetCurrent(1);
-        float bottom = page->inspector(a, w);
-        dl->ChannelsSetCurrent(0);
-        if (bottom > a.y + headH) {
-            dl->AddRectFilled(a, ImVec2(a.x + w, a.y + headH), p.teal);
-            dl->AddRectFilled(ImVec2(a.x, a.y + headH), ImVec2(a.x + w, bottom), p.warm);
-            dl->AddRectFilled(ImVec2(a.x, a.y), ImVec2(a.x + w, a.y + S(3)), Alpha(p.blueText, 0.6f));
+        // a scrolling panel down to the bottom bar, for inspectors taller than the window
+        bool scroll = page->inspectorScrolls;
+        float viewH = ImGui::GetWindowPos().y + ImGui::GetWindowSize().y - S(kBottom) - a.y;
+        if (scroll) {
+            ImGui::SetCursorScreenPos(a);
+            ImGui::BeginChild("##inspector", ImVec2(w, std::max(viewH, S(100))), ImGuiChildFlags_None, ImGuiWindowFlags_NoBackground);
         }
-        dl->ChannelsMerge();
-        if (bottom > a.y + headH) return;
+        ImDrawList* cdl = ImGui::GetWindowDrawList();
+        ImVec2 o(a.x, scroll ? a.y - ImGui::GetScrollY() : a.y);
+        cdl->ChannelsSplit(2);
+        cdl->ChannelsSetCurrent(1);
+        float bottom = page->inspector(o, w);
+        cdl->ChannelsSetCurrent(0);
+        bool drawn = bottom > o.y + headH;
+        if (drawn) {
+            cdl->AddRectFilled(o, ImVec2(o.x + w, o.y + headH), p.teal);
+            cdl->AddRectFilled(ImVec2(o.x, o.y + headH), ImVec2(o.x + w, bottom), p.warm);
+            cdl->AddRectFilled(ImVec2(o.x, o.y), ImVec2(o.x + w, o.y + S(3)), Alpha(p.blueText, 0.6f));
+            if (scroll) {
+                ImGui::SetCursorScreenPos(ImVec2(o.x, bottom));
+                ImGui::Dummy(ImVec2(1, 1)); // the scroll range ends at the panel's bottom
+            }
+        }
+        cdl->ChannelsMerge();
+        if (scroll) ImGui::EndChild();
+        if (drawn) return;
     }
     dl->ChannelsSplit(2);
     dl->ChannelsSetCurrent(1);
@@ -985,6 +1054,11 @@ void SelectTab(const std::string& tab, const std::string& sub)
 }
 
 void RegisterPage(const std::string& tab, Page page) { g_pages[tab] = std::move(page); }
+
+void DrawFeatureRow(const std::string& id)
+{
+    if (Feature* f = Registry::Get().Find(id)) FeatureRow(*f);
+}
 
 void SetSearch(const std::string& text) { strncpy(g.search, text.c_str(), sizeof g.search - 1); }
 void ForceHover(const std::string& id) { g.forcedHover = id; }

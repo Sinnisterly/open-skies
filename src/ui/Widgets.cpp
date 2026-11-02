@@ -1,5 +1,6 @@
 #include "ui/Widgets.h"
 #include "ui/Theme.h"
+#include "core/Locale.h"
 #include <imgui_internal.h>
 #include <cctype>
 #include <cmath>
@@ -309,6 +310,36 @@ void Tag(const char* text, ImU32 col)
     dl->AddRectFilled(pos, ImVec2(pos.x + size.x, pos.y + size.y), Alpha(col, 0.16f));
     dl->AddRect(pos, ImVec2(pos.x + size.x, pos.y + size.y), Alpha(col, 0.75f), 0.f, S(1));
     SpacedText(dl, theme::Title(), fs, ImVec2(pos.x + S(7), pos.y + (size.y - fs) * 0.5f - S(1)), col, text, sp);
+}
+
+bool ColorSwatch(const char* id, uint32_t* col, ImU32 fallback, float size)
+{
+    const auto& p = P();
+    ImVec2 pos = ImGui::GetCursorScreenPos();
+    ImGui::InvisibleButton(id, ImVec2(size, size));
+    bool hov = ImGui::IsItemHovered(), changed = false;
+    ImU32 shown = *col ? (ImU32)*col : fallback;
+    ImDrawList* dl = ImGui::GetWindowDrawList();
+    dl->AddRectFilled(pos, ImVec2(pos.x + size, pos.y + size), shown);
+    dl->AddRect(pos, ImVec2(pos.x + size, pos.y + size), hov ? p.text : p.lineStrong, 0.f, S(1));
+    ImGui::PushID(id);
+    if (ImGui::IsItemClicked()) ImGui::OpenPopup("##pick");
+    if (ImGui::BeginPopup("##pick")) {
+        ImVec4 c = ImGui::ColorConvertU32ToFloat4(shown);
+        float rgb[3] = { c.x, c.y, c.z };
+        ImGui::PushItemWidth(S(220));
+        if (ImGui::ColorPicker3("##picker", rgb, ImGuiColorEditFlags_NoSidePreview | ImGuiColorEditFlags_PickerHueBar | ImGuiColorEditFlags_DisplayRGB |
+                                                   ImGuiColorEditFlags_NoLabel | ImGuiColorEditFlags_NoAlpha)) {
+            *col = ImGui::ColorConvertFloat4ToU32(ImVec4(rgb[0], rgb[1], rgb[2], 1.f));
+            if (!*col) *col = 1; // pure black still counts as a choice
+            changed = true;
+        }
+        ImGui::PopItemWidth();
+        if (Button("##reset", L::T("ui.color.reset"), S(220), Tone::Neutral, *col != 0)) { *col = 0; changed = true; }
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+    return changed;
 }
 
 }

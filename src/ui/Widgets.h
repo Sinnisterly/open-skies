@@ -29,6 +29,8 @@ bool Dropdown(const char* id, const std::vector<std::string>& items, int* index,
 bool TextField(const char* id, char* buf, size_t size, float width, const char* hint = nullptr);
 void Tag(const char* text, ImU32 col);
 
+bool ColorSwatch(const char* id, uint32_t* col, ImU32 fallback, float size);
+
 float Anim(ImGuiID id, float target, float speed = 14.f);
 
 }

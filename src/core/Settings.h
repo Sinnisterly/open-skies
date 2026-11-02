@@ -1,9 +1,19 @@
 #pragma once
+#include <array>
+#include <cstdint>
 #include <map>
 #include <string>
 #include <vector>
 
 namespace os {
+
+// One HUD marker kind's look. Colours are 0xAABBGGRR, 0 = the theme's colour for that kind.
+struct MarkerStyle
+{
+    uint32_t icon = 0, name = 0, dist = 0;
+    bool showName = true, showDist = true;
+};
+constexpr int kMarkerKinds = 7; // teleport, base, then the POI groups: buildings, crashes, ancient, settlements, sentinels
 
 struct SettingsData
 {
@@ -21,6 +31,11 @@ struct SettingsData
     bool verboseLog = false;
     int glyphMode = 2;        // address pad: 0 glyphs, 1 hex digits, 2 both
     bool previewSpin = false; // Garage preview turns on its own
+    bool markers = true, markTeleports = true, markBases = true; // in-world HUD markers
+    float markerRange = 10.f; // km, 0 = no limit
+    bool markPois = true;
+    std::array<MarkerStyle, kMarkerKinds> markerStyles{};
+    int poiGroups = 0x1F; // bits: buildings, crashes and distress, ancient, settlements, sentinels
     std::map<std::string, bool> toggles;
     std::map<std::string, std::vector<float>> sliders;
     std::map<std::string, bool> folded;

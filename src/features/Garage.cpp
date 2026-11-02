@@ -2433,6 +2433,12 @@ int64_t Off(const char* name, int64_t fb = -1)
 
 }
 
+uintptr_t ShipResource(int slot)
+{
+    uintptr_t ps = game::PlayerState();
+    return ps && slot >= 0 && slot < 12 ? ShipRes(ps, slot) : 0;
+}
+
 void InstallGarage()
 {
     Bind("String.Set", F.setString);
@@ -2579,6 +2585,7 @@ void InstallGarage()
         page.inspector = DrawInspector;
         page.badge = [] { std::lock_guard lk(g_mx); return std::to_string(g_owned.size()); };
         page.inspectorWidth = 620; // room for the preview and its editor
+        page.inspectorScrolls = false; // the editor below the preview has its own scroll
         ui::RegisterPage("garage", std::move(page));
     });
 }

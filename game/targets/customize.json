@@ -17,7 +17,7 @@
       "helper": true,
       "anchors": [
         {"kind": "string_xref", "string": "cGcPlayerState::SaveToData"},
-        {"kind": "sig", "pattern": "48 8B C4 48 89 50 10 48 89 48 08 55 48 8D A8 ?? ?? ?? ?? 48 81 EC 10 04 00 00"}
+        {"kind": "sig", "pattern": "48 8B C4 48 89 50 10 48 89 48 08 55 48 8D A8 ?? ?? ?? ?? 48 81 EC ?? ?? 00 00"}
       ],
       "site": {"kind": "entry", "verify": "48 8B C4 48 89 50"},
       "seen": {"build": 180836, "func": "0x57B4C0", "site": "0x57B4C0"}
@@ -855,7 +855,11 @@
         {"kind": "target", "name": "Customise.CloseInteract"},
         {"kind": "sig", "pattern": "83 FA ?? 0F 85 ?? ?? ?? ?? 53 48 83 EC 40"}
       ],
-      "site": {"kind": "scan", "pattern": "83 F9 44 75 ?? 48 8B 05 ?? ?? ?? ?? C6 80 ?? ?? ?? ?? 01", "offset": 12},
+      "site": {
+        "kind": "scan",
+        "pattern": "83 F9 44 75 ?? 48 8B 05 ?? ?? ?? ?? C6 80 ?? ?? ?? ?? 01",
+        "offset": 12
+      },
       "shape": {
         "mnemonic": "mov",
         "operands": ["mem", "imm"],
@@ -965,6 +969,128 @@
       "seen": {"build": 180836, "func": "0x55C580", "site": "0x55C580"}
     },
     {
+      "name": "Corvette.RebuildBaseSite",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "0F B7 88 B0 00 00 00 48 8D 95 ?? ?? ?? ?? 66 89 8D ?? ?? ?? ?? 48 8D 0D ?? ?? ?? ?? E8",
+          "yields": "site",
+          "offset": 21
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 0D"},
+      "shape": {"mnemonic": "lea"},
+      "seen": {"build": 180836, "func": "0x566950", "site": "0x566B2D"}
+    },
+    {
+      "name": "Ship.OwnershipOffset",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Corvette.PopulateShipFromBase",
+          "hops": [
+            {"callers": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "4C 8D 8A ?? ?? ?? ?? 44 39 BA"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xD5FC0",
+      "seen": {"build": 183877, "func": "0x13E00D0", "site": "0x13E0260"}
+    },
+    {
+      "name": "Corvette.RedeemShipSite",
+      "anchors": [
+        {"kind": "aob", "pattern": "4C 69 C0 60 05 00 00 41 80 BC 08 58 14 00 00 00", "yields": "owner"}
+      ],
+      "site": {"kind": "entry", "verify": "40 53 55 56 48 83 EC"},
+      "seen": {"build": 183877, "func": "0x5E49C0", "site": "0x5E49C0"}
+    },
+    {
+      "name": "Corvette.ReassembleTech",
+      "anchors": [
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B 1D ?? ?? ?? ?? 33 FF 4C 8B D9 0F B7 C7 BE FF FF 00 00"
+        },
+        {
+          "kind": "rtti_vfunc",
+          "class": "cGcBuildableSpaceshipComponent",
+          "index": 2,
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {
+        "kind": "entry",
+        "verify": "48 89 5C 24 08 48 89 74 24 10 57 48 83 EC 40 48 8B 1D ?? ?? ?? ?? 33 FF 4C 8B D9"
+      },
+      "seen": {"build": 183877, "func": "0x1769640", "site": "0x1769640"}
+    },
+    {
+      "name": "Corvette.ReassembleTechStores",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Corvette.ReassembleTech",
+          "hops": [
+            {"callees": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 8B C4 4C 89 40 18 48 89 50 10 55 48 8D A8 ?? ?? ?? ?? 48 81 EC"},
+      "seen": {"build": 183877, "func": "0x1769810", "site": "0x1769810"}
+    },
+    {
+      "name": "Purchase.TechStore",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "48 8D 9F ?? ?? ?? ?? 76 ?? 44 89 B3 C4 00 00 00 41 B8 05 00 00 00 49 8D 95",
+          "yields": "site"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0xE10",
+      "seen": {"build": 183877, "func": "0x8F8120", "site": "0x8F82E6"}
+    },
+    {
+      "name": "Purchase.GeneralStore",
+      "anchors": [
+        {
+          "kind": "aob",
+          "pattern": "48 8D 8F ?? ?? ?? ?? 76 ?? 44 89 B1 C4 00 00 00 45 8B C7 49 8D 55 20 E8",
+          "yields": "site"
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D"},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x980",
+      "seen": {"build": 183877, "func": "0x8F8120", "site": "0x8F8380"}
+    },
+    {
+      "name": "Inventory.PopulateContainer",
+      "anchors": [
+        {"kind": "aob", "pattern": "C7 42 50 01 00 00 00 8B 81 00 01 00 00", "yields": "owner"}
+      ],
+      "site": {"kind": "entry", "verify": "48 89 54 24 10 55 53 56 57"},
+      "seen": {"build": 183877, "func": "0x4DA410", "site": "0x4DA410"}
+    },
+    {
       "name": "Inventory.GenerateClass",
       "anchors": [
         {"kind": "aob", "pattern": "44 89 87 00 01 00 00 0F 57 C9 41 8B C2", "yields": "owner"},
@@ -975,6 +1101,106 @@
       ],
       "site": {"kind": "entry", "verify": "48 89 5C 24 10 57 48 83 EC 20"},
       "seen": {"build": 180836, "func": "0x4CFDA0", "site": "0x4CFDA0"}
+    },
+    {
+      "name": "Inventory.GenerateInventory",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Inventory.GenerateClass",
+          "hops": [
+            {"callers": 1}
+          ],
+          "entry": "48 89 5C 24 10 48 89 6C 24 18 56 57 41 56"
+        },
+        {
+          "kind": "sig",
+          "pattern": "48 89 5C 24 10 48 89 6C 24 18 56 57 41 56 48 83 EC 70 8B 84 24 ?? ?? ?? ?? 33 DB 49 8B E8 8B F2 48 8B F9 83 F8 04"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "48 89 5C 24 10 48 89 6C 24 18 56 57 41 56"},
+      "seen": {"build": 180836, "func": "0x4D5E90", "site": "0x4D5E90"}
+    },
+    {
+      "name": "Inventory.ShipClassFromSize",
+      "hook": "call",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Inventory.GenerateInventory",
+          "hops": [
+            {"callees": 1}
+          ],
+          "entry": "83 F9 ?? 77 ?? 48 63 C1 48 8D 15"
+        },
+        {
+          "kind": "sig",
+          "pattern": "83 F9 ?? 77 ?? 48 63 C1 48 8D 15 ?? ?? ?? ?? 0F B6 84 02 ?? ?? ?? ?? 8B 8C 82 ?? ?? ?? ?? 48 03 CA FF E1 B8 03 00 00 00 C3"
+        }
+      ],
+      "site": {"kind": "entry", "verify": "83 F9 ?? 77"},
+      "seen": {"build": 180836, "func": "0x4DD6E0", "site": "0x4DD6E0"}
+    },
+    {
+      "name": "AIShip.DataPtr",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Inventory.GenerateClass",
+          "hops": [
+            {"callers": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 4F ?? 8B 41 ?? 83 F8 06 74 ?? 83 F8 07 74"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x28",
+      "seen": {"build": 180836, "func": "0x173FAD9", "site": "0x174002C"}
+    },
+    {
+      "name": "AIShip.DataClass",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Inventory.GenerateClass",
+          "hops": [
+            {"callers": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8B 4F ?? 8B 41 ?? 83 F8 06 74 ?? 83 F8 07 74"},
+      "shape": {
+        "mnemonic": "mov",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1,
+        "offset_insn": 1
+      },
+      "expect_offset": "0x34",
+      "seen": {"build": 180836, "func": "0x173FAD9", "site": "0x174002C"}
+    },
+    {
+      "name": "AIShip.InventoryOffset",
+      "anchors": [
+        {
+          "kind": "target",
+          "name": "Inventory.GenerateClass",
+          "hops": [
+            {"callers": 1}
+          ]
+        }
+      ],
+      "site": {"kind": "scan", "pattern": "48 8D 54 24 ?? 48 8D 8F ?? ?? ?? ?? 0F 11 44 24 ?? E8", "offset": 5},
+      "shape": {
+        "mnemonic": "lea",
+        "operands": ["reg", "mem"],
+        "offset_operand": 1
+      },
+      "expect_offset": "0x7D20",
+      "seen": {"build": 180836, "func": "0x173FAD9", "site": "0x174006A"}
     },
     {
       "name": "Player.InstanceOffset",

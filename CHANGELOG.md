@@ -1,5 +1,35 @@
 # Changelog
 
+## 1.0.5
+
+### Corvettes (new tab)
+- Copy nearest corvette saves the corvette closest to you into your corvette library: one of yours, or another player's (the Anomaly is a good place to find them). Your own corvettes also save their class, tech and cargo.
+- The library also reads shared files: `.json`, `.txt`, `.nmsbase`, `.nmsprefab` and `.nmsship`. They live in `OpenSkies.corvettes\`.
+- Put in a new slot: opens the game's own ship screen with the saved build, on one of your corvettes as the base ship. Claim it there, or back out. Its tech is rebuilt from the build's parts. Needs one corvette of your own; cargo is not copied.
+- Use on one of your corvettes: replaces every part of that corvette (hold to confirm). Its current build is saved to the library first, unless that exact build is already there. Tech is rebuilt from the new parts and the ship updates at once.
+- The page shows your ship slots, your corvettes nearby and the complexity warning, with Corvette and Base Limits on the same page.
+
+### HUD Markers (new, in Settings)
+- In-world markers for Teleport spots, bases you mark with Show Marker in the Bases tab, and buildings on the planet you're on.
+- Building groups: buildings, crashes and distress signals, ancient sites, settlements, sentinel sites. Each can be switched on or off.
+- Marker Range goes from 1 km to 100,000 km, or no limit.
+- Each kind has its own colour, plus name and distance labels with their own switch and colour.
+
+### Ships
+- Board My Ship (button and hotkey): sit in the pilot seat of your current ship from any distance.
+
+### World
+- Only Show One Class now has a rule per kind: Starship Classes (each ship type), Multi-Tool Classes (each tool type) and Freighter Class.
+
+### Unlocks
+- Fixed: base parts, emotes and cosmetic parts (character, ship, tool) no longer hand out an item you can't use. They are unlocked only.
+
+### Interface
+- Info panels scroll when their content is taller than the window.
+
+### Game update
+- Updated for No Man's Sky build 184271. Exosuit shield floor and fleet finish and repair work again.
+
 ## 1.0.0
 
 ### Blueprints (new tab)

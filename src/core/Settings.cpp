@@ -43,6 +43,22 @@ bool Settings::Load()
     d.verboseLog = j.value("verboseLog", d.verboseLog);
     d.glyphMode = std::clamp(j.value("glyphMode", d.glyphMode), 0, 2);
     d.previewSpin = j.value("previewSpin", d.previewSpin);
+    d.markers = j.value("markers", d.markers);
+    d.markTeleports = j.value("markTeleports", d.markTeleports);
+    d.markBases = j.value("markBases", d.markBases);
+    d.markerRange = std::clamp(j.value("markerRange", d.markerRange), 0.f, 100000.f);
+    d.markPois = j.value("markPois", d.markPois);
+    d.poiGroups = j.value("poiGroups", d.poiGroups) & 0x1F;
+    if (j.contains("markerStyles") && j["markerStyles"].is_array())
+        for (size_t i = 0; i < j["markerStyles"].size() && i < d.markerStyles.size(); ++i) {
+            const json& m = j["markerStyles"][i];
+            auto& s = d.markerStyles[i];
+            s.icon = m.value("icon", 0u);
+            s.name = m.value("name", 0u);
+            s.dist = m.value("dist", 0u);
+            s.showName = m.value("showName", true);
+            s.showDist = m.value("showDist", true);
+        }
     if (j.contains("toggles")) d.toggles = j["toggles"].get<std::map<std::string, bool>>();
     if (j.contains("sliders")) d.sliders = j["sliders"].get<std::map<std::string, std::vector<float>>>();
     if (j.contains("folded")) d.folded = j["folded"].get<std::map<std::string, bool>>();
@@ -72,6 +88,14 @@ bool Settings::Save()
         { "blockGameInputs", d.blockGameInputs }, { "skipLogos", d.skipLogos }, { "autoSave", d.autoSave },
         { "rememberToggles", d.rememberToggles }, { "verboseLog", d.verboseLog },
         { "glyphMode", d.glyphMode }, { "previewSpin", d.previewSpin },
+        { "markers", d.markers }, { "markTeleports", d.markTeleports }, { "markBases", d.markBases }, { "markerRange", d.markerRange },
+        { "markPois", d.markPois }, { "poiGroups", d.poiGroups },
+        { "markerStyles", [&] {
+             json a = json::array();
+             for (auto& s : d.markerStyles)
+                 a.push_back({ { "icon", s.icon }, { "name", s.name }, { "dist", s.dist }, { "showName", s.showName }, { "showDist", s.showDist } });
+             return a;
+         }() },
         { "toggles", d.toggles }, { "sliders", d.sliders }, { "folded", d.folded },
     };
     json hk = json::object();

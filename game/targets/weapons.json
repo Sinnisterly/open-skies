@@ -109,7 +109,10 @@
       "tab": "MultiTool",
       "hook": "mid",
       "action": "skip the 8 byte store (ChargedProjectile clip reset after a shot)",
-      "site": {"kind": "scan", "pattern": "41 89 84 B7 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 4C 8B 89 ?? ?? ?? ?? 48 81 C1"},
+      "site": {
+        "kind": "scan",
+        "pattern": "41 89 84 B7 ?? ?? ?? ?? 48 8B 0D ?? ?? ?? ?? 4C 8B 89 ?? ?? ?? ?? 48 81 C1"
+      },
       "shape": {
         "mnemonic": "mov",
         "operands": ["mem", "reg"],
@@ -253,7 +256,10 @@
       "tab": "MultiTool",
       "hook": "mid",
       "action": "after the store, write 0 to [rsi+off] (laser modes never spend charge)",
-      "site": {"kind": "scan", "pattern": "F3 0F 58 B6 ?? ?? ?? ?? F3 0F 11 B6 ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F 2F F0 0F 86"},
+      "site": {
+        "kind": "scan",
+        "pattern": "F3 0F 58 B6 ?? ?? ?? ?? F3 0F 11 B6 ?? ?? ?? ?? E8 ?? ?? ?? ?? 0F 2F F0 0F 86"
+      },
       "shape": {
         "mnemonic": "addss",
         "operands": ["reg", "mem"],
@@ -421,7 +427,7 @@
       "tab": "Exosuit",
       "hook": "mid",
       "action": "ebx = 0 (exosuit shield unchanged by the hit)",
-      "site": {"kind": "scan", "pattern": "41 01 9E ?? ?? 00 00 41 8B D5 E8 ?? ?? ?? ?? 41 8B 8E"},
+      "site": {"kind": "scan", "pattern": "41 01 9E ?? ?? 00 00 41 8B ?? E8 ?? ?? ?? ?? 41 8B 8E"},
       "shape": {
         "mnemonic": "add",
         "operands": ["mem", "reg"],
