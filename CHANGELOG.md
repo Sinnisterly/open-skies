@@ -52,7 +52,6 @@
   - Other players' bases are recorded as the game loads them near you, with owner, platform, and system and planet names when known.
   - The list is kept per save slot.
 - Your bases: every base of yours, with where it is and how far away.
-- Portal Repository (main branch only): search the addresses shared on portalrepository.com by name, player or place, filter by galaxy and bases only, then warp there.
 - Every entry can be warped to, saved as a Teleport spot, and shows its distance from you (metres in the same system, light years otherwise).
 
 ### Building

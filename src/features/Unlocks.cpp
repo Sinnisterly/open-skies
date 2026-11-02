@@ -35,7 +35,7 @@ const char* kCatKeys[CatCount] = { "unl.chip.all", "unl.chip.tech", "unl.chip.pr
                                    "unl.chip.titles", "unl.chip.words", "unl.chip.glyphs", "unl.chip.season", "unl.chip.twitch", "unl.chip.platform",
                                    "unl.chip.exclusive" };
 
-// Expedition and pre-order exclusives (the set from Nexus mod 2589): tech blueprints and the Utopia stations.
+// Expedition and pre-order exclusives: tech blueprints and the Utopia stations.
 const std::unordered_set<std::string> kExclusiveTech = { "SHIPJUMP_SPEC", "HYPERDRIVE_SPEC", "LAUNCHER_SPEC", "PHOTONIX_CORE",
                                                          "BOLT_SM", "LASER_XO", "WORMTECH", "WORMREADER" };
 const std::unordered_set<std::string> kExclusiveParts = { "S9_SHIPTREE", "S9_WEAPONTREE", "S9_BUILDERTREE", "S9_SUITTREE", "S9_EXOCRAFTTREE" };

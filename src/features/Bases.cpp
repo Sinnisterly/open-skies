@@ -13,8 +13,6 @@
 #include "ui/Menu.h"
 #include "ui/Theme.h"
 #include "ui/Widgets.h"
-#include <shellapi.h>
-#include <winhttp.h>
 #include <nlohmann/json.hpp>
 #include <algorithm>
 #include <atomic>
@@ -27,11 +25,8 @@
 #include <regex>
 #include <thread>
 
-#pragma comment(lib, "winhttp.lib")
-
 // Bases tab. In-game: the featured bases the game downloads, plus other players' bases
-// seen in systems you visit (kept per save slot). Portal Repository: search portalrepository.com's public
-// address catalogue (main build only). Everything warps through the Teleport tab's warp.
+// seen in systems you visit (kept per save slot). Everything warps through the Teleport tab's warp.
 namespace os::features {
 
 namespace {
@@ -49,11 +44,11 @@ constexpr int32_t kDone = 5;
 // cGcUniverseAddressData / cGcGalacticAddressData, from the reflection data
 struct { uint32_t galaxy = 0, ga = 4, x = 0, y = 4, z = 8, system = 0xC, planet = 0x10; } U;
 
-enum Source { Featured = 1, Seen = 2, Repo = 3, Mine = 4 };
+enum Source { Featured = 1, Seen = 2, Mine = 4 };
 
 struct Entry
 {
-    std::string key, name, owner, platform, tags, link, system, planet, type;
+    std::string key, name, owner, platform, tags, system, planet, type;
     uint64_t ua = 0;
     int source = 0;
     int64_t when = 0;
@@ -62,7 +57,7 @@ struct Entry
 };
 
 std::mutex g_mx; // everything below except the UI struct
-std::vector<Entry> g_featured, g_seen, g_repo, g_mine;
+std::vector<Entry> g_featured, g_seen, g_mine;
 struct { bool ok = false; uint64_t ua = 0; double pos[3] = {}; } g_me; // where you are, for distances
 uint64_t g_version = 1;
 std::wstring g_slotKey;     // "<account>_slot<N>" from the save file the game opened last
@@ -70,8 +65,6 @@ std::wstring g_seenKey;     // the key g_seen was loaded for
 bool g_featuredLoaded = false;
 
 std::filesystem::path Folder() { return std::filesystem::path(paths::Root()) / L"OpenSkies.bases"; }
-
-bool MainBuild() { return std::string(L::T("ui.credit.logo")) == "1"; }
 
 // ---- which save is loaded: the last save*.hg the game opened ----
 
@@ -464,236 +457,15 @@ void Tick()
     if (game::PlayerState() && CurrentAddress(here) && here) ReadMine(here);
 }
 
-// ---- Portal Repository (worker thread) ----
-
-std::string HttpGet(const std::wstring& path, int& status)
-{
-    status = 0;
-    std::string body;
-    HINTERNET s = WinHttpOpen(L"OpenSkies", WINHTTP_ACCESS_TYPE_AUTOMATIC_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
-    if (!s) return body;
-    WinHttpSetTimeouts(s, 10000, 10000, 15000, 20000);
-    HINTERNET c = WinHttpConnect(s, L"portalrepository.com", INTERNET_DEFAULT_HTTPS_PORT, 0);
-    HINTERNET r = c ? WinHttpOpenRequest(c, L"GET", path.c_str(), nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, WINHTTP_FLAG_SECURE) : nullptr;
-    if (r && WinHttpSendRequest(r, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0) && WinHttpReceiveResponse(r, nullptr)) {
-        DWORD code = 0, len = sizeof code;
-        WinHttpQueryHeaders(r, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER, WINHTTP_HEADER_NAME_BY_INDEX, &code, &len, WINHTTP_NO_HEADER_INDEX);
-        status = (int)code;
-        DWORD avail = 0;
-        while (WinHttpQueryDataAvailable(r, &avail) && avail && body.size() < 8u << 20) {
-            std::string chunk(avail, '\0');
-            DWORD got = 0;
-            if (!WinHttpReadData(r, chunk.data(), avail, &got) || !got) break;
-            body.append(chunk.data(), got);
-        }
-    }
-    if (r) WinHttpCloseHandle(r);
-    if (c) WinHttpCloseHandle(c);
-    WinHttpCloseHandle(s);
-    return body;
-}
-
-std::wstring UrlPart(const std::string& s)
-{
-    std::wstring o;
-    for (unsigned char ch : s) {
-        if (isalnum(ch) || ch == '-' || ch == '_' || ch == '.') o += (wchar_t)ch;
-        else {
-            wchar_t b[4];
-            swprintf(b, 4, L"%%%02X", ch);
-            o += b;
-        }
-    }
-    return o;
-}
-
-// WordPress gives titles with HTML entities: &#8217; &amp; and the like.
-std::string Unescape(const std::string& s)
-{
-    std::string o;
-    for (size_t i = 0; i < s.size(); ++i) {
-        if (s[i] != '&') { o += s[i]; continue; }
-        size_t e = s.find(';', i);
-        if (e == std::string::npos || e - i > 8) { o += s[i]; continue; }
-        std::string ent = s.substr(i + 1, e - i - 1);
-        unsigned cp = 0;
-        if (!ent.empty() && ent[0] == '#') cp = (unsigned)strtoul(ent.c_str() + 1 + (ent.size() > 1 && (ent[1] == 'x' || ent[1] == 'X')),
-                                                                  nullptr, ent.size() > 1 && (ent[1] == 'x' || ent[1] == 'X') ? 16 : 10);
-        else if (ent == "amp") cp = '&';
-        else if (ent == "quot") cp = '"';
-        else if (ent == "lt") cp = '<';
-        else if (ent == "gt") cp = '>';
-        else if (ent == "nbsp") cp = ' ';
-        if (!cp) { o += s[i]; continue; }
-        if (cp < 0x80) o += (char)cp;
-        else if (cp < 0x800) { o += (char)(0xC0 | cp >> 6); o += (char)(0x80 | (cp & 0x3F)); }
-        else { o += (char)(0xE0 | cp >> 12); o += (char)(0x80 | ((cp >> 6) & 0x3F)); o += (char)(0x80 | (cp & 0x3F)); }
-        i = e;
-    }
-    return o;
-}
-
-struct Cat { int galaxy = -1; std::string galaxyName, platform; };
-std::map<int, Cat> g_cats;          // category id -> galaxy and platform
-std::map<int, std::string> g_tags;  // tag id -> name
-std::vector<std::pair<int, std::string>> g_galaxies; // galaxy index, name, for the picker
-constexpr int kBaseTag = 252;       // "Base"
-std::atomic<bool> g_fetching{ false };
-std::string g_repoStatus;
-int g_repoPage = 0, g_repoPages = 0;
-
-bool LoadNames() // worker thread, under nothing; fills g_cats / g_tags
-{
-    std::filesystem::path f = Folder() / L"portalrepository.names.json";
-    json j;
-    {
-        std::ifstream in(f);
-        if (in) try { j = json::parse(in); } catch (...) {}
-    }
-    int64_t now = (int64_t)std::time(nullptr);
-    if (!j.is_object() || now - j.value("when", (int64_t)0) > 7 * 86400) {
-        json cats = json::array(), tags = json::array();
-        for (int page = 1; page <= 5; ++page) {
-            int st = 0;
-            std::string b = HttpGet(L"/wp-json/wp/v2/categories?per_page=100&_fields=id,name&page=" + std::to_wstring(page), st);
-            if (st != 200) break;
-            json a = json::parse(b, nullptr, false);
-            if (!a.is_array() || a.empty()) break;
-            for (auto& c : a) cats.push_back(c);
-        }
-        for (int page = 1; page <= 5; ++page) {
-            int st = 0;
-            std::string b = HttpGet(L"/wp-json/wp/v2/tags?per_page=100&_fields=id,name&page=" + std::to_wstring(page), st);
-            if (st != 200) break;
-            json a = json::parse(b, nullptr, false);
-            if (!a.is_array() || a.empty()) break;
-            for (auto& c : a) tags.push_back(c);
-        }
-        if (cats.empty()) return !g_cats.empty();
-        j = { { "when", now }, { "categories", cats }, { "tags", tags } };
-        std::error_code ec;
-        std::filesystem::create_directories(Folder(), ec);
-        std::ofstream(f) << j.dump();
-    }
-    std::lock_guard lk(g_mx);
-    g_cats.clear();
-    g_tags.clear();
-    std::map<int, std::string> gal;
-    static const std::regex re(R"(^\s*(\d{1,3})\s+(.*?)\s*\((.*)\)\s*$)");
-    for (auto& c : j.value("categories", json::array())) {
-        std::string name = Unescape(c.value("name", ""));
-        std::smatch m;
-        Cat cat;
-        if (std::regex_match(name, m, re)) {
-            int n = std::stoi(m[1].str());
-            if (n >= 1 && n <= 256) {
-                cat.galaxy = n - 1;
-                cat.galaxyName = m[2].str();
-                cat.platform = m[3].str();
-                gal[cat.galaxy] = std::to_string(n) + " " + cat.galaxyName;
-            }
-        }
-        g_cats[c.value("id", 0)] = cat;
-    }
-    for (auto& t : j.value("tags", json::array())) g_tags[t.value("id", 0)] = Unescape(t.value("name", ""));
-    g_galaxies.assign(gal.begin(), gal.end());
-    return !g_cats.empty();
-}
-
-void Search(std::string query, bool basesOnly, int galaxy, int page)
-{
-    if (g_fetching.exchange(true)) return;
-    {
-        std::lock_guard lk(g_mx);
-        g_repoStatus = L::T("bases.repo.searching");
-    }
-    std::thread([=] {
-        std::string status;
-        std::vector<Entry> found;
-        int pages = 0;
-        if (!LoadNames()) status = L::T("bases.repo.offline");
-        else {
-            std::wstring path = L"/wp-json/wp/v2/posts?per_page=50&_fields=id,title,link,content,categories,tags,date&page=" + std::to_wstring(page);
-            if (!query.empty()) path += L"&search=" + UrlPart(query);
-            if (basesOnly) path += L"&tags=" + std::to_wstring(kBaseTag);
-            if (galaxy >= 0) {
-                std::wstring ids;
-                std::lock_guard lk(g_mx);
-                for (auto& [id, c] : g_cats)
-                    if (c.galaxy == galaxy) ids += (ids.empty() ? L"" : L",") + std::to_wstring(id);
-                if (!ids.empty()) path += L"&categories=" + ids;
-            }
-            int st = 0;
-            std::string body = HttpGet(path, st);
-            json a = json::parse(body, nullptr, false);
-            if (st == 400 && page > 1) status = L::T("bases.repo.end");
-            else if (st != 200 || !a.is_array()) status = L::Tf("bases.repo.failed", std::to_string(st));
-            else {
-                // the address sits in a <pre> block; galleries before it can hold other hex runs
-                static const std::regex pre(R"(<pre>\s*([0-9A-Fa-f]{12})\s*</pre>)"), glyph(R"(\b([0-9A-Fa-f]{12})\b)");
-                std::lock_guard lk(g_mx);
-                for (auto& p : a) {
-                    std::string content = p["content"].value("rendered", ""), g;
-                    std::smatch m;
-                    if (std::regex_search(content, m, pre) || std::regex_search(content, m, glyph)) g = m[1].str();
-                    if (g.empty()) continue;
-                    Entry e;
-                    e.source = Repo;
-                    e.name = Unescape(p["title"].value("rendered", ""));
-                    e.link = p.value("link", "");
-                    int gal = 0;
-                    for (auto& c : p.value("categories", json::array())) {
-                        auto it = g_cats.find(c.get<int>());
-                        if (it != g_cats.end() && it->second.galaxy >= 0) { gal = it->second.galaxy; e.platform = it->second.platform; }
-                    }
-                    for (auto& t : p.value("tags", json::array())) {
-                        auto it = g_tags.find(t.get<int>());
-                        if (it == g_tags.end() || it->second.empty() || it->second.starts_with("Version") || it->second.starts_with("Group")) continue;
-                        if (!e.tags.empty()) e.tags += ", ";
-                        std::string tg = it->second;
-                        while (!tg.empty() && (tg[0] == '*' || tg[0] == '+')) tg.erase(0, 1);
-                        e.tags += tg;
-                    }
-                    if (!GlyphsToAddress(g, gal, e.ua)) continue;
-                    std::tm tm{};
-                    std::string date = p.value("date", "");
-                    if (sscanf_s(date.c_str(), "%d-%d-%d", &tm.tm_year, &tm.tm_mon, &tm.tm_mday) == 3) {
-                        tm.tm_year -= 1900;
-                        tm.tm_mon -= 1;
-                        e.when = (int64_t)_mkgmtime(&tm);
-                    }
-                    found.push_back(std::move(e));
-                }
-                pages = 1;
-                status = found.empty() && page == 1 ? std::string(L::T("bases.repo.none")) : std::string();
-            }
-        }
-        {
-            std::lock_guard lk(g_mx);
-            if (page == 1) g_repo.clear();
-            for (auto& e : found) g_repo.push_back(std::move(e));
-            g_repoPage = page;
-            g_repoPages = pages ? page + (found.size() >= 1 ? 1 : 0) : g_repoPages;
-            g_repoStatus = status;
-            ++g_version;
-        }
-        log::Info("Bases", "Portal Repository page {}: {} addresses", page, found.size());
-        g_fetching = false;
-    }).detach();
-}
-
 // ---- UI ----
 
 struct
 {
-    ui::Browser game, repo, mine;
-    std::vector<ui::BrowserEntry> gameEntries, repoEntries, mineEntries;
+    ui::Browser game, mine;
+    std::vector<ui::BrowserEntry> gameEntries, mineEntries;
     std::map<std::string, Entry> byKey;
     uint64_t seen = 0;
-    int view = 0; // 0 featured and seen, 1 your bases, 2 Portal Repository
-    char query[96] = {};
-    bool basesOnly = true;
-    int galaxy = 0; // picker index, 0 = all
+    int view = 0; // 0 featured and seen, 1 your bases
 } g;
 
 // "Planet, System" when known, otherwise the galaxy, system and planet numbers.
@@ -749,7 +521,6 @@ std::string Date(int64_t t)
 void Rebuild()
 {
     g.gameEntries.clear();
-    g.repoEntries.clear();
     g.mineEntries.clear();
     g.byKey.clear();
     std::lock_guard lk(g_mx);
@@ -771,11 +542,9 @@ void Rebuild()
     };
     for (auto& e : g_featured) add(e, g.gameEntries);
     for (auto& e : g_seen) add(e, g.gameEntries);
-    for (auto& e : g_repo) add(e, g.repoEntries);
     for (auto& e : g_mine) add(e, g.mineEntries);
     g.seen = g_version;
     g.game.Invalidate();
-    g.repo.Invalidate();
     g.mine.Invalidate();
 }
 
@@ -786,63 +555,16 @@ void Note(ImDrawList* dl, float x, float& y, float w, const std::string& s, ImU3
     y += ui::theme::Body()->CalcTextSizeA(S(15), FLT_MAX, w, s.c_str()).y + S(8);
 }
 
-void StartSearch(int page)
-{
-    int galaxy = -1;
-    {
-        std::lock_guard lk(g_mx);
-        if (g.galaxy > 0 && g.galaxy <= (int)g_galaxies.size()) galaxy = g_galaxies[g.galaxy - 1].first;
-    }
-    Search(g.query, g.basesOnly, galaxy, page);
-}
-
-void DrawRepo(ImDrawList* dl, float x, float& y, float w)
-{
-    float bw = S(110);
-    ImGui::SetCursorScreenPos(ImVec2(x, y));
-    bool enter = ui::TextField("##basesq", g.query, sizeof g.query, w - bw - S(8), L::T("bases.repo.hint"));
-    ImGui::SetCursorScreenPos(ImVec2(x + w - bw, y));
-    if ((ui::Button("##basesgo", L::T("bases.repo.search"), bw, ui::Tone::Green, !g_fetching) || enter) && !g_fetching) StartSearch(1);
-    y += S(44);
-    std::vector<std::string> gals{ L::T("bases.repo.allgalaxies") };
-    std::string status;
-    int page, pages;
-    {
-        std::lock_guard lk(g_mx);
-        for (auto& [i, n] : g_galaxies) gals.push_back(n);
-        status = g_repoStatus;
-        page = g_repoPage;
-        pages = g_repoPages;
-    }
-    if (g.galaxy >= (int)gals.size()) g.galaxy = 0;
-    float half = (w - S(8)) / 2;
-    ImGui::SetCursorScreenPos(ImVec2(x, y));
-    ui::Dropdown("##basesgal", gals, &g.galaxy, half);
-    dl->AddText(ui::theme::Body(), S(15), ImVec2(x + half + S(16), y + S(6)), P().textDim, L::T("bases.repo.basesonly"));
-    ImGui::SetCursorScreenPos(ImVec2(x + w - S(70), y));
-    ui::Switch("##basesonly", &g.basesOnly);
-    y += S(44);
-    Note(dl, x, y, w, status, P().textBody);
-    if (page && pages > page && !g_fetching) {
-        ImGui::SetCursorScreenPos(ImVec2(x, y));
-        if (ui::Button("##basesmore", L::T("bases.repo.more"), w, ui::Tone::Neutral, true)) StartSearch(page + 1);
-        y += S(46);
-    }
-    Note(dl, x, y, w, L::T("bases.repo.credit"), P().textFaint);
-}
-
 void DrawList(const char* query)
 {
     if (g.seen != g_version) Rebuild();
     ImDrawList* dl = ImGui::GetWindowDrawList();
     ImVec2 p = ImGui::GetCursorScreenPos();
     float w = ImGui::GetContentRegionAvail().x - S(8), x = p.x, y = p.y;
-    bool repo = MainBuild();
-    if (!repo && g.view == 2) g.view = 0;
     {
-        int n = repo ? 3 : 2;
+        int n = 2;
         float bw3 = (w - S(8) * (n - 1)) / n;
-        const char* keys[] = { "bases.view.game", "bases.view.mine", "bases.view.repo" };
+        const char* keys[] = { "bases.view.game", "bases.view.mine" };
         for (int i = 0; i < n; ++i) {
             ImGui::SetCursorScreenPos(ImVec2(x + (bw3 + S(8)) * i, y));
             ImGui::PushID(i);
@@ -851,8 +573,7 @@ void DrawList(const char* query)
         }
         y += S(46);
     }
-    if (g.view == 2) DrawRepo(dl, x, y, w);
-    else if (g.view == 1) {
+    if (g.view == 1) {
         size_t n;
         {
             std::lock_guard lk(g_mx);
@@ -878,8 +599,7 @@ void DrawList(const char* query)
     dl->AddLine(ImVec2(x, y), ImVec2(x + w, y), P().line, S(1));
     y += S(12);
     ImGui::SetCursorScreenPos(ImVec2(x, y));
-    if (g.view == 2) g.repo.Draw(g.repoEntries, query);
-    else if (g.view == 1) g.mine.Draw(g.mineEntries, query);
+    if (g.view == 1) g.mine.Draw(g.mineEntries, query);
     else g.game.Draw(g.gameEntries, query);
 }
 
@@ -891,8 +611,8 @@ void Fact(ImDrawList* dl, float x, float& y, float w, const std::string& k, cons
 
 float DrawInspector(ImVec2 a, float w)
 {
-    auto& br = g.view == 2 ? g.repo : g.view == 1 ? g.mine : g.game;
-    auto& entries = g.view == 2 ? g.repoEntries : g.view == 1 ? g.mineEntries : g.gameEntries;
+    auto& br = g.view == 1 ? g.mine : g.game;
+    auto& entries = g.view == 1 ? g.mineEntries : g.gameEntries;
     const ui::BrowserEntry* be = entries.empty() ? nullptr : br.Focused(entries);
     if (!be) return 0; // default tab info
     auto it = g.byKey.find(be->key);
@@ -901,7 +621,7 @@ float DrawInspector(ImVec2 a, float w)
     ImDrawList* dl = ImGui::GetWindowDrawList();
     float y = ui::DrawEntryHeader(dl, a, w, *be);
     float pad = S(22), bw = w - pad * 2, x = a.x + pad;
-    const char* kind = e.source == Featured ? "bases.kind.featured" : e.source == Seen ? "bases.kind.seen" : e.source == Mine ? "bases.kind.mine" : "bases.kind.repo";
+    const char* kind = e.source == Featured ? "bases.kind.featured" : e.source == Seen ? "bases.kind.seen" : "bases.kind.mine";
     Fact(dl, x, y, bw, L::T("bases.f.kind"), L::T(kind));
     Fact(dl, x, y, bw, L::T("bases.f.owner"), e.owner);
     Fact(dl, x, y, bw, L::T("bases.f.platform"), e.platform);
@@ -911,7 +631,7 @@ float DrawInspector(ImVec2 a, float w)
     Fact(dl, x, y, bw, L::T("bases.f.distance"), Distance(e));
     Fact(dl, x, y, bw, L::T("bases.f.glyphs"), AddressGlyphs(e.ua));
     Fact(dl, x, y, bw, L::T("bases.f.tags"), e.tags);
-    if (e.source != Mine) Fact(dl, x, y, bw, L::T(e.source == Repo ? "bases.f.posted" : "bases.f.when"), Date(e.when));
+    if (e.source != Mine) Fact(dl, x, y, bw, L::T("bases.f.when"), Date(e.when));
     y += S(8);
     bool live = game::FrameHookReady() && game::PlayerState();
     std::string name = e.name.empty() ? AddressGlyphs(e.ua) : e.name;
@@ -934,12 +654,6 @@ float DrawInspector(ImVec2 a, float w)
             SetMarked(e, name, !marked);
             ui::Toast(L::T(marked ? "bases.unmarked" : "bases.marked"), name, icon::Pin);
         }
-        y += S(46);
-    }
-    if (!e.link.empty()) {
-        ImGui::SetCursorScreenPos(ImVec2(x, y));
-        if (ui::Button("##basesopen", L::T("bases.open"), bw, ui::Tone::Neutral, true))
-            ShellExecuteW(nullptr, L"open", paths::Wide(e.link).c_str(), nullptr, nullptr, SW_SHOWNORMAL);
         y += S(46);
     }
     if (e.source == Seen) {
@@ -986,9 +700,8 @@ void InstallBases()
         g_featured = ReadList(FeaturedFile(), Featured);
         g_featuredLoaded = !g_featured.empty();
     }
-    log::Info("Bases", "Featured list {} (request {}), save watch {}, Portal Repository {}", g_dl ? "ready" : "missing", g_query ? "ready" : "missing",
-              g_cfw ? "on" : "off",
-              MainBuild() ? "on" : "off (forum build)");
+    log::Info("Bases", "Featured list {} (request {}), save watch {}", g_dl ? "ready" : "missing", g_query ? "ready" : "missing",
+              g_cfw ? "on" : "off");
     game::EveryFrame(Tick);
 
     Registry::Get().Post([] {
@@ -998,10 +711,6 @@ void InstallBases()
         g.game.sortOptions = { { ui::SortBy::Default, L::T("bases.sort.default") }, { ui::SortBy::Name, L::T("bases.sort.name") },
                                { ui::SortBy::Type, L::T("bases.sort.owner") }, { ui::SortBy::Value, L::T("bases.sort.recent") } };
         g.game.captions = true;
-        g.repo.sortable = true;
-        g.repo.sortOptions = { { ui::SortBy::Default, L::T("bases.sort.default") }, { ui::SortBy::Name, L::T("bases.sort.name") },
-                               { ui::SortBy::Value, L::T("bases.sort.recent") } };
-        g.repo.captions = true;
         g.mine.searchBox = true;
         g.mine.sortable = true;
         g.mine.sortOptions = { { ui::SortBy::Default, L::T("bases.sort.default") }, { ui::SortBy::Name, L::T("bases.sort.name") } };

@@ -25,7 +25,7 @@ add_library(imgui STATIC
   ${EXT}/imgui/imgui_widgets.cpp ${EXT}/imgui/imgui_demo.cpp
   ${EXT}/imgui/backends/imgui_impl_win32.cpp)
 target_include_directories(imgui PUBLIC ${EXT}/imgui ${EXT}/imgui/backends)
-target_compile_definitions(imgui PUBLIC IMGUI_DISABLE_OBSOLETE_FUNCTIONS)
+target_compile_definitions(imgui PUBLIC IMGUI_DISABLE_OBSOLETE_FUNCTIONS IMGUI_DISABLE_DEBUG_TOOLS) # no ImGui debug tools, they carry a web link
 
 # Embedded English locale as a byte array
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/locales/en.json)

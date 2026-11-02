@@ -16,15 +16,11 @@ Unavailable instead of breaking the rest.
 
 This mod is and will always remain free to use and download.
 
-## Support me on Ko-Fi if you want!
-- https://ko-fi.com/loathed
-- Any donation is appreciated, but none are needed; I was asked to add this by users, that is all.
-
 ---
 
 ## What you get
 
-A full overlay menu: survival and movement cheats, an item spawner, unlocks, expeditions, a Garage for ships, Multi-Tools and characters (parts, paint, seeds, Add to Garage), storage transfers from any distance, a system scout, teleport and warp to any galaxy, building tools, base blueprints (copy, preview and paste), a Corvettes tab (copy any corvette, put it in a new slot or on one of yours), in-world HUD markers, a Bases tab (featured, seen and your bases, Portal Repository search, warp to any of them), effects and custom weather, a tuner, and hotkey binds.
+A full overlay menu: survival and movement cheats, an item spawner, unlocks, expeditions, a Garage for ships, Multi-Tools and characters (parts, paint, seeds, Add to Garage), storage transfers from any distance, a system scout, teleport and warp to any galaxy, building tools, base blueprints (copy, preview and paste), a Corvettes tab (copy any corvette, put it in a new slot or on one of yours), in-world HUD markers, a Bases tab (featured, seen and your bases, warp to any of them), effects and custom weather, a tuner, and hotkey binds.
 
 Settings, teleport spots, placed effects, blueprints, seen bases, saved corvettes and a log land next to the game: `OpenSkies.settings.json`, `OpenSkies.bookmarks.json`, `OpenSkies.effects.json`, `OpenSkies.blueprints\`, `OpenSkies.bases\`, `OpenSkies.corvettes\`, `OpenSkies.log`. If that folder isn't writable, they go under `%AppData%\OpenSkies\` instead. A save backup is made in `OpenSkies.backups\` before the first save change of each session.
 
@@ -63,7 +59,7 @@ New work goes on `main`. `forum` is `main` plus the commits that change the cred
 You'll need Windows x64, Visual Studio 2022 with the C++ desktop workload, and CMake 3.24+ (the one bundled with Visual Studio works).
 
 ```powershell
-git clone --recursive https://github.com/Sinnisterly/open-skies.git
+git clone --recursive <this repository>
 cd open-skies
 cmake -S . -B build -G "Visual Studio 17 2022" -A x64
 cmake --build build --config Release
